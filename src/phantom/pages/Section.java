@@ -1,9 +1,5 @@
 package phantom.pages;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import javax.management.modelmbean.XMLParseException;
-
 /***********************************************************************************************************************
  *
  * @author 
@@ -11,14 +7,48 @@ import javax.management.modelmbean.XMLParseException;
  * @version
  **********************************************************************************************************************/
 public final class Section extends Page {
-
-    public Section() {
+    
+    private String lastPostTime;
+    
+    /**
+     * 
+     * @param filename 
+     */
+    public Section(final String filename) {
+        
+        setFilename(filename);
 
     }//construtor
-
+    
+    /**
+     * 
+     * @param datetime 
+     */
+    public void setLastPostTime(final String datetime) {
+        
+        lastPostTime = datetime;
+        
+    }//setLastPostTime
+    
+    /**
+     * 
+     * @return 
+     */
+    public String getLastPostTime() {
+        
+        return lastPostTime;
+        
+    }//getLastPostTime
+    
+    /**
+     * 
+     * @return 
+     */
     @Override
-    public LinkedList<Page> download() throws XMLParseException, IOException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
+    public String toString() {
+        
+        return String.format("%s%n%s", getLastPostTime(), super.toString());       
+        
+    }//toString
+    
 }//classe Section

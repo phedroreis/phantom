@@ -2,6 +2,7 @@ package phantom.pages;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
@@ -24,6 +25,12 @@ public abstract class Page {
     *   URL da pagina principal do forum 
     *******************************************************************************************************************/
     public static final String FORUM_URL = "http://" + FORUM_NAME + ".com.br/";
+    
+    /**
+     * 
+     */
+    protected static final Pattern HEADER_PATTERN = 
+        Pattern.compile("<a.+?href=\"(.+?php\\?(.=\\d+).*?)\".*?>(.+?)</a>");
     
     /*==================================================================================================================
     * Num. max. de nomes de secoes que podem ser listados em paginas de HEADERS. 
@@ -269,6 +276,17 @@ public abstract class Page {
         
         return pagesList;  
         
-    }//download   
+    }//download  
+    
+    /**
+     * 
+     * @return 
+     */
+    @Override
+    public String toString() {
+        
+        return String.format("%s%n%s%n%s%n", getName(), getAbsoluteURL(0), getFilename(0));
+        
+    }//toString
     
 }//classe Page

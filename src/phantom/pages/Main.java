@@ -2,7 +2,6 @@ package phantom.pages;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
@@ -13,11 +12,8 @@ import javax.management.modelmbean.XMLParseException;
  **********************************************************************************************************************/
 public final class Main extends Page {
     
-    private static final Pattern HEADER_PATTERN = 
-        Pattern.compile("<a.+?href=\"(.+?php\\?(.=\\d+).*?)\".*?>(.+?)</a>");
-    
     /*******************************************************************************************************************
-     * 
+     * Construtor da classe
      ******************************************************************************************************************/
     public Main() {
         
@@ -42,9 +38,9 @@ private class MainPageParser implements toolbox.xml.TagParser {
 
             if (attrValue != null && attrValue.equals("header")) t.notifyClosing();
             
-        }//openTag
+        }//if
         
-    }
+    }//openTag
     
     @Override
     public void closeTag(final toolbox.xml.Tag t) throws XMLParseException {
@@ -62,11 +58,7 @@ private class MainPageParser implements toolbox.xml.TagParser {
     public static void main(String[] args) throws XMLParseException, IOException {
         Main main = new Main();
         java.util.LinkedList<Page> l = main.download();
-        for (Page p : l) {
-            System.out.println(p.getName());
-            System.out.println(p.getAbsoluteURL(0));
-            System.out.println(p.getFilename(0));
-        }
+        for (Page p : l) System.out.println(p);        
     }
 
 }//classe Main
