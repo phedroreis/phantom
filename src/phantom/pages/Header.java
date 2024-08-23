@@ -2,13 +2,15 @@ package phantom.pages;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * @since 1.0
+ * @version 1.0 - 22 de agosto de 2024
  **********************************************************************************************************************/
 public final class Header extends Page {
     
@@ -20,9 +22,9 @@ public final class Header extends Page {
      ******************************************************************************************************************/
     public Header(final String name, final String url, final String filename) {
         
+        setName(name);
         setAbsoluteURL(url);
         setFilename(filename);
-        setName(name);
         setParser(new HeaderPageParser());
         
     }//construtor
@@ -31,12 +33,12 @@ public final class Header extends Page {
     Classe privada. Obtem dados de Sections em uma pagina de Header do forum a partir da tag li
     que exibe estes dados na pagina.
 ======================================================================================================================*/
-private class HeaderPageParser implements toolbox.xml.TagParser {
+private class HeaderPageParser extends toolbox.xml.TagParser {
     
-    private Section section;  
+    private Section section;
     
     @Override
-    public void openTag(final toolbox.xml.Tag t) {
+    public void openTagLevel0(toolbox.xml.Tag t) throws XMLParseException {
         
         if (t.getTagName().equals("li")) {
             
@@ -49,43 +51,35 @@ private class HeaderPageParser implements toolbox.xml.TagParser {
                 
                 section = new Section(filename);
                 
-                t.notifyClosing();
-            }
+                t.parseInnerScope();
+                
+            }//if
             
-        }//if        
+        }//if  
         
-    }//openTag
+    }//openTagLevel0
     
     @Override
-    public void closeTag(final toolbox.xml.Tag t) throws XMLParseException {
-       
-        toolbox.xml.HtmlParser htmlParser = 
-            new toolbox.xml.HtmlParser(t.getContent(), new TagScopeParser(section));
+    public void closeTagLevel0 (toolbox.xml.Tag t) throws XMLParseException {
         
-        htmlParser.parse();
+        Pattern p = Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+?)<");
+        
+        Matcher m = p.matcher(t.getContent());
+        
+        if (m.find()) 
+            
+            section.setNumberOfTopics(m.group(1));
+        
+        else 
+            
+            throw new XMLParseException("Formato invalido impede localizar n. de topicos de uma secao.");
         
         addPage(section);
-             
-    }//closeTag
-    
-}//classe privada HeaderPageParser 
-
-/*
-   Classe privada. Obtem dados restantes da Section analisando tags no escopo da tag li que exibe os
-   dados das Sections de um determinado Header.
-*/
-private class TagScopeParser implements toolbox.xml.TagParser {
-    
-    private Section section; 
-    
-    public TagScopeParser(final Section s) {
         
-        section = s;
-        
-    }//construtor
+    }//closeTagLevel0    
     
     @Override
-    public void openTag(final toolbox.xml.Tag t) {
+    public void openTagLevel1(toolbox.xml.Tag t) throws XMLParseException {
         
         String tagName = t.getTagName();
         
@@ -104,6 +98,7 @@ private class TagScopeParser implements toolbox.xml.TagParser {
                     section.setAbsoluteURL(href);
                     
                     t.notifyClosing();
+  
                 }                 
                 
                 break;
@@ -112,32 +107,29 @@ private class TagScopeParser implements toolbox.xml.TagParser {
                 
                 String datetimeValue = map.get("datetime");
                 
-                section.setLastPostTime(datetimeValue);               
+                section.setLastPostTime(datetimeValue);           
             
-        }//switch     
+        }//switch 
         
-    }//openTag
+    }//openTagLevel1
     
     @Override
-    public void closeTag(final toolbox.xml.Tag t) throws XMLParseException {
+    public void closeTagLevel1 (toolbox.xml.Tag t) {
+
+        section.setName(t.getContent()); 
         
-        /*
-        O nome da Section e o escopo da tag a localizada no metodo openTag()
-        */
-        section.setName(t.getContent());
-             
-    }//closeTag
+    }//closeTagLevel1 
     
-}//classe privada TagScopeParser 
+}//classe privada HeaderPageParser
 
     public static void main(String[] args) throws XMLParseException, IOException {
         Header header = 
             new Header(
+                "AVISOS E TESTES",
                 "./viewforum.php?f=5&amp;sid=91847a0a2d024342c4e80b4055648c1a",
-                "f=5",
-                "AVISOS E TESTES"
+                "f=5"                
             );
-        java.util.LinkedList<Page> l = header.download();
+        java.util.LinkedList<Page> l = header.download(1);
         for (Page p : l) System.out.println(p);        
     }
     

@@ -1,8 +1,8 @@
 package phantom.pages;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.LinkedList;
-import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
@@ -25,12 +25,6 @@ public abstract class Page {
     *   URL da pagina principal do forum 
     *******************************************************************************************************************/
     public static final String FORUM_URL = "http://" + FORUM_NAME + ".com.br/";
-    
-    /**
-     * 
-     */
-    protected static final Pattern HEADER_PATTERN = 
-        Pattern.compile("<a.+?href=\"(.+?php\\?(.=\\d+).*?)\".*?>(.+?)</a>");
     
     /*==================================================================================================================
     * Num. max. de nomes de secoes que podem ser listados em paginas de HEADERS. 
@@ -91,12 +85,66 @@ public abstract class Page {
     ==================================================================================================================*/
     private LinkedList<Page> pagesList;
     
+    private Calendar lastPostTime;
+    
+    private String lastPostTimeStr;    
+    
     /*==================================================================================================================
     *        BLOCO DE INICIALIZACAO cria o objeto pagesList.
     ==================================================================================================================*/
     { 
         pagesList = new LinkedList<>();
+        lastPostTime = null;
+        lastPostTimeStr = null;
     }
+    
+    /**
+     * 
+     * @param datetime 
+     */
+    protected void setLastPostTime(final String datetime) {        
+        
+        lastPostTimeStr = datetime + " GMT-3";
+        
+        lastPostTime = Calendar.getInstance();
+         
+        lastPostTime.set(Calendar.YEAR, Integer.parseInt(datetime.substring(0, 4)));
+        
+        lastPostTime.set(Calendar.MONTH, Integer.parseInt(datetime.substring(5, 7)));
+        
+        lastPostTime.set(Calendar.DAY_OF_MONTH, Integer.parseInt(datetime.substring(8, 10)));
+        
+        lastPostTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(datetime.substring(11, 13)));
+        
+        lastPostTime.set(Calendar.MINUTE, Integer.parseInt(datetime.substring(14, 16)));
+        
+        lastPostTime.set(Calendar.SECOND, Integer.parseInt(datetime.substring(17, 19)));   
+        
+        lastPostTime.set(Calendar.ZONE_OFFSET, -10800000);
+        
+        lastPostTime.add(Calendar.MILLISECOND, -10800000);
+        
+    }//setLastPostTime
+    
+    /**
+     * 
+     * @return 
+     */
+    protected Calendar getLastPostTime() {
+        
+        return lastPostTime;
+        
+    }//getLastPostTime  
+    
+    /**
+     * 
+     * @return 
+     */
+    protected String getLastPostTimeStr() {
+        
+        return lastPostTimeStr;
+        
+    }//getLastPostTimeStr
     
     /*******************************************************************************************************************
      * Este metodo permite que um objeto Header, Section ou Topic seja adicionado a pagesList.
@@ -227,17 +275,19 @@ public abstract class Page {
      * Baixa a pagina inicial do forum ou uma pagina inicial de um Header, Section ou Topic e retorna o
      * conteudo deste arquivo.
      * 
+     * @param indexPage
+     * 
      * @return O conteudo do arquivo.
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    protected String downloadPage() throws IOException {
+    protected String downloadPage(final int indexPage) throws IOException {
         
-        toolbox.net.Util.downloadUrlToPathname(getAbsoluteURL(0), getFilename(0));
+        toolbox.net.Util.downloadUrlToPathname(getAbsoluteURL(indexPage), getFilename(indexPage));
         
                
         toolbox.textfile.TextFileHandler tfh = 
-            new toolbox.textfile.TextFileHandler(getFilename(0));
+            new toolbox.textfile.TextFileHandler(getFilename(indexPage));
         
         tfh.read();  
         
@@ -259,6 +309,8 @@ public abstract class Page {
     /*******************************************************************************************************************
      * Baixa a pagina e faz o parsing desta.
      * 
+     * @param numberOfPages
+     * 
      * @return A lista de Headers da pag. principal, ou de Sections de um Header, ou de Topics de um 
      * Section.
      * 
@@ -268,11 +320,15 @@ public abstract class Page {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    public LinkedList<Page> download() throws XMLParseException, IOException {
+    public LinkedList<Page> download(final int numberOfPages) throws XMLParseException, IOException {
         
-        toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(downloadPage(), parser);
+        for (int i = 0; i < numberOfPages; i++) {
+            
+            toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(downloadPage(i), parser);
 
-        htmlParser.parse();
+            htmlParser.parse();
+
+        }
         
         return pagesList;  
         
@@ -285,7 +341,9 @@ public abstract class Page {
     @Override
     public String toString() {
         
-        return String.format("%s%n%s%n%s%n", getName(), getAbsoluteURL(0), getFilename(0));
+        String lastPost = lastPostTimeStr == null ? "" : getLastPostTimeStr();
+        
+        return String.format("%s%n%s%n%s%n%s%n", lastPost, getName(), getAbsoluteURL(0), getFilename(0));
         
     }//toString
     

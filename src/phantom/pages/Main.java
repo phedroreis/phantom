@@ -2,6 +2,7 @@ package phantom.pages;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
@@ -11,6 +12,12 @@ import javax.management.modelmbean.XMLParseException;
  * @version 1.0 - 18 de agosto de 2024
  **********************************************************************************************************************/
 public final class Main extends Page {
+    
+    /*
+     * 
+     */
+    private static final Pattern HEADER_PATTERN = 
+        Pattern.compile("<a.+?href=\"(.+?php\\?(.=\\d+).*?)\".*?>(.+?)</a>");    
     
     /*******************************************************************************************************************
      * Construtor da classe
@@ -27,7 +34,7 @@ public final class Main extends Page {
 /*======================================================================================================================
          Classe privada. O parsing localiza os dados de HEADERS na pagina principal do forum.   
 ======================================================================================================================*/
-private class MainPageParser implements toolbox.xml.TagParser {
+private class MainPageParser extends toolbox.xml.TagParser {
     
     @Override
     public void openTag(final toolbox.xml.Tag t) {
@@ -57,7 +64,7 @@ private class MainPageParser implements toolbox.xml.TagParser {
 
     public static void main(String[] args) throws XMLParseException, IOException {
         Main main = new Main();
-        java.util.LinkedList<Page> l = main.download();
+        java.util.LinkedList<Page> l = main.download(1);
         for (Page p : l) System.out.println(p);        
     }
 
