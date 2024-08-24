@@ -14,18 +14,22 @@ import javax.management.modelmbean.XMLParseException;
  **********************************************************************************************************************/
 public final class Header extends Page {
     
+    private static final Pattern PATTERN = 
+        Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+?)<");
+    
     /*******************************************************************************************************************
      * 
      * @param url
      * @param filename
      * @param name 
      ******************************************************************************************************************/
-    public Header(final String name, final String url, final String filename) {
+    protected Header(final String name, final String url, final String filename) {
         
         setName(name);
         setAbsoluteURL(url);
         setFilename(filename);
         setParser(new HeaderPageParser());
+        setNumberOfPages(1);
         
     }//construtor
     
@@ -35,7 +39,11 @@ public final class Header extends Page {
 ======================================================================================================================*/
 private class HeaderPageParser extends toolbox.xml.TagParser {
     
-    private Section section;
+    private String sectionName;
+    private String sectionURL;
+    private String sectionFilename;
+    private String sectionNumberOfTopics;
+    private String sectionLastPostTime;
     
     @Override
     public void openTagLevel0(toolbox.xml.Tag t) throws XMLParseException {
@@ -46,10 +54,8 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
 
             if (attrValue != null && attrValue.startsWith("row forum-")) {
                 
-                String filename = 
+                sectionFilename = 
                     "f=" + attrValue.substring(attrValue.indexOf('-') + 1, attrValue.length());
-                
-                section = new Section(filename);
                 
                 t.parseInnerScope();
                 
@@ -61,20 +67,26 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     
     @Override
     public void closeTagLevel0 (toolbox.xml.Tag t) throws XMLParseException {
-        
-        Pattern p = Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+?)<");
-        
-        Matcher m = p.matcher(t.getContent());
+       
+        Matcher m = PATTERN.matcher(t.getContent());
         
         if (m.find()) 
             
-            section.setNumberOfTopics(m.group(1));
+            sectionNumberOfTopics = m.group(1);
         
         else 
             
             throw new XMLParseException("Formato invalido impede localizar n. de topicos de uma secao.");
         
-        addPage(section);
+        addPage(
+            new Section(
+                sectionName, 
+                sectionURL, 
+                sectionFilename, 
+                sectionNumberOfTopics, 
+                sectionLastPostTime
+            )
+        );
         
     }//closeTagLevel0    
     
@@ -93,9 +105,7 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
 
                 if (classValue != null && classValue.equals("forumtitle")) {
                     
-                    String href = map.get("href");
-                    
-                    section.setAbsoluteURL(href);
+                    sectionURL = map.get("href");
                     
                     t.notifyClosing();
   
@@ -105,9 +115,7 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
                 
             case "time"://a data-hora da ultima postagem na Section
                 
-                String datetimeValue = map.get("datetime");
-                
-                section.setLastPostTime(datetimeValue);           
+                sectionLastPostTime = map.get("datetime");        
             
         }//switch 
         
@@ -116,7 +124,7 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     @Override
     public void closeTagLevel1 (toolbox.xml.Tag t) {
 
-        section.setName(t.getContent()); 
+        sectionName = t.getContent(); 
         
     }//closeTagLevel1 
     
@@ -129,7 +137,7 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
                 "./viewforum.php?f=5&amp;sid=91847a0a2d024342c4e80b4055648c1a",
                 "f=5"                
             );
-        java.util.LinkedList<Page> l = header.download(1);
+        java.util.LinkedList<Page> l = header.download();
         for (Page p : l) System.out.println(p);        
     }
     

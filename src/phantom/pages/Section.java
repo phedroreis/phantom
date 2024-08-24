@@ -14,47 +14,34 @@ import javax.management.modelmbean.XMLParseException;
  **********************************************************************************************************************/
 public final class Section extends Page {
     
-    private int numberOfTopics;
+    private static final Pattern FILENAME_FINDER = Pattern.compile("(t=\\d+?)\\D");
+    
+    private static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("Respostas: <strong>(\\d+?)<");
 
     /**
      * 
+     * @param name
+     * @param url
      * @param filename 
+     * @param numberOfTopics 
+     * @param lastPostTime 
      */
-    public Section(final String filename) {
+    protected Section(
+        final String name, 
+        final String url, 
+        final String filename, 
+        final String numberOfTopics,
+        final String lastPostTime) {
         
+        setName(name);
+        setAbsoluteURL(url);
         setFilename(filename);
         setParser(new SectionPageParser());
+        setNumberOfPages( (Integer.parseInt(numberOfTopics) / getMaxTopicsTitlesPerPage()) + 1 );
+        setLastPostTime(lastPostTime);
 
     }//construtor
-    
-    public void setNumberOfTopics(final String n) {
-        
-        numberOfTopics = Integer.parseInt(n);
-        
-    }//setNumberOftopics
-    
-    public int getNumberOfTopics() {
-        
-        return numberOfTopics;
-        
-    }//getNumberOfTopics
-    
-    public int getNumberOfPages() {
-        
-        return (getNumberOfTopics() / getMaxTopicsTitlesPerPage()) + 1;
-        
-    }//getNumberOfPages
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public String toString() {
-         
-        return String.format("%s%n%s%n%s", numberOfTopics, getLastPostTime(), super.toString());       
-        
-    }//toString    
+
     
 /*======================================================================================================================
     Classe privada. Obtem dados de Sections em uma pagina de Header do forum a partir da tag li
@@ -62,7 +49,13 @@ public final class Section extends Page {
 ======================================================================================================================*/
 private class SectionPageParser extends toolbox.xml.TagParser {
     
-    private Topic topic;
+    private String topicName;
+    private String topicURL;
+    private String topicFilename;
+    private String topicNumberOfPosts;
+    private String topicLastPostTime; 
+    
+    private Matcher matcher;
     
     @Override
     public void openTagLevel0(toolbox.xml.Tag t) throws XMLParseException {
@@ -71,24 +64,24 @@ private class SectionPageParser extends toolbox.xml.TagParser {
         
         String attrValue = t.getAttrMap().get("class");
         
-        if (tagName.equals("li")) {
+        if (tagName.equals("li") && attrValue != null && attrValue.startsWith("row bg")) 
+                
+            t.parseInnerScope();
 
-            if (attrValue != null && attrValue.startsWith("row bg")) {
-                
-                topic = new Topic();
-                
-                t.parseInnerScope();
-                
-            }//if
-            
-        }//if        
-        
     }//openTagLevel0
     
     @Override
     public void closeTagLevel0 (toolbox.xml.Tag t) throws XMLParseException {
         
-        addPage(topic);
+        addPage(
+            new Topic(
+                topicName, 
+                topicURL, 
+                topicFilename, 
+                topicNumberOfPosts, 
+                topicLastPostTime
+            )
+        );
         
     }//closeTagLevel0    
     
@@ -99,25 +92,24 @@ private class SectionPageParser extends toolbox.xml.TagParser {
         
         HashMap<String, String> map = t.getAttrMap();
         
+        String classValue = map.get("class");
+        
         switch (tagName) {
             
             case "a"://a url de uma section localizada em uma tag a
 
-                String classValue = map.get("class");
-
                 if (classValue != null && classValue.equals("topictitle")) {
                     
-                    String href = map.get("href");
+                    topicURL = map.get("href");
+                
+                    matcher = FILENAME_FINDER.matcher(topicURL);
                     
-                    topic.setAbsoluteURL(href);
+                    if (matcher.find()) 
+                        
+                        topicFilename = matcher.group(1);
                     
-                    Pattern p = Pattern.compile("(t=\\d+?)\\D");
-                    
-                    Matcher m = p.matcher(href);
-                    
-                    if (m.find()) 
-                        topic.setFilename(m.group(1));
                     else 
+                        
                         throw new XMLParseException("Formato inesperado de URL de topico.");
                     
                     t.notifyClosing();
@@ -128,30 +120,52 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 
             case "time"://a data-hora da ultima postagem na Section
                 
-                String datetimeValue = map.get("datetime");
+                topicLastPostTime = map.get("datetime"); 
+                break;
                 
-                topic.setLastPostTime(datetimeValue);           
+            case "span": 
+                
+                if (classValue != null && classValue.equals("responsive-show left-box")) 
+                
+                    t.notifyClosing();
+               
+                
             
         }//switch 
         
     }//openTagLevel1
     
     @Override
-    public void closeTagLevel1 (toolbox.xml.Tag t) {
+    public void closeTagLevel1 (toolbox.xml.Tag t) throws XMLParseException {
+        
+        String content = t.getContent();
+        
+        switch (t.getTagName()) {
+            case "a":
+                topicName = content;
+                break;
+            case "span":
 
-        topic.setName(t.getContent()); 
+                matcher = NUMBER_OF_POSTS_FINDER.matcher(content);
+                
+                if (matcher.find())
+                    
+                    topicNumberOfPosts = matcher.group(1);
+                
+                else
+                    
+                    throw new XMLParseException("Num. de posts do topico nao encontrado");
+        }
+
         
     }//closeTagLevel1 
     
 }//classe privada SectionPageParser  
 
     public static void main(String[] args) throws XMLParseException, IOException {
-        Section section = new Section("f=17");
-        section.setAbsoluteURL("./viewforum.php?f=17");
-        section.setName("Ceticismo");
-        section.setNumberOfTopics("56");
-        System.out.println("num. de topicos" + section.getNumberOfTopics());
-        java.util.LinkedList<Page> l = section.download(section.getNumberOfPages());
+        Section section = 
+            new Section("Ceticismo", "./viewforum.php?f=17", "f=17", "56", "2024-08-11T00:01:02+00:00");
+        java.util.LinkedList<Page> l = section.download();
         for (Page p : l) System.out.println(p);        
     }
     

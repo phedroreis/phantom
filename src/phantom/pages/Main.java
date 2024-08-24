@@ -28,6 +28,7 @@ public final class Main extends Page {
         setFilename(Page.FORUM_NAME);
         setAbsoluteURL("./");
         setParser(new MainPageParser());
+        setNumberOfPages(1);
         
     }//construtor
  
@@ -56,7 +57,7 @@ private class MainPageParser extends toolbox.xml.TagParser {
         
         if (!m.find()) throw new XMLParseException("Erro ao tentar localizar os dados de um HEADER");
         
-        addPage(new Header(m.group(1), m.group(2), m.group(3)));
+        addPage(new Header(m.group(3), m.group(1), m.group(2)));
              
     }//closeTag
     
@@ -64,7 +65,7 @@ private class MainPageParser extends toolbox.xml.TagParser {
 
     public static void main(String[] args) throws XMLParseException, IOException {
         Main main = new Main();
-        java.util.LinkedList<Page> l = main.download(1);
+        java.util.LinkedList<Page> l = main.download();
         for (Page p : l) System.out.println(p);        
     }
 

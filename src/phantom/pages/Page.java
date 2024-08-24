@@ -65,10 +65,14 @@ public abstract class Page {
     * A URL para baixar a 1a pagina de determinado header, secao ou topico. Sem sufixo de indexacao que
     * e introduzido pelo metodo getAbsoluteURL().
     *
-    * Na da pagina principal este campo armazenarah a URL de acesso ao proprio
-    * forum.
+    * Na da pagina principal este campo armazenarah a URL de acesso ao proprio forum.
     ==================================================================================================================*/
     private String absoluteURL; 
+    
+    /*
+    *
+    */
+    private int numberOfPages;
     
     /*==================================================================================================================
     * Customiza a parser do arquivo html para recuperar os dados necessarios para um objeto 
@@ -85,8 +89,14 @@ public abstract class Page {
     ==================================================================================================================*/
     private LinkedList<Page> pagesList;
     
+    /*
+    *
+    */
     private Calendar lastPostTime;
     
+    /*
+    *
+    */
     private String lastPostTimeStr;    
     
     /*==================================================================================================================
@@ -97,6 +107,26 @@ public abstract class Page {
         lastPostTime = null;
         lastPostTimeStr = null;
     }
+    
+    /**
+     * 
+     * @param n 
+     */
+    protected void setNumberOfPages(final int n) {
+        
+        numberOfPages = n;
+        
+    }//setNumberOfPages
+    
+    /*
+     * retirar este metodo se continuar private e permitir acesso direto ao campo
+     * @return 
+     */
+    private int getNumberOfPages() {
+        
+        return numberOfPages;
+        
+    }//getNumberOfPages
     
     /**
      * 
@@ -267,7 +297,7 @@ public abstract class Page {
      ******************************************************************************************************************/
     protected void setAbsoluteURL(final String url) {
         
-        absoluteURL = url.replace("./", FORUM_URL);
+        absoluteURL = url.replace("./", FORUM_URL).replace("&amp;", "&").replaceAll("&sid=.*", "");
         
     }//setAbsoluteURL 
     
@@ -284,8 +314,7 @@ public abstract class Page {
     protected String downloadPage(final int indexPage) throws IOException {
         
         toolbox.net.Util.downloadUrlToPathname(getAbsoluteURL(indexPage), getFilename(indexPage));
-        
-               
+     
         toolbox.textfile.TextFileHandler tfh = 
             new toolbox.textfile.TextFileHandler(getFilename(indexPage));
         
@@ -309,7 +338,6 @@ public abstract class Page {
     /*******************************************************************************************************************
      * Baixa a pagina e faz o parsing desta.
      * 
-     * @param numberOfPages
      * 
      * @return A lista de Headers da pag. principal, ou de Sections de um Header, ou de Topics de um 
      * Section.
@@ -320,15 +348,26 @@ public abstract class Page {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    public LinkedList<Page> download(final int numberOfPages) throws XMLParseException, IOException {
+    protected LinkedList<Page> download() throws XMLParseException, IOException {
         
-        for (int i = 0; i < numberOfPages; i++) {
+        int n = getNumberOfPages();
+        
+        for (int i = 0; i < n; i++) {
             
-            toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(downloadPage(i), parser);
+            if (parser == null)//Page eh instancia de Topic
+                
+                downloadPage(i);
+               
+            else {//Page eh instancia de Main, Header ou Section
+            
+                toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(downloadPage(i), parser);
 
-            htmlParser.parse();
+                htmlParser.parse();
+            }
 
         }
+        
+        if (parser == null) return null;
         
         return pagesList;  
         
