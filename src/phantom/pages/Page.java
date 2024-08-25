@@ -137,7 +137,7 @@ public abstract class Page {
      * 
      * @param datetime 
      */
-    protected void setLastPostTime(final String datetime) {        
+    public void setLastPostTime(final String datetime) {        
         
         lastPostTimeStr = datetime + " GMT-3";
         

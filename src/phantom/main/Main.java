@@ -30,6 +30,9 @@ public class Main {
         System.out.println(main);
         headersList = main.download();
         
+        main.setLastPostTime(Page.getForumLastPostTime(headersList));
+        System.out.println(main);
+        
         System.out.println("\n=======================================================================\n");
         
         for (Page header : headersList) {
