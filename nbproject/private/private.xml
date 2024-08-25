@@ -6,13 +6,12 @@
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Main.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Page.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Main.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/package-info.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/package-info.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Section.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/log/Log.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/incremental/Incremental.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Downloader.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Topic.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Header.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/log/package-info.java</file>
         </group>
     </open-files>
 </project-private>

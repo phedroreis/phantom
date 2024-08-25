@@ -23,6 +23,8 @@ public final class Main extends Page {
         setFilename(Page.FORUM_NAME);
         setAbsoluteURL("./");
         setParser(new MainPageParser());
+        //Ajustado para futuro distante para que a pagina principal seja sempre baixada.
+        setDateTimeOfLastPost("5000-01-01T01:01:01+00:00");
         setNumberOfPages(1);
  
         toolbox.log.Log.ret("phantom.pages", "Main", "Construtor de Main");
@@ -141,7 +143,7 @@ private class MainPageParser extends toolbox.xml.TagParser {
         
         for (Page header : headersList) System.out.println(header);        
         
-        System.out.println(Page.getForumLastPostTime(headersList));        
+        System.out.println(Page.getDateTimeOfLastPostFromThisBackup(headersList));        
     }
 
 }//classe Main

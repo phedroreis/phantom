@@ -53,8 +53,7 @@ public abstract class Page {
     private static final int MAX_POSTS_PER_PAGE = 50;    
     
     /*==================================================================================================================
-    * O nome do header, secao ou topico. Para um objeto da subclasse Main este
-    * campo armazenarah "Principal"
+    * O nome do header, secao ou topico. Para um objeto da subclasse Main este campo armazenarah "Principal"
     ==================================================================================================================*/
     private String name;
     
@@ -70,7 +69,7 @@ public abstract class Page {
     * A URL para baixar a 1a pagina de determinado header, secao ou topico. Sem sufixo de indexacao que
     * e introduzido pelo metodo getAbsoluteURL().
     *
-    * Na da pagina principal este campo armazenarah a URL de acesso ao proprio forum.
+    * Na da pagina principal, este campo armazenarah a URL de acesso ao proprio forum.
     ==================================================================================================================*/
     private String absoluteURL; 
     
@@ -80,7 +79,7 @@ public abstract class Page {
     private int numberOfPages;
     
     /*==================================================================================================================
-    * Customiza a parser do arquivo html para recuperar os dados necessarios para um objeto 
+    * Customiza o parser do arquivo html para recuperar os dados necessarios para um objeto 
     * de alguma subclasse de Page.
     ==================================================================================================================*/
     private toolbox.xml.TagParser parser;
@@ -97,21 +96,52 @@ public abstract class Page {
     /*
     *
     */
-    private Calendar lastPostTime;
+    private Calendar dateTimeOfLastPost;
     
     /*
     *
     */
-    private String lastPostTimeStr;    
+    private String dateTimeOfLastPostStr; 
+    
+    /*
+    *
+    */
+    private static Calendar dateTimeOfLastPostFromLastBackup;
+    
+    /*
+    * Determina se o backup sera full ou incremental.
+    */
+    private static boolean isFullBackup;
     
     /*==================================================================================================================
     *        BLOCO DE INICIALIZACAO cria o objeto pagesList.
     ==================================================================================================================*/
     { 
         pagesList = new LinkedList<>();
-        lastPostTime = null;
-        lastPostTimeStr = null;
+        dateTimeOfLastPost = null;
+        dateTimeOfLastPostStr = null;
     }
+    
+    /**
+     * 
+     * @param lastPostDateTime
+     */
+    protected static void setDateTimeOfLastPostFromLastBackup(final String lastPostDateTime) {
+        
+        dateTimeOfLastPostFromLastBackup = 
+            toolbox.time.Util.htmlDateTimeToCalendar(lastPostDateTime, -3);
+        
+    }//setDateTimeOfLastPostOnLastBackup
+    
+    /**
+     * 
+     * @param isFull 
+     */
+    protected static void setBackupMode(final boolean isFull) {
+        
+        isFullBackup = isFull;
+        
+    }//setBackupFullIsOn
     
     /**
      * 
@@ -137,33 +167,33 @@ public abstract class Page {
      * 
      * @param datetime 
      */
-    public void setLastPostTime(final String datetime) {        
+    public void setDateTimeOfLastPost(final String datetime) {        
         
-        lastPostTimeStr = datetime + " GMT-3";
+        dateTimeOfLastPostStr = datetime;
         
-        lastPostTime = toolbox.time.Util.htmlDateTimeToCalendar(datetime, -3);
+        dateTimeOfLastPost = toolbox.time.Util.htmlDateTimeToCalendar(datetime, -3);
         
-    }//setLastPostTime
+    }//setDateTimeOfLastPost
     
     /**
      * 
      * @return 
      */
-    protected Calendar getLastPostTime() {
+    protected Calendar getDateTimeOfLastPost() {
         
-        return lastPostTime;
+        return dateTimeOfLastPost;
         
-    }//getLastPostTime  
+    }//getDateTimeOfLastPost 
     
     /**
      * 
      * @return 
      */
-    protected String getLastPostTimeStr() {
+    protected String getDateTimeOfLastPostStr() {
         
-        return lastPostTimeStr;
+        return dateTimeOfLastPostStr;
         
-    }//getLastPostTimeStr
+    }//getDateTimeOfLastPostStr
     
     /*******************************************************************************************************************
      * Este metodo permite que um objeto Header, Section ou Topic seja adicionado a pagesList.
@@ -207,8 +237,20 @@ public abstract class Page {
         
         return MAX_POSTS_PER_PAGE;
         
-    }//getMaxPostsPerPage    
-   
+    }//getMaxPostsPerPage 
+    
+    /*******************************************************************************************************************
+     * Atribui o nome com que o forum designa a pagina de Header, Section ou Topic.
+     * Para a pagina principal sera atribuido pelo construtor, o nome Principal.
+     * 
+     * @param pageName O nome da pagina.
+     ******************************************************************************************************************/
+    protected void setName(final String pageName) {
+        
+        name = pageName;
+        
+    }//setName
+    
     /*******************************************************************************************************************
     * O nome do Header, Section ou Topic que lhe foi atribuido no forum. Para a pagina Principal este
     * metodo retornara Principal.
@@ -219,19 +261,18 @@ public abstract class Page {
         
         return name;
         
-    }//getName
+    }//getName   
     
     /*******************************************************************************************************************
-     * Atribui o nome com que o forum designa a pagina de Header, Section ou Topic.
-     * Para a pagina principal sera atribuido pelo construtor, o nome Principal.
+     * Atribui o nome do arquivo, sem a extensao html e nem o sufixo de indexacao.
      * 
-     * @param n O nome da pagina.
+     * @param pageFilename O nome do arquivo.
      ******************************************************************************************************************/
-    protected void setName(final String n) {
+    protected void setFilename(final String pageFilename) {
         
-        name = n;
+        filename = pageFilename;
         
-    }//setName
+    }//setFilename
     
     /*******************************************************************************************************************
     * O nome com o qual o arquivo com a pagina principal, de Header, Section ou Topic sera gravado 
@@ -248,18 +289,18 @@ public abstract class Page {
         
         return filename + "&start=" + (pageIndex * MAX_TOPICS_TITLES_PER_PAGE) + ".html";
         
-    }//getFilename
+    }//getFilename  
     
     /*******************************************************************************************************************
-     * Atribui o nome do arquivo, sem a extensao html e nem o sufixo de indexacao.
+     * O endereço absoluto da pagina no servidor do forum.
      * 
-     * @param f O nome do arquivo.
+     * @param url A URL do arquivo no servidor.
      ******************************************************************************************************************/
-    protected void setFilename(final String f) {
+    protected void setAbsoluteURL(final String url) {
         
-        filename = f;
+        absoluteURL = url.replace("./", FORUM_URL).replace("&amp;", "&").replaceAll("&sid=.*", "");
         
-    }//setFilename
+    }//setAbsoluteURL 
     
     /*******************************************************************************************************************
     * Retorna o endereço absoluto da pagina.
@@ -276,28 +317,17 @@ public abstract class Page {
         return absoluteURL + "&start=" + (pageIndex * MAX_TOPICS_TITLES_PER_PAGE);
         
     }//getAbsoluteURL
-    
+        
     /*******************************************************************************************************************
      * Objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
      * 
-     * @param parser O objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
+     * @param tagParser O objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
      ******************************************************************************************************************/
-    protected void setParser(final toolbox.xml.TagParser parser) {
+    protected void setParser(final toolbox.xml.TagParser tagParser) {
         
-        this.parser = parser;
+        parser = tagParser;
         
     }//setParser    
-
-    /*******************************************************************************************************************
-     * O endereço absoluto da pagina no servidor do forum.
-     * 
-     * @param url A URL do arquivo no servidor.
-     ******************************************************************************************************************/
-    protected void setAbsoluteURL(final String url) {
-        
-        absoluteURL = url.replace("./", FORUM_URL).replace("&amp;", "&").replaceAll("&sid=.*", "");
-        
-    }//setAbsoluteURL 
     
     /*******************************************************************************************************************
      * Baixa a pagina inicial do forum ou uma pagina de um Header, Section ou Topic e retorna o conteudo deste arquivo.
@@ -329,6 +359,16 @@ public abstract class Page {
         return tfh.getContent();
         
     }//donwloadPage
+    
+    /*
+    * Retorna <code>true</code> se a pagina referente a este objeto Page nao foi modificada desde o
+    * ultimo backup.
+    */
+    private boolean pageWasntUpdatedSinceLastBackup() {
+        
+        return (getDateTimeOfLastPost().compareTo(dateTimeOfLastPostFromLastBackup) <= 0); 
+        
+    }//pageWasUpdatedSinceLastBackup
      
     /*******************************************************************************************************************
      * Baixa a pagina e faz o parsing desta.
@@ -343,7 +383,9 @@ public abstract class Page {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    public LinkedList<Page> download() throws XMLParseException, IOException {
+    protected LinkedList<Page> download() throws XMLParseException, IOException {
+        
+        if ( (!isFullBackup && pageWasntUpdatedSinceLastBackup()) ) return null;
         
         toolbox.log.Log.exec("phantom.pages", "Page", "download");
         
@@ -377,7 +419,7 @@ public abstract class Page {
     @Override
     public String toString() {
         
-        String lastPost = lastPostTimeStr == null ? "" : getLastPostTimeStr();
+        String lastPost = dateTimeOfLastPostStr == null ? "" : getDateTimeOfLastPostStr() + " GMT-3";
         
         return String.format(
             "%s%n%s%n%s%n%s%n%s%n", 
@@ -396,7 +438,7 @@ public abstract class Page {
      * 
      * @return 
      */
-    public static String getForumLastPostTime(final LinkedList<Page> Headerslist) {
+    protected static String getDateTimeOfLastPostFromThisBackup(final LinkedList<Page> Headerslist) {
         
         toolbox.collection.CollectionsProcessor<Page, Page> cp = 
             new toolbox.collection.CollectionsProcessor(Headerslist); 
@@ -410,7 +452,7 @@ public abstract class Page {
                 }
             );
         
-        return lastUpdateHeader.getLastPostTimeStr();        
+        return lastUpdateHeader.getDateTimeOfLastPostStr();        
         
     }//getForumLastPostTime
     

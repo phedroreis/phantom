@@ -42,7 +42,7 @@ public final class Section extends Page {
         setFilename(filename);
         setParser(new SectionPageParser());
         setNumberOfPages( (Integer.parseInt(numberOfTopics) / getMaxTopicsTitlesPerPage()) + 1 );
-        setLastPostTime(lastPostTime);
+        setDateTimeOfLastPost(lastPostTime);
         
         toolbox.log.Log.println(toolbox.string.StringTools.NEWLINE + this.toString());        
         toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");

@@ -2,7 +2,6 @@ package phantom.main;
 
 import java.io.IOException;
 import javax.management.modelmbean.XMLParseException;
-import phantom.pages.Page;
 
 /**
  *
@@ -21,45 +20,15 @@ public class Main {
         
         toolbox.log.Log.exec("phantom.main", "Main", "main");
         
-        java.util.LinkedList<Page> headersList;
-        java.util.LinkedList<Page> sectionsList = new java.util.LinkedList<>();
-        java.util.LinkedList<Page> topicsList = new java.util.LinkedList<>();
+        phantom.pages.Downloader downloader = 
+            new phantom.pages.Downloader(
+                phantom.incremental.Incremental.isFull(), 
+                phantom.incremental.Incremental.getTimeOfLastPostOnLastBackup()
+            );
         
-        phantom.pages.Main main = new phantom.pages.Main();
+        downloader.downloadAllPages();
         
-        System.out.println(main);
-        headersList = main.download();
-        
-        main.setLastPostTime(Page.getForumLastPostTime(headersList));
-        System.out.println(main);
-        
-        System.out.println("\n=======================================================================\n");
-        
-        for (Page header : headersList) {
-            
-            System.out.println(header);
-            sectionsList.addAll(header.download());
-        }
-        
-        System.out.println("\n=======================================================================\n");
-        
-        for (Page section : sectionsList) {
-            
-            System.out.println(section);
-            topicsList.addAll(section.download());
-        }
-        
-        System.out.println("\n=======================================================================\n");
-        
-        toolbox.log.Log.println("Baixando paginas de topicos...");
-        for (Page topic : topicsList) {
-            
-            System.out.println(topic);
-            //topic.download();
-            
-        }
-        
-        toolbox.log.Log.ret("phantom.main", "Main", "main");
+        toolbox.log.Log.ret("phantom.main", "Main", "main");        
         toolbox.log.Log.closeFile();
     }
     

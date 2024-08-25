@@ -38,7 +38,7 @@ public final class Header extends Page implements Comparable {
         setAbsoluteURL(url);
         setFilename(filename);
         setParser(new HeaderPageParser());
-        setLastPostTime(lastPostTime);
+        setDateTimeOfLastPost(lastPostTime);
         setNumberOfPages(1);
         
         toolbox.log.Log.println(this.toString());
@@ -54,7 +54,7 @@ public final class Header extends Page implements Comparable {
     @Override
     public int compareTo(Object t) {
         
-        return getLastPostTime().compareTo( ((Header)t).getLastPostTime() );
+        return getDateTimeOfLastPost().compareTo( ((Header)t).getDateTimeOfLastPost() );
         
     }//compareTo
     
