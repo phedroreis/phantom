@@ -1,27 +1,31 @@
-package phantom.pages;
+package phantom.main;
 
 import java.io.IOException;
 import javax.management.modelmbean.XMLParseException;
+import phantom.pages.Page;
 
 /**
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
  */
-public class PageTest {
+public class Main {
 
-    public PageTest() {
-
-    }//construtor
-    
-    public static void main(String[] args) throws XMLParseException, IOException {
+    /**
+     * @param args the command line arguments
+     * @throws XMLParseException
+     * @throws IOException
+     */
+    public static void main(String[] args) throws XMLParseException, IOException{
+   
+        phantom.log.Log.createLogFile();
+        
+        toolbox.log.Log.exec("phantom.main", "Main", "main");
         
         java.util.LinkedList<Page> headersList;
         java.util.LinkedList<Page> sectionsList = new java.util.LinkedList<>();
         java.util.LinkedList<Page> topicsList = new java.util.LinkedList<>();
         
-        Main main = new Main();
+        phantom.pages.Main main = new phantom.pages.Main();
         
         System.out.println(main);
         headersList = main.download();
@@ -44,12 +48,16 @@ public class PageTest {
         
         System.out.println("\n=======================================================================\n");
         
+        toolbox.log.Log.println("Baixando paginas de topicos...");
         for (Page topic : topicsList) {
             
             System.out.println(topic);
-            topic.download();
+            //topic.download();
             
         }
+        
+        toolbox.log.Log.ret("phantom.main", "Main", "main");
+        toolbox.log.Log.closeFile();
     }
-
-}//classe PageTest
+    
+}

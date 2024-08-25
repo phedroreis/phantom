@@ -8,9 +8,9 @@ import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * @since 1.0
+ * @version 1.0 - 22 de agosto de 2024
  **********************************************************************************************************************/
 public final class Section extends Page {
     
@@ -33,18 +33,25 @@ public final class Section extends Page {
         final String numberOfTopics,
         final String lastPostTime) {
         
+        toolbox.log.Log.exec("phantom.pages", "Section", "Construtor de Section");
+        toolbox.log.Log.param(name, url, filename, numberOfTopics, lastPostTime);
+
+        
         setName(name);
         setAbsoluteURL(url);
         setFilename(filename);
         setParser(new SectionPageParser());
         setNumberOfPages( (Integer.parseInt(numberOfTopics) / getMaxTopicsTitlesPerPage()) + 1 );
         setLastPostTime(lastPostTime);
+        
+        toolbox.log.Log.println(toolbox.string.StringTools.NEWLINE + this.toString());        
+        toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");
 
     }//construtor
 
     
 /*======================================================================================================================
-    Classe privada. Obtem dados de Sections em uma pagina de Header do forum a partir da tag li
+    Classe privada. Obtem dados de Topics em uma pagina de Section do forum a partir da tag li
     que exibe estes dados na pagina.
 ======================================================================================================================*/
 private class SectionPageParser extends toolbox.xml.TagParser {
@@ -110,11 +117,13 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                     
                     else 
                         
-                        throw new XMLParseException("Formato inesperado de URL de topico.");
+                        throw new XMLParseException(
+                            "Unexpected topic ID format from URL: " + topicURL
+                        );
                     
                     t.notifyClosing();
   
-                }                 
+                }//if                 
                 
                 break;
                 
@@ -127,9 +136,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 
                 if (classValue != null && classValue.equals("responsive-show left-box")) 
                 
-                    t.notifyClosing();
-               
-                
+                    t.notifyClosing();               
             
         }//switch 
         
@@ -141,9 +148,12 @@ private class SectionPageParser extends toolbox.xml.TagParser {
         String content = t.getContent();
         
         switch (t.getTagName()) {
+            
             case "a":
+                
                 topicName = content;
                 break;
+                
             case "span":
 
                 matcher = NUMBER_OF_POSTS_FINDER.matcher(content);
@@ -154,19 +164,32 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 
                 else
                     
-                    throw new XMLParseException("Num. de posts do topico nao encontrado");
-        }
-
+                    throw new XMLParseException(
+                        "Error parsing how many posts has the topic: " + content
+                    );
+                
+        }//switch
         
     }//closeTagLevel1 
     
 }//classe privada SectionPageParser  
 
     public static void main(String[] args) throws XMLParseException, IOException {
+        
+        phantom.log.Log.createLogFile();  
+        
         Section section = 
-            new Section("Ceticismo", "./viewforum.php?f=17", "f=17", "56", "2024-08-11T00:01:02+00:00");
-        java.util.LinkedList<Page> l = section.download();
-        for (Page p : l) System.out.println(p);        
+            new Section(
+                "Ceticismo",
+                "./viewforum.php?f=17",
+                "f=17", 
+                "56", 
+                "2024-08-11T00:01:02+00:00"
+            );
+        
+        java.util.LinkedList<Page> topicsList = section.download();
+        
+        for (Page topic : topicsList) System.out.println(topic);        
     }
     
 }//classe Section

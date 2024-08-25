@@ -15,6 +15,11 @@ import javax.management.modelmbean.XMLParseException;
 ***********************************************************************************************************************/
 public abstract class Page {
     
+    /*
+    * Diretorio para onde serao baixadas as paginas do forum
+    */
+    private static final String RAW_PAGES_DIR = "./rawpages/";
+    
     /*******************************************************************************************************************
      * O nome do forum e tambem o nome da pasta com as paginas estaticas e o nome do arquivo com a 
      * pagina inicial.
@@ -136,23 +141,7 @@ public abstract class Page {
         
         lastPostTimeStr = datetime + " GMT-3";
         
-        lastPostTime = Calendar.getInstance();
-         
-        lastPostTime.set(Calendar.YEAR, Integer.parseInt(datetime.substring(0, 4)));
-        
-        lastPostTime.set(Calendar.MONTH, Integer.parseInt(datetime.substring(5, 7)));
-        
-        lastPostTime.set(Calendar.DAY_OF_MONTH, Integer.parseInt(datetime.substring(8, 10)));
-        
-        lastPostTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(datetime.substring(11, 13)));
-        
-        lastPostTime.set(Calendar.MINUTE, Integer.parseInt(datetime.substring(14, 16)));
-        
-        lastPostTime.set(Calendar.SECOND, Integer.parseInt(datetime.substring(17, 19)));   
-        
-        lastPostTime.set(Calendar.ZONE_OFFSET, -10800000);
-        
-        lastPostTime.add(Calendar.MILLISECOND, -10800000);
+        lastPostTime = toolbox.time.Util.htmlDateTimeToCalendar(datetime, -3);
         
     }//setLastPostTime
     
@@ -185,8 +174,7 @@ public abstract class Page {
         
         pagesList.add(page);
         
-    }//addPage
-    
+    }//addPage    
    
     /*******************************************************************************************************************
      * Retorna num. max. de links para topicos que podem estar listados em uma pagina de Section.
@@ -219,8 +207,7 @@ public abstract class Page {
         
         return MAX_POSTS_PER_PAGE;
         
-    }//getMaxPostsPerPage
-    
+    }//getMaxPostsPerPage    
    
     /*******************************************************************************************************************
     * O nome do Header, Section ou Topic que lhe foi atribuido no forum. Para a pagina Principal este
@@ -289,6 +276,17 @@ public abstract class Page {
         return absoluteURL + "&start=" + (pageIndex * MAX_TOPICS_TITLES_PER_PAGE);
         
     }//getAbsoluteURL
+    
+    /*******************************************************************************************************************
+     * Objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
+     * 
+     * @param parser O objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
+     ******************************************************************************************************************/
+    protected void setParser(final toolbox.xml.TagParser parser) {
+        
+        this.parser = parser;
+        
+    }//setParser    
 
     /*******************************************************************************************************************
      * O endereço absoluto da pagina no servidor do forum.
@@ -302,10 +300,9 @@ public abstract class Page {
     }//setAbsoluteURL 
     
     /*******************************************************************************************************************
-     * Baixa a pagina inicial do forum ou uma pagina inicial de um Header, Section ou Topic e retorna o
-     * conteudo deste arquivo.
+     * Baixa a pagina inicial do forum ou uma pagina de um Header, Section ou Topic e retorna o conteudo deste arquivo.
      * 
-     * @param indexPage
+     * @param indexPage O indice da pagina. A primeira pagina tem indice 0.
      * 
      * @return O conteudo do arquivo.
      * 
@@ -313,28 +310,26 @@ public abstract class Page {
      ******************************************************************************************************************/
     protected String downloadPage(final int indexPage) throws IOException {
         
-        toolbox.net.Util.downloadUrlToPathname(getAbsoluteURL(indexPage), getFilename(indexPage));
+        toolbox.log.Log.exec("phantom.pages", "Page", "downloadPage"); 
+        
+        String indexedUrl = getAbsoluteURL(indexPage);
+        String indexedFilename = RAW_PAGES_DIR + getFilename(indexPage);
+        
+        toolbox.log.Log.println("Baixando: " + indexedUrl);
+        toolbox.log.Log.println("para arquivo: " + indexedFilename);
+        
+        toolbox.net.Util.downloadUrlToPathname(indexedUrl, indexedFilename);
      
-        toolbox.textfile.TextFileHandler tfh = 
-            new toolbox.textfile.TextFileHandler(getFilename(indexPage));
+        toolbox.textfile.TextFileHandler tfh = new toolbox.textfile.TextFileHandler(indexedFilename);
         
         tfh.read();  
+        
+        toolbox.log.Log.ret("phantom.pages", "Page", "downloadPage"); 
         
         return tfh.getContent();
         
     }//donwloadPage
-    
-    /*******************************************************************************************************************
-     * Seta o objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
-     * 
-     * @param parser O objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
-     ******************************************************************************************************************/
-    protected void setParser(final toolbox.xml.TagParser parser) {
-        
-        this.parser = parser;
-        
-    }//setParser
-    
+     
     /*******************************************************************************************************************
      * Baixa a pagina e faz o parsing desta.
      * 
@@ -348,24 +343,26 @@ public abstract class Page {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    protected LinkedList<Page> download() throws XMLParseException, IOException {
+    public LinkedList<Page> download() throws XMLParseException, IOException {
+        
+        toolbox.log.Log.exec("phantom.pages", "Page", "download");
         
         int n = getNumberOfPages();
         
         for (int i = 0; i < n; i++) {
             
-            if (parser == null)//Page eh instancia de Topic
-                
-                downloadPage(i);
-               
-            else {//Page eh instancia de Main, Header ou Section
+            String pageContent = downloadPage(i);
             
-                toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(downloadPage(i), parser);
+            if (parser != null) {//Page eh instancia de Main, Header ou Section
+            
+                toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
 
                 htmlParser.parse();
             }
 
-        }
+        }//for
+        
+        toolbox.log.Log.ret("phantom.pages", "Page", "download");     
         
         if (parser == null) return null;
         
@@ -382,8 +379,39 @@ public abstract class Page {
         
         String lastPost = lastPostTimeStr == null ? "" : getLastPostTimeStr();
         
-        return String.format("%s%n%s%n%s%n%s%n", lastPost, getName(), getAbsoluteURL(0), getFilename(0));
+        return String.format(
+            "%s%n%s%n%s%n%s%n%s%n", 
+            lastPost, 
+            getName(), 
+            getAbsoluteURL(0), 
+            getFilename(0),
+            getNumberOfPages()
+        );
         
     }//toString
+    
+    /**
+     * 
+     * @param Headerslist
+     * 
+     * @return 
+     */
+    public static String getForumLastPostTime(final LinkedList<Page> Headerslist) {
+        
+        toolbox.collection.CollectionsProcessor<Page, Page> cp = 
+            new toolbox.collection.CollectionsProcessor(Headerslist); 
+        
+        Page lastUpdateHeader = 
+            cp.reduce(
+                (result, item) -> {
+                    if (result == null) return item;
+                    if (((Header)item).compareTo(result) > 0) return item;
+                    return result;
+                }
+            );
+        
+        return lastUpdateHeader.getLastPostTimeStr();        
+        
+    }//getForumLastPostTime
     
 }//classe Page

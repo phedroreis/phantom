@@ -12,9 +12,9 @@ import javax.management.modelmbean.XMLParseException;
  * @since 1.0
  * @version 1.0 - 22 de agosto de 2024
  **********************************************************************************************************************/
-public final class Header extends Page {
+public final class Header extends Page implements Comparable {
     
-    private static final Pattern PATTERN = 
+    private static final Pattern NUMBER_OF_TOPICS_FINDER = 
         Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+?)<");
     
     /*******************************************************************************************************************
@@ -22,16 +22,41 @@ public final class Header extends Page {
      * @param url
      * @param filename
      * @param name 
+     * @param lastPostTime 
      ******************************************************************************************************************/
-    protected Header(final String name, final String url, final String filename) {
+    protected Header(
+        final String name, 
+        final String url, 
+        final String filename,
+        final String lastPostTime
+    ) {
+        
+        toolbox.log.Log.exec("phantom.pages", "Header", "Construtor de Header");
+        toolbox.log.Log.param(name, url, filename);
         
         setName(name);
         setAbsoluteURL(url);
         setFilename(filename);
         setParser(new HeaderPageParser());
+        setLastPostTime(lastPostTime);
         setNumberOfPages(1);
         
+        toolbox.log.Log.println(this.toString());
+        toolbox.log.Log.ret("phantom.pages", "Header", "Construtor de Header");
+        
     }//construtor
+
+    /**
+     * 
+     * @param t
+     * @return 
+     */
+    @Override
+    public int compareTo(Object t) {
+        
+        return getLastPostTime().compareTo( ((Header)t).getLastPostTime() );
+        
+    }//compareTo
     
 /*======================================================================================================================
     Classe privada. Obtem dados de Sections em uma pagina de Header do forum a partir da tag li
@@ -44,6 +69,8 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     private String sectionFilename;
     private String sectionNumberOfTopics;
     private String sectionLastPostTime;
+    
+    private Matcher matcher;
     
     @Override
     public void openTagLevel0(toolbox.xml.Tag t) throws XMLParseException {
@@ -67,16 +94,18 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     
     @Override
     public void closeTagLevel0 (toolbox.xml.Tag t) throws XMLParseException {
-       
-        Matcher m = PATTERN.matcher(t.getContent());
         
-        if (m.find()) 
+        String tagLiContent = t.getContent();
+       
+        matcher = NUMBER_OF_TOPICS_FINDER.matcher(tagLiContent);
+        
+        if (matcher.find()) 
             
-            sectionNumberOfTopics = m.group(1);
+            sectionNumberOfTopics = matcher.group(1);
         
         else 
             
-            throw new XMLParseException("Formato invalido impede localizar n. de topicos de uma secao.");
+            throw new XMLParseException("Error parsing how many topics has the section:\n" + tagLiContent);
         
         addPage(
             new Section(
@@ -131,14 +160,20 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
 }//classe privada HeaderPageParser
 
     public static void main(String[] args) throws XMLParseException, IOException {
+        
+        phantom.log.Log.createLogFile();
+        
         Header header = 
             new Header(
                 "AVISOS E TESTES",
                 "./viewforum.php?f=5&amp;sid=91847a0a2d024342c4e80b4055648c1a",
-                "f=5"                
+                "f=5",
+                "0000-08-07T13:22:39+00:00"
             );
-        java.util.LinkedList<Page> l = header.download();
-        for (Page p : l) System.out.println(p);        
+        
+        java.util.LinkedList<Page> sectionsList = header.download();
+        
+        for (Page section : sectionsList) System.out.println(section);        
     }
     
 }//classe Header

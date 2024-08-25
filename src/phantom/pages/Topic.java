@@ -15,7 +15,7 @@ public final class Topic extends Page {
         final String filename, 
         final String numberOfPosts,
         final String lastPostTime) {
-        
+
         setName(name);
         setAbsoluteURL(url);
         setFilename(filename);
@@ -24,6 +24,5 @@ public final class Topic extends Page {
         setLastPostTime(lastPostTime);
 
     }//construtor
-
 
 }//classe Topic
