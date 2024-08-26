@@ -1,8 +1,8 @@
 package phantom.pages;
 
-import java.io.IOException;
 import java.util.HashMap;
 import javax.management.modelmbean.XMLParseException;
+import static phantom.def.DefStrings.*;
 
 /***********************************************************************************************************************
  *
@@ -19,12 +19,12 @@ public final class Main extends Page {
         
         toolbox.log.Log.exec("phantom.pages", "Main", "Construtor de Main");
         
-        setName("Principal");
-        setFilename(Page.FORUM_NAME);
-        setAbsoluteURL("./");
-        setParser(new MainPageParser());
+        setPageName("Principal");
+        setPageFilename(FORUM_NAME.toString());
+        setPageUrl("./");
+        setPageParser(new MainPageParser());
         //Ajustado para futuro distante para que a pagina principal seja sempre baixada.
-        setDateTimeOfLastPost("5000-01-01T01:01:01+00:00");
+        setDateTimeOfLastPostOnThisPage("5000-01-01T01:01:01+00:00");
         setNumberOfPages(1);
  
         toolbox.log.Log.ret("phantom.pages", "Main", "Construtor de Main");
@@ -132,18 +132,5 @@ private class MainPageParser extends toolbox.xml.TagParser {
     }//openTagLevel2
     
 }//classe privada MainPageParser 
-
-    public static void main(String[] args) throws XMLParseException, IOException {
-        
-        phantom.log.Log.createLogFile();
-        
-        Main main = new Main();
-        
-        java.util.LinkedList<Page> headersList = main.download();
-        
-        for (Page header : headersList) System.out.println(header);        
-        
-        System.out.println(Page.getDateTimeOfLastPostFromThisBackup(headersList));        
-    }
 
 }//classe Main

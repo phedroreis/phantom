@@ -1,6 +1,5 @@
 package phantom.pages;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,11 +33,11 @@ public final class Header extends Page implements Comparable {
         toolbox.log.Log.exec("phantom.pages", "Header", "Construtor de Header");
         toolbox.log.Log.param(name, url, filename);
         
-        setName(name);
-        setAbsoluteURL(url);
-        setFilename(filename);
-        setParser(new HeaderPageParser());
-        setDateTimeOfLastPost(lastPostTime);
+        setPageName(name);
+        setPageUrl(url);
+        setPageFilename(filename);
+        setPageParser(new HeaderPageParser());
+        setDateTimeOfLastPostOnThisPage(lastPostTime);
         setNumberOfPages(1);
         
         toolbox.log.Log.println(this.toString());
@@ -54,7 +53,7 @@ public final class Header extends Page implements Comparable {
     @Override
     public int compareTo(Object t) {
         
-        return getDateTimeOfLastPost().compareTo( ((Header)t).getDateTimeOfLastPost() );
+        return getDateTimeOfLastPostOnThisPage().compareTo( ((Header)t).getDateTimeOfLastPostOnThisPage() );
         
     }//compareTo
     
@@ -158,22 +157,5 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     }//closeTagLevel1 
     
 }//classe privada HeaderPageParser
-
-    public static void main(String[] args) throws XMLParseException, IOException {
-        
-        phantom.log.Log.createLogFile();
-        
-        Header header = 
-            new Header(
-                "AVISOS E TESTES",
-                "./viewforum.php?f=5&amp;sid=91847a0a2d024342c4e80b4055648c1a",
-                "f=5",
-                "0000-08-07T13:22:39+00:00"
-            );
-        
-        java.util.LinkedList<Page> sectionsList = header.download();
-        
-        for (Page section : sectionsList) System.out.println(section);        
-    }
     
 }//classe Header

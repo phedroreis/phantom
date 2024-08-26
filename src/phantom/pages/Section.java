@@ -1,6 +1,5 @@
 package phantom.pages;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,14 +34,13 @@ public final class Section extends Page {
         
         toolbox.log.Log.exec("phantom.pages", "Section", "Construtor de Section");
         toolbox.log.Log.param(name, url, filename, numberOfTopics, lastPostTime);
-
         
-        setName(name);
-        setAbsoluteURL(url);
-        setFilename(filename);
-        setParser(new SectionPageParser());
-        setNumberOfPages( (Integer.parseInt(numberOfTopics) / getMaxTopicsTitlesPerPage()) + 1 );
-        setDateTimeOfLastPost(lastPostTime);
+        setPageName(name);
+        setPageUrl(url);
+        setPageFilename(filename);
+        setPageParser(new SectionPageParser());
+        setNumberOfPages( (Integer.parseInt(numberOfTopics) / MaxList.MAX_TOPICS_TITLES_PER_PAGE.get()) + 1 );
+        setDateTimeOfLastPostOnThisPage(lastPostTime);
         
         toolbox.log.Log.println(toolbox.string.StringTools.NEWLINE + this.toString());        
         toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");
@@ -173,23 +171,5 @@ private class SectionPageParser extends toolbox.xml.TagParser {
     }//closeTagLevel1 
     
 }//classe privada SectionPageParser  
-
-    public static void main(String[] args) throws XMLParseException, IOException {
-        
-        phantom.log.Log.createLogFile();  
-        
-        Section section = 
-            new Section(
-                "Ceticismo",
-                "./viewforum.php?f=17",
-                "f=17", 
-                "56", 
-                "2024-08-11T00:01:02+00:00"
-            );
-        
-        java.util.LinkedList<Page> topicsList = section.download();
-        
-        for (Page topic : topicsList) System.out.println(topic);        
-    }
     
 }//classe Section

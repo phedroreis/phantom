@@ -16,12 +16,12 @@ public final class Topic extends Page {
         final String numberOfPosts,
         final String lastPostTime) {
 
-        setName(name);
-        setAbsoluteURL(url);
-        setFilename(filename);
-        setParser(null);
-        setNumberOfPages(( (Integer.parseInt(numberOfPosts) + 1) / getMaxPostsPerPage() ) + 1);
-        setDateTimeOfLastPost(lastPostTime);
+        setPageName(name);
+        setPageUrl(url);
+        setPageFilename(filename);
+        setPageParser(null);
+        setNumberOfPages(( (Integer.parseInt(numberOfPosts) + 1) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1);
+        setDateTimeOfLastPostOnThisPage(lastPostTime);
 
     }//construtor
 

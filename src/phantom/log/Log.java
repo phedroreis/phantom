@@ -1,6 +1,7 @@
 package phantom.log;
 
 import java.io.FileNotFoundException;
+import static phantom.def.DefStrings.*;
 
 /**
  *
@@ -10,8 +11,7 @@ import java.io.FileNotFoundException;
  */
 public final class Log {
     
-    private static final String LOG_DIR = "./log/";
-    
+   
     /**
      * Cria e abre um novo arquivo de log cujo nome e a data e hora da criacao deste arquivo.
      * 
@@ -19,7 +19,7 @@ public final class Log {
      */
     public static void createLogFile() throws FileNotFoundException {
         
-        toolbox.log.Log.createLogFile(LOG_DIR);        
+        toolbox.log.Log.createLogFile(LOG_DIR.toString());        
         
     }//createLogFile
 

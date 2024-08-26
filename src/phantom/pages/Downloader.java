@@ -88,7 +88,7 @@ public final class Downloader {
         System.out.println(main);
         headersList = main.download();
         
-        main.setDateTimeOfLastPost(Page.getDateTimeOfLastPostFromThisBackup(headersList));
+        main.setDateTimeOfLastPostOnThisPage(Page.getDateTimeOfLastPostFromThisBackup(headersList));
         System.out.println(main);
         
         System.out.println("\n=======================================================================\n");
