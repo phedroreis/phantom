@@ -1,6 +1,5 @@
 package phantom.main;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -20,14 +19,12 @@ public final class Finalizer {
         Properties props = new Properties();
         
         String updatePathname = UPDATE_PATHNAME.get();
-        
-        try (FileInputStream in = new FileInputStream(updatePathname);) { props.load(in); }  
-        
+       
         props.setProperty("last", datetime);         
        
-        try (FileOutputStream out = new FileOutputStream(updatePathname);) {
+        try (FileOutputStream out = new FileOutputStream(updatePathname)) {
             
-            props.store(out, "Backup finish");
+            props.store(out, "Static copy");
         }
         catch (IOException e) {
             
@@ -36,5 +33,7 @@ public final class Finalizer {
             throw new IOException("Unable to save last backup date-time");
         }
     }
+    
+    //DELETAR RAWPAGES
 
 }//classe Finalizer

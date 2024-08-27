@@ -1,7 +1,6 @@
 package phantom.pages;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.LinkedList;
 import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalStrings.*;
@@ -77,25 +76,19 @@ protected enum MaxList {
     /*
     *
     */
-    private Calendar dateTimeOfLastPost;
+    private String dateTimeOfLastPostOnThisPage; 
     
     /*
     *
     */
-    private String stringDateTimeOfLastPost; 
-    
-    /*
-    *
-    */
-    private static Calendar dateTimeOfLastPostFromLastBackup;
+    private static String dateTimeOfLastPostFromLastBackup;
    
     /*==================================================================================================================
     *        BLOCO DE INICIALIZACAO cria o objeto pagesList.
     ==================================================================================================================*/
     { 
         pagesList = new LinkedList<>();
-        dateTimeOfLastPost = null;
-        stringDateTimeOfLastPost = null;
+        dateTimeOfLastPostOnThisPage = null;
     }
     
     /**
@@ -104,8 +97,7 @@ protected enum MaxList {
      */
     protected static void setDateTimeOfLastPostFromLastBackup(final String datetime) {
         
-        dateTimeOfLastPostFromLastBackup = 
-            toolbox.time.Util.htmlDateTimeToCalendar(datetime, -3);
+        dateTimeOfLastPostFromLastBackup = datetime;
         
     }//setDateTimeOfLastPostOnLastBackup
     
@@ -135,9 +127,7 @@ protected enum MaxList {
      */
     public void setDateTimeOfLastPostOnThisPage(final String datetime) {        
         
-        stringDateTimeOfLastPost = datetime;
-        
-        dateTimeOfLastPost = toolbox.time.Util.htmlDateTimeToCalendar(datetime, -3);
+        dateTimeOfLastPostOnThisPage = datetime;
         
     }//setDateTimeOfLastPostOnThisPage
     
@@ -145,22 +135,12 @@ protected enum MaxList {
      * 
      * @return 
      */
-    protected Calendar getDateTimeOfLastPostOnThisPage() {
+    protected String getDateTimeOfLastPostOnThisPage() {
         
-        return dateTimeOfLastPost;
+        return dateTimeOfLastPostOnThisPage;
         
     }//getDateTimeOfLastPostOnThisPage 
-    
-    /**
-     * 
-     * @return 
-     */
-    protected String getStringDateTimeOfLastPostOnThisPage() {
-        
-        return stringDateTimeOfLastPost;
-        
-    }//getStringDateTimeOfLastPostOnThisPage
-    
+   
     /*******************************************************************************************************************
      * Este metodo permite que um objeto Header, Section ou Topic seja adicionado a pagesList.
      * 
@@ -310,8 +290,7 @@ protected enum MaxList {
     protected LinkedList<Page> download() throws XMLParseException, IOException {
         
         //A pagina cujo download foi solicitado nao foi atualizada apos o ultimo backup
-        if (getDateTimeOfLastPostOnThisPage().compareTo(dateTimeOfLastPostFromLastBackup) <= 0) 
-            return null;
+        if (dateTimeOfLastPostFromLastBackup.compareTo(dateTimeOfLastPostOnThisPage) >= 0) return null;
         
         toolbox.log.Log.exec("phantom.pages", "Page", "download");
         
@@ -347,7 +326,7 @@ protected enum MaxList {
              
         return String.format(
             "%s%n%s%n%s%n%s%n%s%n", 
-            getStringDateTimeOfLastPostOnThisPage() + " GMT-3", 
+            dateTimeOfLastPostOnThisPage + " GMT-3", 
             getPageName(), 
             getPageUrl(0), 
             getPageFilename(0),
@@ -362,7 +341,7 @@ protected enum MaxList {
      * 
      * @return 
      */
-    protected static String getDateTimeOfLastPostFromThisBackup(final LinkedList<Page> Headerslist) {
+    protected static String getDateTimeOfLastestPostFromThisPageList(final LinkedList<Page> Headerslist) {
         
         toolbox.collection.CollectionsProcessor<Page, Page> cp = 
             new toolbox.collection.CollectionsProcessor<>(Headerslist); 
@@ -376,7 +355,7 @@ protected enum MaxList {
                 }
             );
         
-        return lastUpdateHeader.getStringDateTimeOfLastPostOnThisPage();        
+        return lastUpdateHeader.getDateTimeOfLastPostOnThisPage();        
         
     }//getForumLastPostTime
     

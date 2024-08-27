@@ -45,9 +45,9 @@ public final class Downloader {
      */
     public String getDateTimeOfLastPostFromThisBackup() {
         
-        return main.getStringDateTimeOfLastPostOnThisPage();
+        return main.getDateTimeOfLastPostOnThisPage();
         
-    }//getLastPostDateTimeFromThisBackup
+    }//getDateTimeOfLastPostFromThisBackup
 
     /**
      * 
@@ -79,7 +79,8 @@ public final class Downloader {
         System.out.println(main);
         headersList = main.download();
         
-        main.setDateTimeOfLastPostOnThisPage(Page.getDateTimeOfLastPostFromThisBackup(headersList));
+        //O header que tiver o post mais recente, tera, obviamente, o post mais recente do forum
+        main.setDateTimeOfLastPostOnThisPage(Page.getDateTimeOfLastestPostFromThisPageList(headersList));
         System.out.println(main);
         
         System.out.println("\n=======================================================================\n");

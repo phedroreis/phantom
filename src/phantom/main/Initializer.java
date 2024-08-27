@@ -2,7 +2,6 @@ package phantom.main;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Properties;
@@ -20,44 +19,24 @@ public final class Initializer {
     /**
      * 
      * @return
-     * 
-     * @throws IOException 
      */
-	public static String getDateTimeOfLastPostFromLastBackup() throws IOException {
+	public static String getDateTimeOfLastPostFromLastBackup() {
         
         Properties props = new Properties();
         
-        String ancientTimes = ANCIENT_TIMES.get();
-        
-        String updatePathname = UPDATE_PATHNAME.get();
-        
-        String last;
-        
-        try (FileInputStream in = new FileInputStream(updatePathname);) { props.load(in); }
-
-  
-        last = props.getProperty("last");
-
-        if (last == null) last = props.getProperty("nexttolast");
-
-        if (last == null) last = ancientTimes; 
-        
-        props.setProperty("nexttolast", last);  
-
-        props.remove("last");        
-        
-        
-        try (FileOutputStream out = new FileOutputStream(updatePathname);) {
+        try ( FileInputStream in = new FileInputStream(UPDATE_PATHNAME.get()) ) { 
             
-            props.store(out, "Starting backup...");
-            
+            props.load(in); 
         }
         catch (IOException e) {
             
-            e.printStackTrace(System.err);
+            return ANCIENT_TIMES.get();
             
-            throw new IOException("Unable to save last backup date-time");
         }
+  
+        String last = props.getProperty("last");
+
+        if (last == null) return ANCIENT_TIMES.get(); 
         
         return last;
         
