@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import javax.management.modelmbean.XMLParseException;
-import static phantom.def.DefStrings.*;
+import static phantom.global.GlobalStrings.*;
 
 /***********************************************************************************************************************
 * Superclasse para as classes que analisam, coletam, armazenam e fornecem
@@ -14,8 +14,7 @@ import static phantom.def.DefStrings.*;
 * @since 1.0 - 11 de agosto de 2024
 * @author Pedro Reis
 ***********************************************************************************************************************/
-public abstract class Page {
-    
+public abstract class Page {    
 
 /**
  * Enumera constantes
@@ -53,7 +52,7 @@ protected enum MaxList {
     *
     * Na da pagina principal, este campo armazenarah a URL de acesso ao proprio forum.
     ==================================================================================================================*/
-    private String absoluteURL; 
+    private String pageUrl; 
     
     /*
     *
@@ -89,12 +88,7 @@ protected enum MaxList {
     *
     */
     private static Calendar dateTimeOfLastPostFromLastBackup;
-    
-    /*
-    * Determina se o backup sera full ou incremental.
-    */
-    private static boolean isFullBackup;
-    
+   
     /*==================================================================================================================
     *        BLOCO DE INICIALIZACAO cria o objeto pagesList.
     ==================================================================================================================*/
@@ -114,16 +108,6 @@ protected enum MaxList {
             toolbox.time.Util.htmlDateTimeToCalendar(datetime, -3);
         
     }//setDateTimeOfLastPostOnLastBackup
-    
-    /**
-     * 
-     * @param isFull 
-     */
-    protected static void setBackupMode(final boolean isFull) {
-        
-        isFullBackup = isFull;
-        
-    }//setBackupFullIsOn
     
     /**
      * 
@@ -247,8 +231,8 @@ protected enum MaxList {
      ******************************************************************************************************************/
     protected void setPageUrl(final String url) {
         
-        absoluteURL = 
-            url.replace("./", FORUM_URL.toString()).replace("&amp;", "&").replaceAll("&sid=.*", "");
+        pageUrl = 
+            url.replace("./", FORUM_URL.get() + '/').replace("&amp;", "&").replaceAll("&sid=.*", "");
         
     }//setPageUrl
     
@@ -262,9 +246,9 @@ protected enum MaxList {
     *******************************************************************************************************************/
     protected String getPageUrl(final int pageIndex) {
         
-        if (pageIndex == 0) return absoluteURL;
+        if (pageIndex == 0) return pageUrl;
         
-        return absoluteURL + "&start=" + (pageIndex * MaxList.MAX_TOPICS_TITLES_PER_PAGE.get());
+        return pageUrl + "&start=" + (pageIndex * MaxList.MAX_TOPICS_TITLES_PER_PAGE.get());
         
     }//getPageUrl
         
@@ -293,7 +277,7 @@ protected enum MaxList {
         toolbox.log.Log.exec("phantom.pages", "Page", "downloadPage"); 
         
         String indexedUrl = getPageUrl(indexPage);
-        String indexedFilename = RAW_PAGES_DIR.toString() + getPageFilename(indexPage);
+        String indexedFilename = RAW_PAGES_DIR.get() + '/' + getPageFilename(indexPage);
         
         toolbox.log.Log.println("Baixando: " + indexedUrl);
         toolbox.log.Log.println("para arquivo: " + indexedFilename);
@@ -309,16 +293,6 @@ protected enum MaxList {
         return tfh.getContent();
         
     }//donwloadPage
-    
-    /*
-    * Retorna <code>true</code> se a pagina referente a este objeto Page nao foi modificada desde o
-    * ultimo backup.
-    */
-    private boolean pageWasntUpdatedSinceLastBackup() {
-        
-        return (getDateTimeOfLastPostOnThisPage().compareTo(dateTimeOfLastPostFromLastBackup) <= 0); 
-        
-    }//pageWasUpdatedSinceLastBackup
      
     /*******************************************************************************************************************
      * Baixa a pagina e faz o parsing desta.
@@ -335,7 +309,9 @@ protected enum MaxList {
      ******************************************************************************************************************/
     protected LinkedList<Page> download() throws XMLParseException, IOException {
         
-        if ( (!isFullBackup && pageWasntUpdatedSinceLastBackup()) ) return null;
+        //A pagina cujo download foi solicitado nao foi atualizada apos o ultimo backup
+        if (getDateTimeOfLastPostOnThisPage().compareTo(dateTimeOfLastPostFromLastBackup) <= 0) 
+            return null;
         
         toolbox.log.Log.exec("phantom.pages", "Page", "download");
         

@@ -17,22 +17,15 @@ public final class Downloader {
    
     private String dateTimeOfLastPostFromLastBackup;
     
-    private String dateTimeOfLastPostFromThisBackup;
-    
-    private boolean isfullBackup;
-    
     private TreeSet<Page> topicsOrderedList;
 
     /**
      * 
-     * @param isFull
      * @param lastPostDateTime 
      */
-    public Downloader(final boolean isFull, final String lastPostDateTime) {
+    public Downloader(final String lastPostDateTime) {
         
         dateTimeOfLastPostFromLastBackup = lastPostDateTime;
-        
-        isfullBackup = isFull;
 
     }//construtor
 
@@ -52,7 +45,7 @@ public final class Downloader {
      */
     public String getDateTimeOfLastPostFromThisBackup() {
         
-        return dateTimeOfLastPostFromThisBackup;
+        return main.getStringDateTimeOfLastPostOnThisPage();
         
     }//getLastPostDateTimeFromThisBackup
 
@@ -74,8 +67,6 @@ public final class Downloader {
     public void downloadAllPages() throws XMLParseException, IOException {
         
         Page.setDateTimeOfLastPostFromLastBackup(dateTimeOfLastPostFromLastBackup);
-        
-        Page.setBackupMode(isfullBackup);
         
         LinkedList<Page> headersList;
         LinkedList<Page> sectionsList = new LinkedList<>();

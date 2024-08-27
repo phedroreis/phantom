@@ -7,7 +7,7 @@ import javax.management.modelmbean.XMLParseException;
  *
  * @author Pedro Reis
  */
-public class Main {
+public final class Main {
 
     /**
      * @param args the command line arguments
@@ -16,17 +16,18 @@ public class Main {
      */
     public static void main(String[] args) throws XMLParseException, IOException{
    
-        phantom.log.Log.createLogFile();
-        
         toolbox.log.Log.exec("phantom.main", "Main", "main");
         
+        Initializer.init();
+        
         phantom.pages.Downloader downloader = 
-            new phantom.pages.Downloader(
-                phantom.incremental.Incremental.isFull(), 
-                phantom.incremental.Incremental.getTimeOfLastPostOnLastBackup()
-            );
+            new phantom.pages.Downloader(Initializer.getDateTimeOfLastPostFromLastBackup());
         
         downloader.downloadAllPages();
+        
+        Finalizer.setDateTimeOfLastPostFromThisBackup(
+            downloader.getDateTimeOfLastPostFromThisBackup()
+        );
         
         toolbox.log.Log.ret("phantom.main", "Main", "main");        
         toolbox.log.Log.closeFile();

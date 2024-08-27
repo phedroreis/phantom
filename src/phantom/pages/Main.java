@@ -2,7 +2,7 @@ package phantom.pages;
 
 import java.util.HashMap;
 import javax.management.modelmbean.XMLParseException;
-import static phantom.def.DefStrings.*;
+import static phantom.global.GlobalStrings.*;
 
 /***********************************************************************************************************************
  *
@@ -20,11 +20,17 @@ public final class Main extends Page {
         toolbox.log.Log.exec("phantom.pages", "Main", "Construtor de Main");
         
         setPageName("Principal");
-        setPageFilename(FORUM_NAME.toString());
+        
+        setPageFilename(FORUM_NAME.get());
+        
+        //O metodo ira converter em http://clubeceticismo.com.br
         setPageUrl("./");
+        
         setPageParser(new MainPageParser());
+        
         //Ajustado para futuro distante para que a pagina principal seja sempre baixada.
-        setDateTimeOfLastPostOnThisPage("5000-01-01T01:01:01+00:00");
+        setDateTimeOfLastPostOnThisPage(DISTANT_FUTURE.get());
+        
         setNumberOfPages(1);
  
         toolbox.log.Log.ret("phantom.pages", "Main", "Construtor de Main");

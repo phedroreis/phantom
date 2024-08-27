@@ -1,7 +1,7 @@
 package phantom.log;
 
 import java.io.FileNotFoundException;
-import static phantom.def.DefStrings.*;
+import static phantom.global.GlobalStrings.*;
 
 /**
  *
@@ -19,7 +19,7 @@ public final class Log {
      */
     public static void createLogFile() throws FileNotFoundException {
         
-        toolbox.log.Log.createLogFile(LOG_DIR.toString());        
+        toolbox.log.Log.createLogFile(LOG_DIR.get());        
         
     }//createLogFile
 
