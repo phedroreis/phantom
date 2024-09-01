@@ -24,12 +24,20 @@ public final class HrefSrcEditor {
     
     private static HashMap<String, String> urlsMap;
     
+    private static phantom.fetch.Fetch fetch;
+    
     @SuppressWarnings("UnusedAssignment")
-    public void edit() throws IOException, XMLParseException {
+    public void edit() throws IOException, XMLParseException, InterruptedException {
         
         toolbox.file.SearchFolders searchFolders = new toolbox.file.SearchFolders(new PagesFilter());
         
         LinkedList<String> listPages = searchFolders.search(RAW_PAGES_DIR.get());
+        
+        fetch = new phantom.fetch.Fetch();
+        
+        Thread downloadThread = new Thread(fetch);
+        
+        downloadThread.start();
         
         for (String filename : listPages) {
             
@@ -68,9 +76,11 @@ public final class HrefSrcEditor {
             
         }//for
         
+        fetch.terminate();
+        
     }//edit
     
-    public static void main(String[] args) throws IOException, XMLParseException {
+    public static void main(String[] args) throws IOException, XMLParseException, InterruptedException {
         HrefSrcEditor f = new HrefSrcEditor();
         f.edit();
     }
@@ -92,23 +102,12 @@ private static final class Parser extends toolbox.xml.TagParser {
     
     private static final Pattern QUERY = Pattern.compile("\\?.*$");    
 
-    private static Matcher matcher;    
-    
-    /*==================================================================================================================
-    *     Enfileira arquivos que serao baixados
-    ==================================================================================================================*/
-    private void queue(final String url) {
-        
-        String absoluteUrl = FORUM_URL + ((url.charAt(0) == '/') ? url : url.substring(1));
-   
-        //System.out.println(absoluteUrl);
-        
-    }//queue
+    private static Matcher matcher;  
     
     /*==================================================================================================================
     *   Marca os atributos href/src que serao editados e baixa os arquivos das URLs destes atributos
     ==================================================================================================================*/    
-    private void editUrlAndDownloadFile(final String url) {
+    private void editUrlsAndDownloadFiles(final String url) throws InterruptedException {
         
         matcher = PHP_SCRIPT.matcher(url);
         
@@ -194,7 +193,7 @@ private static final class Parser extends toolbox.xml.TagParser {
                 urlsMap.put(url + "\"", editedUrl + query + "\"");
             }
             
-            queue(editedUrl);//Baixa ./file
+            fetch.queue(editedUrl);//Baixa ./file
         }   
         
     }//parseUrl
@@ -213,8 +212,8 @@ private static final class Parser extends toolbox.xml.TagParser {
        
         switch (tagName) {
             
-            case "a" :
-            case "link" :
+            case "a":
+            case "link":
                 url = map.get("href");
                 break;
                 
@@ -233,7 +232,15 @@ private static final class Parser extends toolbox.xml.TagParser {
         apontando para dominio do forum
         */
         if ( url != null && (!url.matches("https?://.+") || url.startsWith(FORUM_URL + '/')) ) 
-            editUrlAndDownloadFile(url);  
+            
+            try {
+                
+                editUrlsAndDownloadFiles(url);
+                
+            } catch (InterruptedException e) {
+                
+                System.exit(1);
+            }  
         
     }//openTag
     
