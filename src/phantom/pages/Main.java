@@ -1,16 +1,16 @@
 package phantom.pages;
 
 import java.util.HashMap;
-import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalStrings.*;
 
 /***********************************************************************************************************************
- *
+ * Classe que analisa, coleta, armazena e fornece dados de uma pagina principal.
+ * 
  * @author Pedro Reis
  * @since 1.0
  * @version 1.0 - 18 de agosto de 2024
  **********************************************************************************************************************/
-public final class Main extends Page {
+final class Main extends Page {
        
     /*******************************************************************************************************************
      * Construtor da classe
@@ -19,11 +19,13 @@ public final class Main extends Page {
         
         toolbox.log.Log.exec("phantom.pages", "Main", "Construtor de Main");
         
-        setPageName("Principal");
+        String forumName = FORUM_NAME.get();
         
-        setPageFilename(FORUM_NAME.get());
+        setPageName(forumName);
         
-        //O metodo ira converter em http://clubeceticismo.com.br
+        setPageFilename(forumName);
+        
+        //O metodo ira converter em https://clubeceticismo.com.br
         setPageUrl("./");
         
         setPageParser(new MainPageParser());
@@ -73,7 +75,7 @@ private class MainPageParser extends toolbox.xml.TagParser {
     }//openTagLevel0
     
     @Override
-    public void closeTagLevel0(final toolbox.xml.Tag t) throws XMLParseException {
+    public void closeTagLevel0(final toolbox.xml.Tag t) {
         
         if (t.getTagName().equals("ul")) {
  
@@ -111,14 +113,14 @@ private class MainPageParser extends toolbox.xml.TagParser {
     }//openTag
     
     @Override
-    public void closeTagLevel1(final toolbox.xml.Tag t) throws XMLParseException {
+    public void closeTagLevel1(final toolbox.xml.Tag t) {
         
         if (t.getTagName().equals("a")) headerName = t.getContent();
              
     }//closeTagLevel1
 
     @Override
-    public void openTagLevel2(final toolbox.xml.Tag t) throws XMLParseException {
+    public void openTagLevel2(final toolbox.xml.Tag t) {
         
         if (t.getTagName().equals("time")) {
             

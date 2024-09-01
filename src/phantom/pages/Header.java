@@ -1,20 +1,48 @@
 package phantom.pages;
 
 import java.util.HashMap;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
- *
+ * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Header.
  * @author Pedro Reis
  * @since 1.0
  * @version 1.0 - 22 de agosto de 2024
  **********************************************************************************************************************/
-public final class Header extends Page implements Comparable {
+final class Header extends Page implements Comparable {
     
     private static final Pattern NUMBER_OF_TOPICS_FINDER = 
         Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+?)<");
+    
+    private static String msg$1;
+    
+    /*
+    * Internacionaliza as Strings "hardcoded" na classe
+    */
+    static {
+        
+        try {
+            
+            ResourceBundle rb = 
+                ResourceBundle.getBundle(
+                    "phantom.properties.Header", 
+                    toolbox.locale.Localization.getLocale()
+                );
+            
+            msg$1 = rb.getString("msg$1");//Unable to save backup's date-time 
+            
+        } 
+        catch (NullPointerException | MissingResourceException | ClassCastException e) {
+           
+            //Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$1 = "Error parsing how many topics has the section:";         
+        }
+        
+    }//bloco static     
     
     /*******************************************************************************************************************
      * 
@@ -104,7 +132,9 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
         
         else 
             
-            throw new XMLParseException("Error parsing how many topics has the section:\n" + tagLiContent);
+            throw new XMLParseException(
+                msg$1 + toolbox.string.StringTools.NEWLINE + tagLiContent
+            );
         
         addPage(
             new Section(

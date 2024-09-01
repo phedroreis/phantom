@@ -14,13 +14,13 @@ import static phantom.global.GlobalStrings.*;
  * @since 1.0
  * @version 1.0 - 27 de agosto de 2024
  */
-public final class Initializer {
+final class Initializer {
     
     /**
      * 
      * @return
      */
-	public static String getDateTimeOfLastPostFromLastBackup() {
+	public static String readDateTimeOfLastPostFromLastBackup() {
         
         Properties props = new Properties();
         
@@ -52,9 +52,8 @@ public final class Initializer {
         
     }//createLogDir  
     
-    /**
-     * 
-     * @throws FileNotFoundException 
+    /*
+     *
      */
     private static void createDirs() throws FileNotFoundException {
         
@@ -81,6 +80,7 @@ public final class Initializer {
      */
     public static void init() throws FileNotFoundException {
         
+        //Cria, se nao existir ainda, o diretorio onde sera gravado o arquivo de log
         createLogDir();
         
         //Cria arquivo de log. O nome sera a date e hora atual.

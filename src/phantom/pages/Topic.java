@@ -2,12 +2,13 @@ package phantom.pages;
 
 
 /***********************************************************************************************************************
- *
- * @author 
- * @since
- * @version
+ *  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Topic.
+ * 
+ * @author Pedro Reis
+ * @since 1.0
+ * @version 1.0 - 22 de agosto de 2024
  **********************************************************************************************************************/
-public final class Topic extends Page {
+final class Topic extends Page {
 
     protected Topic(
         final String name, 

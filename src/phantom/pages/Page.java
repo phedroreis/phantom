@@ -2,6 +2,8 @@ package phantom.pages;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalStrings.*;
 
@@ -13,7 +15,7 @@ import static phantom.global.GlobalStrings.*;
 * @since 1.0 - 11 de agosto de 2024
 * @author Pedro Reis
 ***********************************************************************************************************************/
-public abstract class Page {    
+abstract class Page {    
 
 /**
  * Enumera constantes
@@ -33,7 +35,7 @@ protected enum MaxList {
 }//enum MaxList 
     
     /*==================================================================================================================
-    * O nome do header, secao ou topico. Para um objeto da subclasse Main este campo armazenarah "Principal"
+    * O nome do header, secao ou topico. Para um objeto da subclasse Main este campo armazenarah Clubeceticismo
     ==================================================================================================================*/
     private String pageName;
     
@@ -82,6 +84,32 @@ protected enum MaxList {
     *
     */
     private static String dateTimeOfLastPostFromLastBackup;
+    
+    private static String msg$1;
+    
+    /*
+    * BLOCO DE INICIALIZACAO ESTATICO : Internacionaliza as Strings "hardcoded" na classe
+    */
+    static {
+        
+        try {
+            
+            ResourceBundle rb = 
+                ResourceBundle.getBundle(
+                    "phantom.properties.Page", 
+                    toolbox.locale.Localization.getLocale()
+                );
+            
+            msg$1 = rb.getString("msg$1");//Unable to save backup's date-time 
+            
+        } 
+        catch (NullPointerException | MissingResourceException | ClassCastException e) {
+           
+            // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$1 = "Last Post : %s%nName : %s%nURL : %s%nFilename : %s%nN. of pages : %s%n";         
+        }
+        
+    }//bloco static      
    
     /*==================================================================================================================
     *        BLOCO DE INICIALIZACAO cria o objeto pagesList.
@@ -212,7 +240,7 @@ protected enum MaxList {
     protected void setPageUrl(final String url) {
         
         pageUrl = 
-            url.replace("./", FORUM_URL.get() + '/').replace("&amp;", "&").replaceAll("&sid=.*", "");
+            url.replace("./", ROOT_URL.get() + '/').replace("&amp;", "&").replaceAll("&sid=.*", "");
         
     }//setPageUrl
     
@@ -264,7 +292,8 @@ protected enum MaxList {
         
         toolbox.net.Util.downloadUrlToPathname(indexedUrl, indexedFilename);
      
-        toolbox.textfile.TextFileHandler tfh = new toolbox.textfile.TextFileHandler(indexedFilename);
+        toolbox.textfile.TextFileHandler tfh = 
+            new toolbox.textfile.TextFileHandler(indexedFilename, "utf8");
         
         tfh.read();  
         
@@ -325,7 +354,7 @@ protected enum MaxList {
     public String toString() {
              
         return String.format(
-            "%s%n%s%n%s%n%s%n%s%n", 
+            msg$1, 
             dateTimeOfLastPostOnThisPage + " GMT-3", 
             getPageName(), 
             getPageUrl(0), 

@@ -1,22 +1,54 @@
 package phantom.pages;
 
 import java.util.HashMap;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
- *
+ * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Section.
+ * 
  * @author Pedro Reis
  * @since 1.0
  * @version 1.0 - 22 de agosto de 2024
  **********************************************************************************************************************/
-public final class Section extends Page {
+final class Section extends Page {
     
     private static final Pattern FILENAME_FINDER = Pattern.compile("(t=\\d+?)\\D");
     
     private static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("Respostas: <strong>(\\d+?)<");
-
+    
+    private static String msg$1;
+    private static String msg$2;
+    
+    /*
+    * Internacionaliza as Strings "hardcoded" na classe
+    */
+    static {
+        
+        try {
+            
+            ResourceBundle rb = 
+                ResourceBundle.getBundle(
+                    "phantom.properties.Section", 
+                    toolbox.locale.Localization.getLocale()
+                );
+            
+            msg$1 = rb.getString("msg$1");//
+            msg$2 = rb.getString("msg$2");//
+            
+        } 
+        catch (NullPointerException | MissingResourceException | ClassCastException e) {
+           
+            // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$1 = "Unexpected topic ID format from URL: ";  
+            msg$2 = "Error parsing how many posts has the topic: ";//
+        }
+        
+    }//bloco static   
+    
     /**
      * 
      * @param name
@@ -118,7 +150,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                         throw new XMLParseException(
                             "Unexpected topic ID format from URL: " + topicURL
                         );
-                    
+                 
                     t.notifyClosing();
   
                 }//if                 

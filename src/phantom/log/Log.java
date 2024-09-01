@@ -4,10 +4,11 @@ import java.io.FileNotFoundException;
 import static phantom.global.GlobalStrings.*;
 
 /**
- *
- * @author 
- * @since
- * @version
+ * Classe com o metodo para criar e abrir para escrita o arquivo de log.
+ * 
+ * @author Pedro Reis
+ * @since 1.0
+ * @version 1.0 - 27 de agosto de 2024
  */
 public final class Log {
     
