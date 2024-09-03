@@ -62,8 +62,6 @@ public final class HrefSrcEditor {
                 
                 String value = urlsMap.get(key);
                 
-                if (filename.endsWith("f=19.html")) System.out.println(key + " --> " + value);
-                
                 toolbox.string.StringTools.replace(sbContent, key, value);
                 
             }//for
@@ -90,7 +88,7 @@ public final class HrefSrcEditor {
 ======================================================================================================================*/
 private static final class Parser extends toolbox.xml.TagParser {
     
-   private static final Pattern PHP_SCRIPT = Pattern.compile("^\\.?/.+?\\.php");
+    private static final Pattern PHP_SCRIPT = Pattern.compile("^(" + FORUM_URL + "|\\./).+?\\.php");
     
     private static final Pattern VIEWFORUM_ID = Pattern.compile("f=\\d+");
     
@@ -123,6 +121,9 @@ private static final class Parser extends toolbox.xml.TagParser {
                 case "./index.php":
                     
                     staticUrl = "./" + MAIN_PAGE_FILE;
+                    
+                    urlsMap.put(url + "\"", staticUrl + "\"");                    
+                    
                     break;    
                     
                 case "./viewforum.php":
@@ -134,8 +135,10 @@ private static final class Parser extends toolbox.xml.TagParser {
                     startIndex = matcher.find() ? "&start=" + matcher.group(1) : ""; 
                     
                     matcher = VIEWFORUM_ID.matcher(urlx);
-                    staticUrl = matcher.find() ? "./" + matcher.group() + startIndex + ".html" : "#";                    
-
+                    staticUrl = matcher.find() ? "./" + matcher.group() + startIndex + ".html" : "#"; 
+                    
+                    urlsMap.put(url + "\"", staticUrl + "\"");
+                    
                     break;     
                     
                 case "./viewtopic.php":
@@ -154,7 +157,8 @@ private static final class Parser extends toolbox.xml.TagParser {
                         matcher.find() ? 
                         "./" + matcher.group() + startIndex + ".html" + postID :
                         "./_post.html" + postID;
-
+                    
+                    urlsMap.put(url + "\"", staticUrl + "\"");
                     break;
                     
                 case "./download/file.php":   
@@ -168,11 +172,10 @@ private static final class Parser extends toolbox.xml.TagParser {
                 case "./ucp.php":    
                     
                     staticUrl = phpScriptName.replace("/", "/_").replace("php", "html");
-                     
+
+                    urlsMap.put(url + "\"", staticUrl + "\"");                     
             }//switch
-            
-            //Aspas acrescentadas para que uma key url nao possa estar contida em alguma outra key url
-            urlsMap.put(url + "\"", staticUrl + "\"");
+
         }
         else  {
  
@@ -181,12 +184,16 @@ private static final class Parser extends toolbox.xml.TagParser {
             String query = matcher.find() ? matcher.group() : "";
             String editedUrl = url.replace(query, "");//Deleta query da URL que vai baixar o arquivo
             
-            //So pode ser a URL do forum terminada com contrabarra http://clubeceticismo.com.br/file
-            //Outro tipo de URL absoluta nao eh enviada a este metodo
+            /*
+            Aponta para arquivo no servidor do forum com URL absoluta, mas nao eh script Php
+            */
             if (editedUrl.startsWith("http")) {
                 
-                //http://clubeceticismo.com.br/file --> ./file
-                editedUrl = editedUrl.replace(FORUM_URL,".");
+                /*
+                Converte o endereco absoluto em relativo
+                http://clubeceticismo.com.br/file --> ./file
+                */
+                editedUrl = editedUrl.replace(FORUM_URL,"./");
                 
                 //url troca por ./file+query na pag. html estatica. 
                 //A query permanece no atributo href/src do arquivo HTML estatico
@@ -231,19 +238,20 @@ private static final class Parser extends toolbox.xml.TagParser {
         Baixa arquivo e edita URL no atr. href/src se for URL relativa ou absoluta
         apontando para dominio do forum
         */
-        if ( url != null && (!url.matches("https?://.+") || url.startsWith(FORUM_URL + '/')) ) 
+        if ( url != null && (url.matches("\\.\\.?/.+") || url.startsWith(FORUM_URL)) ) {
             
             try {
                 
                 editUrlsAndDownloadFiles(url);
                 
-            } catch (InterruptedException e) {
+            } 
+            catch (InterruptedException e) {
                 
-                System.exit(1);
-            }  
+                phantom.exception.ExceptionTools.crashMessage(null, e);
+            }
+        }
         
-    }//openTag
-    
+    }//openTag    
   
 }//classe privada Parser
 

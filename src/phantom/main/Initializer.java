@@ -16,11 +16,23 @@ import static phantom.global.GlobalStrings.*;
  */
 final class Initializer {
     
+    private static final String LOGDIR = LOG_DIR.get();
+    
     /**
      * 
      * @return
      */
 	public static String readDateTimeOfLastPostFromLastBackup() {
+
+        toolbox.log.Log.exec(
+            "phantom.main",
+            "Initializer", 
+            "readDateTimeOfLastPostFromLastBackup"
+        ); 
+        
+        toolbox.log.Log.println(
+            "Lendo data-hora da postagem mais recente do mais recente backup"
+        );
         
         Properties props = new Properties();
         
@@ -30,25 +42,49 @@ final class Initializer {
         }
         catch (IOException e) {
             
+            toolbox.log.Log.ret(
+                "phantom.main",
+                "Initializer", 
+                "readDateTimeOfLastPostFromLastBackup",
+                ANCIENT_TIMES.get()
+            );   
+            
             return ANCIENT_TIMES.get();
             
         }
   
         String last = props.getProperty("last");
 
-        if (last == null) return ANCIENT_TIMES.get(); 
+        if (last == null) {
+            
+            toolbox.log.Log.ret(
+                "phantom.main",
+                "Initializer", 
+                "readDateTimeOfLastPostFromLastBackup",
+                ANCIENT_TIMES.get()
+            );  
+            
+            return ANCIENT_TIMES.get();
+        }
+        
+        toolbox.log.Log.ret(
+            "phantom.main",
+            "Initializer", 
+            "readDateTimeOfLastPostFromLastBackup",
+            last
+        );         
         
         return last;
         
-    }//getDateTimeOfLastPostFromLastBackup 
+    }//readDateTimeOfLastPostFromLastBackup 
     
     /**
      * 
      * @throws FileNotFoundException 
      */
     private static void createLogDir() throws FileNotFoundException {
-
-            toolbox.file.FileTools.createDirsIfNotExists(LOG_DIR.get());
+        
+        toolbox.file.FileTools.createDirsIfNotExists(LOGDIR);
         
     }//createLogDir  
     
@@ -65,7 +101,7 @@ final class Initializer {
             
             String pathname = dir.get();
             
-            toolbox.log.Log.println( pathname + ": criando se inexistir" );
+            toolbox.log.Log.println(pathname + ": criando se inexistir");
             
             toolbox.file.FileTools.createDirsIfNotExists(pathname);
         }
@@ -84,11 +120,10 @@ final class Initializer {
         createLogDir();
         
         //Cria arquivo de log. O nome sera a date e hora atual.
-        phantom.log.Log.createLogFile();        
+        toolbox.log.Log.createLogFile(LOGDIR);      
         
         //Cria todos os diretorios de trabalho caso ainda nao existam
-        createDirs();    
-
+        createDirs();
         
     }//init
 

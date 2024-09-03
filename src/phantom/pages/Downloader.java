@@ -33,12 +33,23 @@ public final class Downloader {
      * 
      * @return 
      */
-    public Main getMain() {
+    /*public Main getMain() {
         
         return main;
         
     }//getMain
-
+    */
+    /**
+     * 
+     * @return 
+     */
+    /*public TreeSet<Page> getTopicsOrderedList() {
+        
+        return topicsOrderedList;
+        
+    }//getTopicsOrderedList    
+    */
+    
     /**
      * 
      * @return 
@@ -48,16 +59,6 @@ public final class Downloader {
         return main.getDateTimeOfLastPostOnThisPage();
         
     }//getDateTimeOfLastPostFromThisBackup
-
-    /**
-     * 
-     * @return 
-     */
-    public TreeSet<Page> getTopicsOrderedList() {
-        
-        return topicsOrderedList;
-        
-    }//getTopicsOrderedList
 
     /**
      * 
@@ -117,7 +118,7 @@ public final class Downloader {
         for (Page topic : topicsList) {
             
             System.out.println(topic);
-            //topic.download();
+            topic.download();
             
         }        
         

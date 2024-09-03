@@ -239,8 +239,7 @@ protected enum MaxList {
      ******************************************************************************************************************/
     protected void setPageUrl(final String url) {
         
-        pageUrl = 
-            url.replace("./", ROOT_URL.get() + '/').replace("&amp;", "&").replaceAll("&sid=.*", "");
+        pageUrl = (ROOT_URL.get() + url).replace("&amp;", "&").replaceAll("&sid=.*", "");
         
     }//setPageUrl
     
@@ -285,7 +284,7 @@ protected enum MaxList {
         toolbox.log.Log.exec("phantom.pages", "Page", "downloadPage"); 
         
         String indexedUrl = getPageUrl(indexPage);
-        String indexedFilename = RAW_PAGES_DIR.get() + '/' + getPageFilename(indexPage);
+        String indexedFilename = RAW_PAGES_DIR.get() + getPageFilename(indexPage);
         
         toolbox.log.Log.println("Baixando: " + indexedUrl);
         toolbox.log.Log.println("para arquivo: " + indexedFilename);

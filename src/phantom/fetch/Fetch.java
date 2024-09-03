@@ -1,5 +1,6 @@
 package phantom.fetch;
 
+import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -13,24 +14,45 @@ import static phantom.global.GlobalStrings.*;
  */
 public final class Fetch implements Runnable {
     
+    private static final String FINISH_FLAG = "*gameover*";
+    
     private static final String FORUM_URL = ROOT_URL.get();
     
-    private boolean hasDownloads;
+    private static final String FORUM_DIR = ROOT_DIR.get();
     
-    private final Set<String> requestedDownloads;
+    private final Set<String> fails;
+    
+    private final Set<String> requestedsDownloads;
     
     private final LinkedBlockingQueue<String> downloadQueue;
+    
+    /*
+    *
+    */
+    private void readFails() {
+        
+    }//readFails
+    
+    /*
+    *
+    */
+    private void saveFails() {
+        
+    }//saveFails
 
     /**
      * 
      */
     public Fetch() {
         
-        requestedDownloads = new TreeSet<>();
+        fails = new TreeSet<>();
+        
+        //ler a lista de falhas do backup anterior e inserir em downloadQueue
+        readFails();
+        
+        requestedsDownloads = new TreeSet<>();
         
         downloadQueue = new LinkedBlockingQueue<>();
-        
-        hasDownloads = true;
 
     }//construtor
     
@@ -41,11 +63,11 @@ public final class Fetch implements Runnable {
      */
     public void queue(final String url) throws InterruptedException {
         
-        String absoluteUrl = FORUM_URL + ((url.charAt(0) == '/') ? url : url.substring(1));
+        String absoluteUrl = FORUM_URL + url;
         
-        if (requestedDownloads.contains(absoluteUrl)) return;
+        if (requestedsDownloads.contains(absoluteUrl)) return;
         
-        requestedDownloads.add(absoluteUrl);
+        requestedsDownloads.add(absoluteUrl);
         
         downloadQueue.put(absoluteUrl);
         
@@ -56,10 +78,33 @@ public final class Fetch implements Runnable {
      * @throws InterruptedException 
      */
     public void terminate() throws InterruptedException {
+        
+        //Gravar a lista de falhas
+        saveFails();
  
-        downloadQueue.put("*GAMEOVER*");
+        downloadQueue.put(FINISH_FLAG);
 
     }//terminate
+    
+
+    /*
+    *
+    */
+    private boolean download(final String url) throws Exception {
+        
+        String pathname = url.replace(FORUM_URL, FORUM_DIR);
+        
+        File file = new File(pathname); 
+   
+        if (file.exists()) return false;  
+          
+        toolbox.file.FileTools.createDirsIfNotExists(file.getParentFile());
+        
+        toolbox.net.Util.downloadUrlToPathname(url, pathname);
+        
+        return true;
+        
+    }//download
 
     /**
      * 
@@ -69,20 +114,41 @@ public final class Fetch implements Runnable {
         
         String url = "";
         
-        while (hasDownloads) {
+        while (true) {
             
             try {
 
                 url = downloadQueue.take();
+                
+                if (url.equals(FINISH_FLAG)) break; 
 
-            } catch (InterruptedException e) { System.exit(1); }
+            } catch (InterruptedException e) { 
+                
+                //Ver o que o livro faz quando ocorre InterruptedException
+                
+                phantom.exception.ExceptionTools.crashMessage(null, e);
+            }
             
-            System.out.println("BAIXOU: " + url);
-            
-            if (url.equals("*GAMEOVER*")) hasDownloads = false;            
-            
+            try {
+                
+                if (download(url)) System.out.println("BAIXOU :" + url);
+                
+            } catch (Exception e) {
+                
+               fails.add(url);
+               
+               System.out.println("FALHOU :" + url);
+               
+               File file = new File(url.replace(FORUM_URL, FORUM_DIR));
+               
+               file.delete();
+          
+               toolbox.file.FileTools.deleteDirsIfEmpty(file.getParentFile());
+            }           
+          
         }//while
         
     }//run
+ 
 
 }//classe Fetch

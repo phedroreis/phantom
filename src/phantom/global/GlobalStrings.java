@@ -11,9 +11,9 @@ public enum GlobalStrings {
     
     FORUM_NAME(Constants.FORUM_NAME),
     
-    ROOT_URL(Constants.PROTOCOL + Constants.FORUM_NAME),
+    ROOT_URL(Constants.PROTOCOL + Constants.FORUM_NAME + '/'),
     
-    FORUM_DIR(Constants.FORUM_DIR),
+    ROOT_DIR(Constants.ROOT_DIR),
         
     LOG_DIR(Constants.LOG_DIR),
     
@@ -49,17 +49,17 @@ private static final class Constants {
     
     public static final String FORUM_NAME = "clubeceticismo.com.br"; 
     
-    public static final String FORUM_DIR = "./" + FORUM_NAME;
+    public static final String ROOT_DIR = "./" + FORUM_NAME + '/';
     
-    public static final String LOG_DIR = "./log";
+    public static final String LOG_DIR = "./log/";
     
-    public static final String CONFIG_DIR = "./config";
+    public static final String CONFIG_DIR = "./config/";
     
-   public static final String RAW_PAGES_DIR = FORUM_DIR + "/rawpages";
+   public static final String RAW_PAGES_DIR = ROOT_DIR + "rawpages/";
      
-    public static final String UPDATE_PATHNAME = LOG_DIR + "/update.properties";
+    public static final String UPDATE_PATHNAME = LOG_DIR + "update.properties";
     
-    public static final String CONFIG_PATHNAME = CONFIG_DIR + "/config.properties";
+    public static final String CONFIG_PATHNAME = CONFIG_DIR + "config.properties";
     
 }//classe privada Constants    
     

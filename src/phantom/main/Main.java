@@ -20,8 +20,11 @@ public final class Main {
         
         Properties props = new Properties();
         
+        String configDir = CONFIG_DIR.get();
+        
         String configPathname = CONFIG_PATHNAME.get();
         
+  
         try ( FileInputStream in = new FileInputStream(configPathname) ) { 
             
             props.load(in); 
@@ -34,13 +37,13 @@ public final class Main {
             
             try {
                 
-                toolbox.file.FileTools.createDirsIfNotExists(CONFIG_DIR.get());
+                toolbox.file.FileTools.createDirsIfNotExists(configDir);
                 
-            } catch (FileNotFoundException ex) {
+            } catch (FileNotFoundException e1) {
                 
-                System.err.println("Can't create " + CONFIG_DIR.get());
-                ex.printStackTrace(System.err);
-                System.exit(1);
+                System.err.println("Can't create " + configDir);
+                
+                phantom.exception.ExceptionTools.crash(e1);
                 
             }
 
@@ -52,9 +55,9 @@ public final class Main {
             }
             catch (IOException e2) {
                 
-                e2.printStackTrace(System.err);
-
-                System.exit(1);
+                System.err.println("Can't save config data in " + configPathname);  
+                
+                phantom.exception.ExceptionTools.crash(e2);
 
             }              
               
@@ -70,24 +73,48 @@ public final class Main {
 
     /**
      * @param args the command line arguments
-     * @throws XMLParseException
-     * @throws IOException
      */
-    public static void main(String[] args) throws XMLParseException, IOException{
-   
-        toolbox.log.Log.exec("phantom.main", "Main", "main");
+    public static void main(String[] args) {
         
-        Initializer.init();
+        try {
+            
+            /*
+            Cria diretorios de trabalho do programa, se ainda nao criados, e o arquivo de 
+            log para esta execucao do programa. O diretorio de configuracao, se for a 1a
+            execucao do programa, foi criado e inicializado no bloco estatico desta classe.
+            */
+            Initializer.init();
+
+            /*
+            Cria objeto para baixar as paginas do forum, inicializado com data-hora da 
+            ultima postagem no ultimo backup. Se este for o 1o backup, a data-hora eh
+            lida como "ano 0"
+            */
+            phantom.pages.Downloader downloader = 
+                new phantom.pages.Downloader(
+                    Initializer.readDateTimeOfLastPostFromLastBackup()
+                );
+
+            /*
+            Baixa, incrementalmente, paginas do forum (Main, Headers, Sections, Topics)
+            */
+            downloader.downloadAllPages();
+            
+            /*
+            Salva a data-hora da ultima postagem do forum neste backup.
+            */
+            Finalizer.saveDateTimeOfLastPostFromThisBackup(
+                downloader.getDateTimeOfLastPostFromThisBackup()
+            );
+
+            toolbox.log.Log.closeFile();//Fecha o arquivo de log.
         
-        phantom.pages.Downloader downloader = 
-            new phantom.pages.Downloader(Initializer.readDateTimeOfLastPostFromLastBackup());
-        
-        downloader.downloadAllPages();
-        
-        Finalizer.saveDateTimeOfLastPostFromThisBackup(downloader.getDateTimeOfLastPostFromThisBackup());
-        
-        toolbox.log.Log.ret("phantom.main", "Main", "main");        
-        toolbox.log.Log.closeFile();
+        }
+        catch (IOException | XMLParseException e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);
+            
+        }
     }
     
 }//classe Main

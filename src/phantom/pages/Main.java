@@ -25,8 +25,8 @@ final class Main extends Page {
         
         setPageFilename(forumName);
         
-        //O metodo ira converter em https://clubeceticismo.com.br
-        setPageUrl("./");
+        //O metodo ira converter em https://clubeceticismo.com.br/
+        setPageUrl("");
         
         setPageParser(new MainPageParser());
         
