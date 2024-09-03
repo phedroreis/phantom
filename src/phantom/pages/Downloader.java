@@ -118,7 +118,8 @@ public final class Downloader {
         for (Page topic : topicsList) {
             
             System.out.println(topic);
-            topic.download();
+            
+            if (topic.download() == null) System.out.println("Nao baixado!\n\n");             
             
         }        
         

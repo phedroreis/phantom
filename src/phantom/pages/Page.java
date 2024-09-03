@@ -339,7 +339,7 @@ protected enum MaxList {
         
         toolbox.log.Log.ret("phantom.pages", "Page", "download");     
         
-        if (parser == null) return null;
+        if (parser == null) addPage(this);//A lista contem a propria pag. de Topic
         
         return pagesList;  
         
@@ -354,10 +354,10 @@ protected enum MaxList {
              
         return String.format(
             msg$1, 
-            dateTimeOfLastPostOnThisPage + " GMT-3", 
             getPageName(), 
             getPageUrl(0), 
-            getPageFilename(0),
+            getPageFilename(0),            
+            dateTimeOfLastPostOnThisPage + " GMT-3", 
             getNumberOfPages()
         );
         

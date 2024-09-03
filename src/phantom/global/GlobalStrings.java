@@ -9,21 +9,23 @@ package phantom.global;
  */
 public enum GlobalStrings {
     
-    FORUM_NAME(Constants.FORUM_NAME),
+    FORUM_NAME(Constants.FORUM_NAME),//clubeceticismo.com.br
     
-    ROOT_URL(Constants.PROTOCOL + Constants.FORUM_NAME + '/'),
+    MAIN_PAGE_URL(Constants.MAIN_PAGE_URL),//https://clubeceticismo.com.br
     
-    ROOT_DIR(Constants.ROOT_DIR),
+    ROOT_URL(Constants.MAIN_PAGE_URL + '/'),//https://clubeceticismo.com.br/
+    
+    ROOT_DIR(Constants.ROOT_DIR),//./clubeceticismo.com.br
         
-    LOG_DIR(Constants.LOG_DIR),
+    LOG_DIR(Constants.LOG_DIR),//./log/
     
-    CONFIG_DIR(Constants.CONFIG_DIR),
+    CONFIG_DIR(Constants.CONFIG_DIR),//./config/
     
-    RAW_PAGES_DIR(Constants.RAW_PAGES_DIR),
+    RAW_PAGES_DIR(Constants.RAW_PAGES_DIR),//./clubeceticismo.com.br/rawpages/
     
-    UPDATE_PATHNAME(Constants.UPDATE_PATHNAME),
+    UPDATE_PATHNAME(Constants.UPDATE_PATHNAME),//./log/update.properties
     
-    CONFIG_PATHNAME(Constants.CONFIG_PATHNAME),
+    CONFIG_PATHNAME(Constants.CONFIG_PATHNAME),//./config/config.properties
     
     ANCIENT_TIMES("0000-00-00T00:00:00+00:00"),
     
@@ -48,6 +50,8 @@ private static final class Constants {
     public static final String PROTOCOL = "https://";
     
     public static final String FORUM_NAME = "clubeceticismo.com.br"; 
+    
+    public static final String MAIN_PAGE_URL = PROTOCOL + FORUM_NAME;
     
     public static final String ROOT_DIR = "./" + FORUM_NAME + '/';
     

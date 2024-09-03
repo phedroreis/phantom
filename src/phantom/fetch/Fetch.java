@@ -57,9 +57,11 @@ public final class Fetch implements Runnable {
     }//construtor
     
     /**
+     * Insere a versao absoluta da URL passada na fila de download.
+
+     * @param url Deve ser URL relativa, iniciada com ./ ou ../.
      * 
-     * @param url
-     * @throws InterruptedException 
+     * @throws InterruptedException Caso ocorra excecao quando a thread estiver dormindo.
      */
     public void queue(final String url) throws InterruptedException {
         
@@ -84,8 +86,7 @@ public final class Fetch implements Runnable {
  
         downloadQueue.put(FINISH_FLAG);
 
-    }//terminate
-    
+    }//terminate    
 
     /*
     *
@@ -148,7 +149,6 @@ public final class Fetch implements Runnable {
           
         }//while
         
-    }//run
- 
+    }//run 
 
 }//classe Fetch
