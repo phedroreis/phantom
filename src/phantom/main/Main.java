@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
 import javax.management.modelmbean.XMLParseException;
-import static phantom.global.GlobalStrings.*;
-
+import static phantom.global.GlobalConstants.*;
 
 /**
  *
@@ -20,9 +19,9 @@ public final class Main {
         
         Properties props = new Properties();
         
-        String configDir = CONFIG_DIR.get();
+        String configDir = CONFIG_DIR;
         
-        String configPathname = CONFIG_PATHNAME.get();
+        String configPathname = CONFIG_PATHNAME;
         
   
         try ( FileInputStream in = new FileInputStream(configPathname) ) { 
@@ -100,6 +99,10 @@ public final class Main {
             */
             downloader.downloadAllPages();
             
+            phantom.edit.HrefSrcEditor hrefSrcEditor = new phantom.edit.HrefSrcEditor();
+            
+            hrefSrcEditor.edit();            
+            
             /*
             Salva a data-hora da ultima postagem do forum neste backup.
             */
@@ -110,7 +113,7 @@ public final class Main {
             toolbox.log.Log.closeFile();//Fecha o arquivo de log.
         
         }
-        catch (IOException | XMLParseException e) {
+        catch (IOException | XMLParseException | InterruptedException e) {
             
             phantom.exception.ExceptionTools.crashMessage(null, e);
             

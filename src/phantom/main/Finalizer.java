@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import static phantom.global.GlobalStrings.*;
+import static phantom.global.GlobalConstants.*;
 
 /**
  * Classe com metodos que devem ser executados apos o termino do backup incremental.
@@ -54,9 +54,9 @@ final class Finalizer {
        
         props.setProperty("last", datetime);         
        
-        try (FileOutputStream out = new FileOutputStream(UPDATE_PATHNAME.get())) {
+        try (FileOutputStream out = new FileOutputStream(UPDATE_PATHNAME)) {
             
-            props.store(out, "Static copy");
+            props.store(out, "Last Successfull Backup");
         }
         catch (IOException e) {
             

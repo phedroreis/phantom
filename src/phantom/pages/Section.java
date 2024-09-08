@@ -147,9 +147,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                     
                     else 
                         
-                        throw new XMLParseException(
-                            "Unexpected topic ID format from URL: " + topicURL
-                        );
+                        throw new XMLParseException(msg$1 + topicURL);
                  
                     t.notifyClosing();
   
@@ -194,9 +192,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 
                 else
                     
-                    throw new XMLParseException(
-                        "Error parsing how many posts has the topic: " + content
-                    );
+                    throw new XMLParseException(msg$2 + content);
                 
         }//switch
         

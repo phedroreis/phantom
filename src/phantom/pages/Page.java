@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.management.modelmbean.XMLParseException;
-import static phantom.global.GlobalStrings.*;
+import static phantom.global.GlobalConstants.*;
 
 /***********************************************************************************************************************
 * Superclasse para as classes que analisam, coletam, armazenam e fornecem
@@ -15,7 +15,7 @@ import static phantom.global.GlobalStrings.*;
 * @since 1.0 - 11 de agosto de 2024
 * @author Pedro Reis
 ***********************************************************************************************************************/
-abstract class Page {    
+public abstract class Page {    
 
 /**
  * Enumera constantes
@@ -198,7 +198,7 @@ protected enum MaxList {
     * 
     * @return O nome da pagina: principal, de Header, Section ou Topic.
     *******************************************************************************************************************/
-    protected String getPageName() {
+    public String getPageName() {
         
         return pageName;
         
@@ -224,7 +224,7 @@ protected enum MaxList {
     * 
     * @return O nome do arquivo com a pagina estatica no disco.
     *******************************************************************************************************************/
-    protected String getPageFilename(final int pageIndex) {
+    public String getPageFilename(final int pageIndex) {
         
         if (pageIndex == 0) return pageFilename + ".html";
         
@@ -239,7 +239,7 @@ protected enum MaxList {
      ******************************************************************************************************************/
     protected void setPageUrl(final String url) {
         
-        pageUrl = (ROOT_URL.get() + url).replace("&amp;", "&").replaceAll("&sid=.*", "");
+        pageUrl = (ROOT_URL + url).replace("&amp;", "&").replaceAll("&sid=.*", "");
         
     }//setPageUrl
     
@@ -284,12 +284,12 @@ protected enum MaxList {
         toolbox.log.Log.exec("phantom.pages", "Page", "downloadPage"); 
         
         String indexedUrl = getPageUrl(indexPage);
-        String indexedFilename = RAW_PAGES_DIR.get() + getPageFilename(indexPage);
+        String indexedFilename = RAW_PAGES_DIR + getPageFilename(indexPage);
         
         toolbox.log.Log.println("Baixando: " + indexedUrl);
         toolbox.log.Log.println("para arquivo: " + indexedFilename);
         
-        toolbox.net.Util.downloadUrlToPathname(indexedUrl, indexedFilename);
+        toolbox.net.NetTools.downloadUrlToPathname(indexedUrl, indexedFilename);
      
         toolbox.textfile.TextFileHandler tfh = 
             new toolbox.textfile.TextFileHandler(indexedFilename, "utf8");
@@ -343,7 +343,35 @@ protected enum MaxList {
         
         return pagesList;  
         
-    }//download  
+    }//download 
+    
+    /**
+     * 
+     * @return
+     * @throws XMLParseException
+     * @throws IOException 
+     */
+    protected LinkedList<Page> read() 
+        throws XMLParseException, IOException, NullPointerException {
+        
+        if (parser == null) throw new NullPointerException();
+        
+        String filename = ROOT_DIR + getPageFilename(0);
+        
+        toolbox.textfile.TextFileHandler  tfh = 
+            new toolbox.textfile.TextFileHandler(filename, "utf8");
+        
+        tfh.read();
+        
+        String pageContent = tfh.getContent();
+
+        toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
+
+        htmlParser.parse();
+        
+        return pagesList;
+        
+    }//read
     
     /**
      * 

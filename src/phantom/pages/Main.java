@@ -1,7 +1,7 @@
 package phantom.pages;
 
 import java.util.HashMap;
-import static phantom.global.GlobalStrings.*;
+import static phantom.global.GlobalConstants.*;
 
 /***********************************************************************************************************************
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina principal.
@@ -19,7 +19,7 @@ final class Main extends Page {
         
         toolbox.log.Log.exec("phantom.pages", "Main", "Construtor de Main");
         
-        String forumName = FORUM_NAME.get();
+        String forumName = FORUM_NAME;
         
         setPageName(forumName);
         
@@ -31,7 +31,7 @@ final class Main extends Page {
         setPageParser(new MainPageParser());
         
         //Ajustado para futuro distante para que a pagina principal seja sempre baixada.
-        setDateTimeOfLastPostOnThisPage(DISTANT_FUTURE.get());
+        setDateTimeOfLastPostOnThisPage(DISTANT_FUTURE);
         
         setNumberOfPages(1);
  

@@ -1,5 +1,6 @@
 package phantom.edit;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
@@ -8,7 +9,8 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
-import static phantom.global.GlobalStrings.*;
+import static phantom.global.GlobalConstants.*;
+
 
 /**
  *
@@ -18,31 +20,32 @@ import static phantom.global.GlobalStrings.*;
  */
 public final class HrefSrcEditor {
     
-    private static final String MAIN_PAGE_FILE = FORUM_NAME.get() + ".html";
-    
-    private static final String FORUM_URL = ROOT_URL.get();
-    
+    private static final String MAIN_PAGE_FILE = FORUM_NAME + ".html";
+
     private static HashMap<String, String> urlsMap;
     
-    private static phantom.fetch.Fetch fetch;
+    private static phantom.fetch.Fetcher fetcher;
     
     @SuppressWarnings("UnusedAssignment")
     public void edit() throws IOException, XMLParseException, InterruptedException {
         
         toolbox.file.SearchFolders searchFolders = new toolbox.file.SearchFolders(new PagesFilter());
         
-        LinkedList<String> listPages = searchFolders.search(RAW_PAGES_DIR.get());
+        LinkedList<String> listPages = searchFolders.search(RAW_PAGES_DIR);
         
-        fetch = new phantom.fetch.Fetch();
+        fetcher = new phantom.fetch.Fetcher();
         
-        Thread downloadThread = new Thread(fetch);
+        Thread downloadThread = new Thread(fetcher);
         
         downloadThread.start();
         
-        for (String filename : listPages) {
+        String forumMainPageUrl = MAIN_PAGE_URL + "\"";
+        String mainPageFile = "./" + MAIN_PAGE_FILE + "\"";
+        
+        for (String pathname : listPages) {
             
             toolbox.textfile.TextFileHandler textFileHandler = 
-                new toolbox.textfile.TextFileHandler(filename, "utf8");
+                new toolbox.textfile.TextFileHandler(pathname, "utf8");
             
             textFileHandler.read();
             
@@ -70,20 +73,24 @@ public final class HrefSrcEditor {
             URLs absolutas apontando para pag. principal passam a apontar arq. estatico
             da pag. principal.
             */
-            toolbox.string.StringTools.replace(
-                sbContent, 
-                MAIN_PAGE_URL.get() + "\"",
-                "./" + MAIN_PAGE_FILE + "\""
-            );
+            toolbox.string.StringTools.replace(sbContent, forumMainPageUrl, mainPageFile);
             
             textFileHandler.setContent(sbContent.toString());
             
-            textFileHandler.write();
+            File rawFile = new File(pathname);
+            
+            textFileHandler.write(ROOT_DIR + rawFile.getName());
+            
+            rawFile.delete();
             
         }//for
         
-        fetch.terminate();
+        fetcher.terminate();
+                
+        File rawpagesDir = new File(RAW_PAGES_DIR);
         
+        rawpagesDir.delete();        
+
     }//edit
     
     public static void main(String[] args) throws IOException, XMLParseException, InterruptedException {
@@ -115,7 +122,9 @@ private static final class Parser extends toolbox.xml.TagParser {
 
     private static final Pattern VIEWTOPIC_POST = Pattern.compile("#p\\d+");//Loc. ref para post em pag. Topic
     
-    private static final Pattern QUERY = Pattern.compile("\\?.*$");//Localiza queries em arqs. js    
+    private static final Pattern QUERY = Pattern.compile("\\?.*$");//Localiza queries em arqs. js 
+    
+    private static final Pattern FILE_PHP = Pattern.compile("^.+file\\.php\\?(.+?=\\d+)");
 
     private static Matcher matcher;  
     
@@ -142,6 +151,8 @@ private static final class Parser extends toolbox.xml.TagParser {
         String startIndex;//Captura o indice (start=) da pagina, se houver
         
         String staticUrl = "#";//Ira conter a versao estatica da URL original
+        
+        String urlx;
     
         if (matcher.find()) {//Eh URL relativa ou absoluta para script PHP
             
@@ -175,7 +186,7 @@ private static final class Parser extends toolbox.xml.TagParser {
                     t= nao pode ser localizada dentro de start= pois bugaria regex VIEWTOPIC_ID
                     Troca start= por xyz= e busca por xyz= na string urlx
                     */
-                    String urlx = url.replace("start=", "xyz=");                    
+                    urlx = url.replace("start=", "xyz=");                    
                    
                     matcher = VIEWTOPIC_START_INDEX.matcher(urlx);//Localiza indice pag. de Topic, se houver
                     startIndex = matcher.find() ? "&start=" + matcher.group(1) : "";                    
@@ -193,8 +204,23 @@ private static final class Parser extends toolbox.xml.TagParser {
                     
                     break;
                     
-                case "/file.php"://Este script busca alguns arquivos de avatar de usuario   
+                case "/file.php"://Este script busca arquivos 
                     
+                    urlx = url;
+                    
+                    if (urlx.startsWith(ROOT_URL)) urlx = urlx.replace(ROOT_URL, "./");
+   
+                    matcher = FILE_PHP.matcher(urlx);
+                    
+                    if (matcher.find()) {
+
+                        staticUrl = urlx.substring(0, urlx.indexOf("file.php?")) + matcher.group(1);//url.replace("file.php?", "").replace("&amp;", "-");
+                        
+                        urlsMap.put(url + "\"", staticUrl + "\"");
+                        
+                        fetcher.queue(new phantom.fetch.Node(urlx, staticUrl));
+                    }
+
                     break;
                     
                 case "/app.php":  
@@ -212,22 +238,32 @@ private static final class Parser extends toolbox.xml.TagParser {
         }
         else  {//URL para arq. estatico no servidor do forum (precisa ser baixado para a copia local)
  
-            //Retira parametros queries de arquivos a serem baixados
+            //Localiza a query da URL, se existir
             matcher = QUERY.matcher(url);
-            String query = matcher.find() ? matcher.group() : "";
-            String editedUrl = url.replace(query, "");//Deleta query da URL que vai baixar o arquivo
+            String query = matcher.find() ? matcher.group() : ""; 
+            
+            /*
+            Nem a URL e nem o nome do arquivo gravado devem incluir a query.
+            */
+            String downloadableUrl = url.replace(query, ""); 
             
             /*
             Aponta para arquivo no servidor do forum com URL absoluta, mas nao eh script Php
+            Entao deve ser convertida para URL relativa na copia estatica
             */
-            if (editedUrl.startsWith("http")) { 
+            if (url.startsWith("http")) {
                 
-                editedUrl = editedUrl.replace(FORUM_URL, "./");//Converte p/ URL relativa
+                //Converte para relativa mas mantem query na copia estatica
+                urlsMap.put(url + "\"", url.replace(ROOT_URL, "./") + "\"");
+  
+                //Metodo queue requer que url e pathname sejam relativos
+                downloadableUrl = downloadableUrl.replace(ROOT_URL, "./");
                 
-                urlsMap.put(url + "\"", editedUrl + query + "\"");//Insere versao rel. da URL na copia estatica  
+                fetcher.queue(new phantom.fetch.Node(downloadableUrl, downloadableUrl));
             }
-            
-            fetch.queue(editedUrl);//Insere url na fila para baixar
+            else            
+                //Insere url relativa pra baixar excluida de sua query (caso tenha uma)
+                fetcher.queue(new phantom.fetch.Node(downloadableUrl, downloadableUrl));
         }   
         
     }//editUrlsAndDownloadFiles
@@ -252,8 +288,9 @@ private static final class Parser extends toolbox.xml.TagParser {
                 url = map.get("href");
                 break;
                 
-            case "img":
+
             case "script":
+            case "img":                
                 url = map.get("src");
                 break;
                 
@@ -273,12 +310,12 @@ private static final class Parser extends toolbox.xml.TagParser {
         Se for relativa apontando para arquivo no servidor, o arquivo e baixado e a URL nao eh
         editada nos arquivos estaticos.
         
-        Se for aboluta e apontando para servidor do forum, e convertida na copia estatica para 
+        Se for absoluta e apontando para servidor do forum, e convertida na copia estatica para 
         URL relativa.
         
         Qualquer outro tipo de URL sera ignorado.
         */
-        if ( url != null && (url.matches("(\\.\\.?/|/app\\.php).+") || url.startsWith(FORUM_URL)) ) {
+        if ( url != null && (url.matches("(\\.\\.?/|/app\\.php).+") || url.startsWith(ROOT_URL)) ) {
             
             try {
                 
@@ -311,7 +348,8 @@ private static class PagesFilter implements DirectoryStream.Filter<Path> {
         /*
         Retorna true apenas para arq. de pag. principal, header, section ou topic
         */
-        return (fileName.matches("(f|t)=\\d+(&start=\\d+){0,1}\\.html") || fileName.equals(MAIN_PAGE_FILE)) ;
+        return 
+            (fileName.matches("(f|t)=\\d+(&start=\\d+){0,1}\\.html") || fileName.equals(MAIN_PAGE_FILE));
     }
      
 }//classe privada PagesFilter   

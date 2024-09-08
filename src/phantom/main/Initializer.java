@@ -1,12 +1,15 @@
 package phantom.main;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.EnumSet;
 import java.util.Properties;
 import phantom.global.GlobalStrings;
-import static phantom.global.GlobalStrings.*;
+import static phantom.global.GlobalConstants.*;
 
 /**
  *
@@ -15,8 +18,6 @@ import static phantom.global.GlobalStrings.*;
  * @version 1.0 - 27 de agosto de 2024
  */
 final class Initializer {
-    
-    private static final String LOGDIR = LOG_DIR.get();
     
     /**
      * 
@@ -36,7 +37,7 @@ final class Initializer {
         
         Properties props = new Properties();
         
-        try ( FileInputStream in = new FileInputStream(UPDATE_PATHNAME.get()) ) { 
+        try ( FileInputStream in = new FileInputStream(UPDATE_PATHNAME) ) { 
             
             props.load(in); 
         }
@@ -46,10 +47,10 @@ final class Initializer {
                 "phantom.main",
                 "Initializer", 
                 "readDateTimeOfLastPostFromLastBackup",
-                ANCIENT_TIMES.get()
+                ANCIENT_TIMES
             );   
             
-            return ANCIENT_TIMES.get();
+            return ANCIENT_TIMES;
             
         }
   
@@ -61,10 +62,10 @@ final class Initializer {
                 "phantom.main",
                 "Initializer", 
                 "readDateTimeOfLastPostFromLastBackup",
-                ANCIENT_TIMES.get()
+                ANCIENT_TIMES
             );  
             
-            return ANCIENT_TIMES.get();
+            return ANCIENT_TIMES;
         }
         
         toolbox.log.Log.ret(
@@ -84,7 +85,7 @@ final class Initializer {
      */
     private static void createLogDir() throws FileNotFoundException {
         
-        toolbox.file.FileTools.createDirsIfNotExists(LOGDIR);
+        toolbox.file.FileTools.createDirsIfNotExists(LOG_DIR);
         
     }//createLogDir  
     
@@ -95,7 +96,8 @@ final class Initializer {
         
         toolbox.log.Log.exec("phantom.main", "Initializer", "createDirs");
         
-        EnumSet<GlobalStrings> Dir = EnumSet.range(CONFIG_DIR, RAW_PAGES_DIR);
+        EnumSet<GlobalStrings> Dir = 
+            EnumSet.range(GlobalStrings.CONFIG_DIR, GlobalStrings.RAW_PAGES_DIR);
         
         for (GlobalStrings dir : Dir) {
             
@@ -110,6 +112,36 @@ final class Initializer {
         
     }//createDirs
     
+    /*
+    *
+    */
+    private static void createHtmlFiles() {
+        
+        EnumSet<GlobalStrings> Php = 
+            EnumSet.range(GlobalStrings.APPPHP_PATHNAME, GlobalStrings.UCPPHP_PATHNAME);
+        
+        for (GlobalStrings php : Php) {
+            
+            String pathname = php.get();
+            
+            File file = new File(pathname);
+            
+            if (!file.exists()) {
+                
+                try (PrintWriter p = new PrintWriter(pathname, "utf8")) {
+                    
+                    p.println(GlobalStrings.getHtml(pathname));
+                    p.close();
+                    
+                }
+                catch (FileNotFoundException | UnsupportedEncodingException e) {} 
+               
+            }//if         
+
+        }//for
+        
+    }//createHtmlFiles
+    
     /**
      * 
      * @throws FileNotFoundException 
@@ -120,10 +152,12 @@ final class Initializer {
         createLogDir();
         
         //Cria arquivo de log. O nome sera a date e hora atual.
-        toolbox.log.Log.createLogFile(LOGDIR);      
+        toolbox.log.Log.createLogFile(LOG_DIR);      
         
         //Cria todos os diretorios de trabalho caso ainda nao existam
         createDirs();
+        
+        createHtmlFiles();
         
     }//init
 

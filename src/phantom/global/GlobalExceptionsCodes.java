@@ -10,13 +10,19 @@ public enum GlobalExceptionsCodes {
     
     INTERRUPTED("Interrupted"),
     
+    ILLEGAL_ARGUMENT("IllegalArgumet"),
+    
     IO("IO"),
     
     FILE_NOT_FOUND("FileNotFound"),
         
     NULL_POINTER("NullPointer"),
     
-    MAL_FORMED_URL("MalformedURL"); 
+    MAL_FORMED_URL("MalformedURL"),
+    
+    URI_SYNTAX("URISyntax"),
+    
+    XML_PARSE("XMLParse"); 
     
 
     private String exceptionName;
