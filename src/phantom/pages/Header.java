@@ -145,6 +145,14 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
                 sectionLastPostTime
             )
         );
+        /*
+        Anula campos para que o proximo objeto Section nao receba acidentalmente dados deste.
+        */
+        sectionName = null;
+        sectionURL = null;
+        sectionFilename = null;
+        sectionNumberOfTopics = null;
+        sectionLastPostTime = null;
         
     }//closeTagLevel0    
     

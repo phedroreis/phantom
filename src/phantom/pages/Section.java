@@ -18,7 +18,7 @@ final class Section extends Page {
     
     private static final Pattern FILENAME_FINDER = Pattern.compile("(t=\\d+?)\\D");
     
-    private static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("Respostas: <strong>(\\d+?)<");
+    private static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("\\d+");
     
     private static String msg$1;
     private static String msg$2;
@@ -71,7 +71,13 @@ final class Section extends Page {
         setPageUrl(url);
         setPageFilename(filename);
         setPageParser(new SectionPageParser());
-        setNumberOfPages( (Integer.parseInt(numberOfTopics) / MaxList.MAX_TOPICS_TITLES_PER_PAGE.get()) + 1 );
+        
+        int nTopics = Integer.parseInt(numberOfTopics);
+        if (nTopics == 0)
+            setNumberOfPages(1);
+        else
+            setNumberOfPages( ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 );
+        
         setDateTimeOfLastPostOnThisPage(lastPostTime);
         
         toolbox.log.Log.println(toolbox.string.StringTools.NEWLINE + this.toString());        
@@ -119,6 +125,14 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 topicLastPostTime
             )
         );
+        /*
+        Anula campos para que o proximo objeto Topic nao receba acidentalmente dados deste.
+        */
+        topicName = null;
+        topicURL = null;
+        topicFilename = null;
+        topicNumberOfPosts = null;
+        topicLastPostTime = null;
         
     }//closeTagLevel0    
     
@@ -160,9 +174,9 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 topicLastPostTime = map.get("datetime"); 
                 break;
                 
-            case "span": 
+            case "dd": 
                 
-                if (classValue != null && classValue.equals("responsive-show left-box")) 
+                if (classValue != null && classValue.equals("posts")) 
                 
                     t.notifyClosing();               
             
@@ -182,13 +196,13 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 topicName = content;
                 break;
                 
-            case "span":
+            case "dd":
 
                 matcher = NUMBER_OF_POSTS_FINDER.matcher(content);
                 
                 if (matcher.find())
                     
-                    topicNumberOfPosts = matcher.group(1);
+                    topicNumberOfPosts = matcher.group();
                 
                 else
                     

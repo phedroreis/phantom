@@ -79,8 +79,20 @@ private class MainPageParser extends toolbox.xml.TagParser {
         
         if (t.getTagName().equals("ul")) {
  
-            addPage(new Header(headerName, headerURL, headerFilename, lastPostTime));
-            
+            addPage(
+                new Header(
+                    headerName,
+                    headerURL,
+                    headerFilename,
+                    lastPostTime
+                )
+            );
+            /*
+            Anula campos para que o proximo objeto Header nao receba acidentalmente dados deste.
+            */
+            headerName = null;
+            headerURL = null;
+            headerFilename = null;
             lastPostTime = null;
         }   
         

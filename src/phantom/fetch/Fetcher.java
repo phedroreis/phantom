@@ -9,6 +9,8 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,12 +32,58 @@ public final class Fetcher implements Runnable {
     private Matcher matcher;
 
     private final List<Node> fails;
-    
-    //private final Set<String> requestedsUrls;
-    
+            
     private final Set<String> requestedsPathnames;
     
     private final LinkedBlockingQueue<Node> downloadQueue;
+    
+    private int total;
+    
+    private int count;
+    
+    private static String msg$1;
+    private static String msg$2;
+    private static String msg$3;
+    private static String msg$4;
+    private static String msg$5;
+    private static String msg$6;  
+    private static String msg$7;
+    
+    /*
+    * Internacionaliza as Strings "hardcoded" na classe
+    */
+    static {
+        
+        try {
+            
+            ResourceBundle rb = 
+                ResourceBundle.getBundle(
+                    "phantom.properties.Fetcher", 
+                    toolbox.locale.Localization.getLocale()
+                );
+            
+            msg$1 = rb.getString("msg$1");
+            msg$2 = rb.getString("msg$2");
+            msg$3 = rb.getString("msg$3");
+            msg$4 = rb.getString("msg$4");
+            msg$5 = rb.getString("msg$5");
+            msg$6 = rb.getString("msg$6");
+            msg$7 = rb.getString("msg$7");
+            
+        } 
+        catch (NullPointerException | MissingResourceException | ClassCastException e) {
+           
+            // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$1 = "GOT IT :";
+            msg$2 = "FAIL :";
+            msg$3 = "Downloading static files...";
+            msg$4 = "Searching in CSS files...";
+            msg$5 = "Downloading files requested by CSS files...";
+            msg$6 = "Saving fails file...";
+            msg$7 = "Static files download concluded!";
+        }
+        
+    }//bloco static    
     
     /*
     *
@@ -51,8 +99,6 @@ public final class Fetcher implements Runnable {
 
                 Node node = 
                     new Node(url.replace(ROOT_URL, ""), pathname.replace(ROOT_DIR, ""));
-
-                //requestedsUrls.add(url);
                 
                 requestedsPathnames.add(pathname);
 
@@ -92,15 +138,15 @@ public final class Fetcher implements Runnable {
     public Fetcher() throws InterruptedException {
         
         fails = new LinkedList<>();
-  
-        //requestedsUrls = new TreeSet<>();
         
         requestedsPathnames = new TreeSet<>();
         
         downloadQueue = new LinkedBlockingQueue<>();
         
         //ler a lista de falhas do backup anterior e inserir em downloadQueue
-        readFails();        
+        readFails(); 
+        
+        total = 0; count = 0;
 
     }//construtor
     
@@ -124,7 +170,10 @@ public final class Fetcher implements Runnable {
         requestedsPathnames.add(node.getPathname());
         
         downloadQueue.put(node);
-        
+
+        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetMaximum(++total);
+        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetValue(count);
+
     }//queue
     
     /**
@@ -135,6 +184,9 @@ public final class Fetcher implements Runnable {
 
         downloadQueue.put(Node.TERMINATE);
 
+        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetMaximum(++total);
+        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetValue(count);
+
     }//terminate  
     
     /*
@@ -143,13 +195,15 @@ public final class Fetcher implements Runnable {
     private void consume() {
         
         Node node = null;
-        
+       
         while (true) {
             
             try {
 
-                node = downloadQueue.take();
-                
+                node = downloadQueue.take();                
+  
+                phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetValue(++count);
+                  
                 if (node == Node.TERMINATE) break; 
 
             } catch (InterruptedException e) { 
@@ -169,13 +223,13 @@ public final class Fetcher implements Runnable {
                 
                 toolbox.net.NetTools.downloadUrlToPathname(node.getAbsoluteUrl(), pathname);                
                 
-                System.out.println("BAIXOU :" + pathname);
+                System.out.println(msg$1 + pathname);
                 
             } catch (IOException e) {
                 
                fails.add(node);
                
-               System.out.println("FALHOU :" + pathname);
+               System.out.println(msg$2 + pathname);
                
                file.delete();
           
@@ -207,7 +261,11 @@ public final class Fetcher implements Runnable {
             
         }
         
-        toolbox.regex.Regex urlRegex = new toolbox.regex.Regex("url\\((\"|')(.+?)(\"|')\\)");        
+        toolbox.regex.Regex urlRegex = new toolbox.regex.Regex("url\\((\"|')(.+?)(\"|')\\)");  
+
+        int countCssFiles = 0;
+        phantom.gui.GlobalComponents.CSS_PROGRESS_BAR.concurrentSetMaximum(cssFileList.size());
+        phantom.gui.GlobalComponents.CSS_PROGRESS_BAR.concurrentSetValue(0);        
         
         for (String pathname: cssFileList) {
             
@@ -255,6 +313,8 @@ public final class Fetcher implements Runnable {
                 phantom.exception.ExceptionTools.crashMessage(null, e);  
                 
             }//try-catch
+            
+            phantom.gui.GlobalComponents.CSS_PROGRESS_BAR.concurrentSetValue(++countCssFiles);             
   
         }//for
         
@@ -273,16 +333,25 @@ public final class Fetcher implements Runnable {
      * 
      */
     @Override
-    @SuppressWarnings("null")
     public void run() {
+        
+        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$3); 
         
         consume();
         
+        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$4); 
+        
         searchInCssFiles();
+        
+        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$5);
         
         consume(); 
         
-        saveFails();//Gravar a lista de falhas        
+        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$6);
+        
+        saveFails();//Gravar a lista de falhas  
+        
+        phantom.gui.GlobalComponents.TERMINAL.sendTerminateSignal(msg$7);    
  
     }//run      
 

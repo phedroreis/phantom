@@ -6,6 +6,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
@@ -25,6 +27,35 @@ public final class HrefSrcEditor {
     private static HashMap<String, String> urlsMap;
     
     private static phantom.fetch.Fetcher fetcher;
+
+    private static String msg$1;
+    private static String msg$2;
+    
+    /*
+    * Internacionaliza as Strings "hardcoded" na classe
+    */
+    static {
+        
+        try {
+            
+            ResourceBundle rb = 
+                ResourceBundle.getBundle(
+                    "phantom.properties.HrefSrcEditor", 
+                    toolbox.locale.Localization.getLocale()
+                );
+            
+            msg$1 = rb.getString("msg$1");
+            msg$2 = rb.getString("msg$2");
+            
+        } 
+        catch (NullPointerException | MissingResourceException | ClassCastException e) {
+           
+            // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$1 = "Starting forum pages edition...";
+            msg$2 = "Forum pages edition is concluded!";
+        }
+        
+    }//bloco static     
     
     @SuppressWarnings("UnusedAssignment")
     public void edit() throws IOException, XMLParseException, InterruptedException {
@@ -41,6 +72,12 @@ public final class HrefSrcEditor {
         
         String forumMainPageUrl = MAIN_PAGE_URL + "\"";
         String mainPageFile = "./" + MAIN_PAGE_FILE + "\"";
+
+        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$1);
+
+        int count = 0;
+        phantom.gui.GlobalComponents.EDIT_PROGRESS_BAR.setMaximum(listPages.size());
+        phantom.gui.GlobalComponents.EDIT_PROGRESS_BAR.setValue(0);
         
         for (String pathname : listPages) {
             
@@ -83,8 +120,12 @@ public final class HrefSrcEditor {
             
             rawFile.delete();
             
+            phantom.gui.GlobalComponents.EDIT_PROGRESS_BAR.setValue(++count); 
+            
         }//for
-        
+
+        phantom.gui.GlobalComponents.TERMINAL.sendTerminateSignal(msg$2);
+            
         fetcher.terminate();
                 
         File rawpagesDir = new File(RAW_PAGES_DIR);
@@ -92,11 +133,7 @@ public final class HrefSrcEditor {
         rawpagesDir.delete();        
 
     }//edit
-    
-    public static void main(String[] args) throws IOException, XMLParseException, InterruptedException {
-        HrefSrcEditor f = new HrefSrcEditor();
-        f.edit();
-    }
+
     
 /*======================================================================================================================
            Classe privada para o parsing dos arquivos HTML das paginas do forum. 

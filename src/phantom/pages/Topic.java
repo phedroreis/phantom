@@ -21,7 +21,9 @@ final class Topic extends Page {
         setPageUrl(url);
         setPageFilename(filename);
         setPageParser(null);
-        setNumberOfPages(( (Integer.parseInt(numberOfPosts) + 1) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1);
+        
+        setNumberOfPages( ( Integer.parseInt(numberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1);
+        
         setDateTimeOfLastPostOnThisPage(lastPostTime);
 
     }//construtor

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
-import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalConstants.*;
 
 /**
@@ -73,6 +72,7 @@ public final class Main {
     /**
      * @param args the command line arguments
      */
+    @SuppressWarnings("UseSpecificCatch")
     public static void main(String[] args) {
         
         try {
@@ -84,36 +84,12 @@ public final class Main {
             */
             Initializer.init();
 
-            /*
-            Cria objeto para baixar as paginas do forum, inicializado com data-hora da 
-            ultima postagem no ultimo backup. Se este for o 1o backup, a data-hora eh
-            lida como "ano 0"
-            */
-            phantom.pages.Downloader downloader = 
-                new phantom.pages.Downloader(
-                    Initializer.readDateTimeOfLastPostFromLastBackup()
-                );
-
-            /*
-            Baixa, incrementalmente, paginas do forum (Main, Headers, Sections, Topics)
-            */
-            downloader.downloadAllPages();
+            phantom.gui.MainFrame mainFrame = new phantom.gui.MainFrame();
             
-            phantom.edit.HrefSrcEditor hrefSrcEditor = new phantom.edit.HrefSrcEditor();
-            
-            hrefSrcEditor.edit();            
-            
-            /*
-            Salva a data-hora da ultima postagem do forum neste backup.
-            */
-            Finalizer.saveDateTimeOfLastPostFromThisBackup(
-                downloader.getDateTimeOfLastPostFromThisBackup()
-            );
-
-            toolbox.log.Log.closeFile();//Fecha o arquivo de log.
+            mainFrame.setVisible(true);
         
         }
-        catch (IOException | XMLParseException | InterruptedException e) {
+        catch (Exception e) {
             
             phantom.exception.ExceptionTools.crashMessage(null, e);
             

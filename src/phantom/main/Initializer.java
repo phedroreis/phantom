@@ -17,67 +17,7 @@ import static phantom.global.GlobalConstants.*;
  * @since 1.0
  * @version 1.0 - 27 de agosto de 2024
  */
-final class Initializer {
-    
-    /**
-     * 
-     * @return
-     */
-	public static String readDateTimeOfLastPostFromLastBackup() {
-
-        toolbox.log.Log.exec(
-            "phantom.main",
-            "Initializer", 
-            "readDateTimeOfLastPostFromLastBackup"
-        ); 
-        
-        toolbox.log.Log.println(
-            "Lendo data-hora da postagem mais recente do mais recente backup"
-        );
-        
-        Properties props = new Properties();
-        
-        try ( FileInputStream in = new FileInputStream(UPDATE_PATHNAME) ) { 
-            
-            props.load(in); 
-        }
-        catch (IOException e) {
-            
-            toolbox.log.Log.ret(
-                "phantom.main",
-                "Initializer", 
-                "readDateTimeOfLastPostFromLastBackup",
-                ANCIENT_TIMES
-            );   
-            
-            return ANCIENT_TIMES;
-            
-        }
-  
-        String last = props.getProperty("last");
-
-        if (last == null) {
-            
-            toolbox.log.Log.ret(
-                "phantom.main",
-                "Initializer", 
-                "readDateTimeOfLastPostFromLastBackup",
-                ANCIENT_TIMES
-            );  
-            
-            return ANCIENT_TIMES;
-        }
-        
-        toolbox.log.Log.ret(
-            "phantom.main",
-            "Initializer", 
-            "readDateTimeOfLastPostFromLastBackup",
-            last
-        );         
-        
-        return last;
-        
-    }//readDateTimeOfLastPostFromLastBackup 
+public final class Initializer {
     
     /**
      * 
