@@ -3,6 +3,7 @@ package phantom.pages;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,9 +18,9 @@ import static phantom.global.GlobalConstants.*;
  */
 public final class Reader {
     
-    public static final int LEXICAL = 0;
-    public static final int LAST_POST = 1;
-    public static final int CREATION_DATE = 2;
+    private static final int LEXICAL = 0;
+    private static final int LAST_POST = 1;
+    private static final int CREATION_DATE = 2;
     
     private static final Pattern PATTERN = Pattern.compile("\\d+");    
     
@@ -32,31 +33,30 @@ public final class Reader {
      * @throws XMLParseException
      * @throws IOException
      */
-    public TreeSet<Page> readAllPages(final int orderBy) 
-        throws XMLParseException, IOException, NullPointerException {
+    public TreeSet<Page> readAllPages(final int orderBy) throws Exception {
         
-        LinkedList<Page> sectionsList = new LinkedList<>();
-        LinkedList<Page> topicsList = new LinkedList<>();
+        List<Page> sectionsList = new LinkedList<>();
+        List<Page> topicsList = new LinkedList<>();
         
         main = new phantom.pages.Main();
 
-        LinkedList<Page> headersList = main.read();
-        
-        for (Page header : headersList) sectionsList.addAll(header.read());           
-        
+        List<Page> headersList = main.read();
+       
+        for (Page header : headersList) sectionsList.addAll(header.read());  
+      
         for (Page section : sectionsList) topicsList.addAll(section.read());
        
         TreeSet<Page> topicsSet;
         
         switch (orderBy) {
             
-            case 0:
+            case LEXICAL:
                 topicsSet = new TreeSet<>(new LexicalComparator());
                 break;
-            case 1:
+            case LAST_POST:
                 topicsSet = new TreeSet<>(new LastPostComparator());
                 break;
-            case 2:
+            case CREATION_DATE:
                 topicsSet = new TreeSet<>(new CreationDateComparator());
                 break;
             default:
@@ -128,12 +128,6 @@ public final class Reader {
             
             return b - a;            
         }       
-    }
-    
-    public static void main(String[] args) throws XMLParseException, IOException {
-        Reader r = new Reader();
-        TreeSet<Page> tree = r.readAllPages(LEXICAL);
-        for (Page page : tree) System.out.println(page);
     }
 
 }//classe Reader

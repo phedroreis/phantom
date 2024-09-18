@@ -10,6 +10,8 @@ public final class GlobalConstants {
     
     public static final String FORUM_NAME = GlobalStrings.FORUM_NAME.get();
     
+    public static final String MAIN_PAGE_FILE = FORUM_NAME + ".html";
+    
     public static final String MAIN_PAGE_URL = GlobalStrings.MAIN_PAGE_URL.get();
 
     public static final String ROOT_URL = GlobalStrings.ROOT_URL.get();

@@ -1,12 +1,13 @@
-package phantom.gui.custom;
+package phantom.gui;
 
+import java.awt.Canvas;
 import java.awt.Font;
-import java.io.FileNotFoundException;
+import java.awt.FontMetrics;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.JTextArea;
-import static phantom.gui.GlobalComponents.*;
+import static phantom.time.GlobalCrons.*;
 
 /**
  *
@@ -14,10 +15,16 @@ import static phantom.gui.GlobalComponents.*;
  * @since
  * @version
  */
-public final class CustomTextArea extends JTextArea implements Runnable {
+final class CustomTextArea extends JTextArea implements Runnable {
+    
+    private static final int FONT_SIZE = 11;
+    private static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, FONT_SIZE);
+    private static final FontMetrics FM = new Canvas().getFontMetrics(MONO);
+    private static final int LINE_HEIGHT = FM.getHeight();
     
     private int countTerminateSignals;
     private final LinkedBlockingQueue<String> terminateSignalsQueue;
+
     
     private static String msg$1;
     
@@ -42,6 +49,11 @@ public final class CustomTextArea extends JTextArea implements Runnable {
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "BACKUP IS OVER!";         
         }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
         
     }//bloco static        
 
@@ -49,10 +61,13 @@ public final class CustomTextArea extends JTextArea implements Runnable {
      * 
      */
     public CustomTextArea() {
+
+        super(8, 66);
         
-        super(10, 50);
+        setFont(MONO);
+ 
         setEditable(false); 
-        setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+      
         terminateSignalsQueue = new LinkedBlockingQueue<>();
         countTerminateSignals = 0;
         
@@ -70,29 +85,25 @@ public final class CustomTextArea extends JTextArea implements Runnable {
     
     /**
      * 
-     * @param parentWidth 
-     */
-    public void resize(final int parentWidth) {
+     * 
+     */ 
+    public void setDimensions(final int panelWidth, final int panelHeight) {
         
-        setColumns(parentWidth / 10);
-        
+        if (panelHeight == 0) return; //south panel nao e visivel
+        setColumns(panelWidth / (FONT_SIZE - 2));
+        setRows((panelHeight / LINE_HEIGHT) - 2);
+
     }//resize
     
     /**
      * 
      * @param signal 
+     * @throws Exception Em caso de InterruptedException 
      */
-    public void sendTerminateSignal(final String signal) {
+    public void sendTerminateSignal(final String signal) throws Exception {
         
-        try {
-            
-            terminateSignalsQueue.put(signal);
-            
-        } catch (InterruptedException e) {
-            
-            phantom.exception.ExceptionTools.crashMessage(null, e);
-        }
-        
+        terminateSignalsQueue.put(signal);
+  
     }//sendTerminateSignal
     
     /**
@@ -122,14 +133,40 @@ public final class CustomTextArea extends JTextArea implements Runnable {
                 
                 if (countTerminateSignals == 2) {
                     
-                    concurrentAppendln(msg$1 + ELAPSED_TIME.toString() + '\n');
+                    concurrentAppendln(
+                        msg$1 + 
+                        BACKUP_ELAPSED_TIME.toString() +
+                        '\n'
+                    );
+                    
+                    System.out.println(
+                        toolbox.string.StringTools.NEWLINE +
+                        msg$1 + 
+                        toolbox.string.StringTools.NEWLINE    
+                    );
+                    
+                    toolbox.log.Log.println("******** ENCERROU PROCESSO DE BACKUP ********");
+                    
                     countTerminateSignals = 0;
-                    phantom.main.Initializer.init();
-                    NORTH.setVisible(true);   
+
+                    GUInterface.northPanelSetVisible(true); 
+                    GUInterface.centerPanelSetVisible(false);
+                    if (GUInterface.getMainFrameHeight() < 260)
+                        GUInterface.mainFrameSetSize(GUInterface.getMainFrameWidth(), 260);
+                    /*
+                    Salva a data-hora da ultima postagem do forum neste backup.
+                    */
+                    phantom.time.TimeTools.saveDateTimeOfLastPostFromThisBackup(
+                        
+                        GUInterface.getDateTimeOfLastPostFromLastBackup()
+                        
+                    );
+                    
+                    toolbox.log.Log.println("******** SALVOU REGISTRO DE ULTIMO POST ********");
                     
                 }
                 
-            } catch (InterruptedException | FileNotFoundException e) {
+            } catch (Exception e) {
                 
                 phantom.exception.ExceptionTools.crashMessage(null, e);
                 

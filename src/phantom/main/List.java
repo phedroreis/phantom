@@ -1,35 +1,22 @@
 package phantom.main;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.TreeSet;
-import javax.management.modelmbean.XMLParseException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import static phantom.global.GlobalConstants.ROOT_DIR;
+import static phantom.global.GlobalConstants.*;
 
 /**
  *
  * @author Pedro Reis
  */
 public class List extends JFrame {
-    
-    private static final String HEAD =
-"<!DOCTYPE html>\n<html lang=\"pt-br\">\n<head>\n<meta charset=\"utf-8\" />\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
-"<link rel=\"shortcut icon\" href=\"./favicon.png\" />\n<title>Lista de T\u00f3picos</title>" +
-"<link href=\"./assets/css/font-awesome.min.css?assets_version=26\" rel=\"stylesheet\">" +
-"<link href=\"./styles/basic_aqua/theme/stylesheet.css?assets_version=26\" rel=\"stylesheet\">" +
-"<style>\nh2 { text-align:center; } ul { list-style: none; } li { font-size: 18px; margin: 0 10px 0 10px; } li:nth-child(odd) { background:#AFEEEE; }</style>" +
-"</head><body><header id=\"site-description\" class=\"site-description\">\n" +
-"<a id=\"logo\" class=\"logo\" href=\"./clubeceticismo.com.br.html\" title=\"Principal\">\n" +
-"<img src=\"./styles/basic_aqua/theme/images/logo.png\" alt=\"Clube Ceticismo\"></a><h2>T\u00f3picos de acesso p\u00fablico "; 
-    
     
     private final JPanel westPanel;
     private final JPanel eastPanel;
@@ -43,7 +30,20 @@ public class List extends JFrame {
         
         super("Lista de T\u00f3picos");
         
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("favicon.png")));        
+        
         setLayout(new BorderLayout());
+        
+        addWindowListener(
+            new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    
+                    toolbox.log.Log.closeFile();
+                }
+             
+            }
+        );        
         
         westPanel = new JPanel();
         
@@ -78,7 +78,7 @@ public class List extends JFrame {
                 else
                     choice = 2;
                     
-                OrderedList lt = new OrderedList(choice);
+                phantom.run.OrderedList lt = new phantom.run.OrderedList(choice);
                 
                 Thread thread = new Thread(lt); thread.start();
             }
@@ -102,94 +102,30 @@ public class List extends JFrame {
     /**
      * @param args the command line arguments
      */
+    @SuppressWarnings("UseSpecificCatch")
     public static void main(String[] args) {
   
         try {
-            Initializer.init();
+            
+            //Cria, se nao existir ainda, o diretorio onde sera gravado o arquivo de log
+            toolbox.file.FileTools.createDirsIfNotExists(LOG_DIR);
+        
+            //Cria arquivo de log. O nome sera a date e hora atual.
+            toolbox.log.Log.createLogFile(LOG_DIR);    
             
             List listAllTopics = new List();
             
             listAllTopics.setVisible(true);
         } 
-        catch (FileNotFoundException e) {
+        catch (Exception e) {
+             
+            e.printStackTrace(toolbox.log.Log.getStream());
             
-            phantom.exception.ExceptionTools.crashMessage(null, e);
+            toolbox.log.Log.closeFile();
+            
+            phantom.exception.ExceptionTools.crash(e);
         }
         
     }//main
-    
-    /*
-    *
-    */
-    private class OrderedList implements Runnable {
-        
-        private final int orderBy;
-        
-        /*
-        *
-        */
-        public OrderedList(final int choice) {
-            
-            this.orderBy = choice;
-
-        }//construtor
-        
-        /*
-        *
-        */
-        @Override
-        public void run() {
-            
-            try {
-                
-                StringBuilder sb = new StringBuilder(HEAD);
-                
-                switch (orderBy) {
-                    case 0:
-                        sb.append("por ordem alfab\u00e9tica");
-                        break;
-                    case 1:
-                        sb.append("por postagem mais recente");
-                        break;
-                    case 2:
-                        sb.append("por data de cria\u00e7\u00e3o");
-                }
-                
-                sb.append("</h2></header><ul>");
-                
-                phantom.pages.Reader reader = new phantom.pages.Reader();
-                
-                TreeSet<phantom.pages.Page> topicsSet = reader.readAllPages(orderBy);
-                
-                for (phantom.pages.Page page : topicsSet) 
-                    
-                    sb.append("<li><a href=\"").
-                       append(phantom.pages.Reader.topicFilenameToUrl(page)).
-                       append("\">").
-                       append(page.getPageName()).
-                       append("</a></li>\n");
-
-                sb.append("</ul></body></html>");
-                
-                String pathname = ROOT_DIR + "_list.html";
-                
-                toolbox.textfile.TextFileHandler tfh =
-                    new toolbox.textfile.TextFileHandler(pathname, "utf8");
-                
-                tfh.setContent(sb.toString());
-                
-                tfh.write();
-                
-                toolbox.file.FileTools.openWebPage(new File(pathname));
-                
-            } catch (XMLParseException | IOException | NullPointerException e) {
-                
-                phantom.exception.ExceptionTools.crashMessage(null, e);
-                
-            }
-            
-        }//run
-        
-    }//classe privada OrderedList
-    
+     
 }//ListAllTopics

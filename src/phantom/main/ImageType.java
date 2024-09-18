@@ -11,32 +11,28 @@ import static phantom.global.GlobalConstants.ROOT_DIR;
 public class ImageType {
 
     @SuppressWarnings("UseSpecificCatch")
-    public static void main(String[] args) {
-        
-        try {    
+    public static void main(String[] args) throws Exception {
 
-            toolbox.file.SearchFolders s = new toolbox.file.SearchFolders(".*", false);
-            
-            LinkedList<File> list = s.search(new File(ROOT_DIR + "download"));
+        toolbox.file.SearchFolders s = new toolbox.file.SearchFolders(".*", false);
 
-            for (File file: list) {        
+        LinkedList<File> list = s.search(new File(ROOT_DIR + "download"));
 
-                ImageInputStream iis = ImageIO.createImageInputStream(file);
+        for (File file: list) {        
 
-                Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(iis);
+            ImageInputStream iis = ImageIO.createImageInputStream(file);
 
-                if (imageReaders.hasNext()) {
-                    
-                    ImageReader reader = (ImageReader) imageReaders.next();
+            Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(iis);
 
-                    System.out.printf("%s.%s%n", file.getName(), reader.getFormatName());
+            if (imageReaders.hasNext()) {
 
-                }  
+                ImageReader reader = (ImageReader) imageReaders.next();
 
-            }
+                System.out.printf("%s.%s%n", file.getName(), reader.getFormatName());
+
+            }  
 
         }
-        catch (Exception e) {} 
+
     }
     
 }

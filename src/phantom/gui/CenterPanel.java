@@ -1,17 +1,14 @@
 package phantom.gui;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import static java.awt.GridBagConstraints.*;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
+import java.awt.GridBagConstraints;
+import static java.awt.GridBagConstraints.*;
 
 /**
  *
@@ -19,10 +16,14 @@ import javax.swing.border.EtchedBorder;
  * @since
  * @version
  */
-public final class CenterPanel extends JPanel {
+final class CenterPanel extends JPanel {
     
     private final GridBagLayout layout;
     private final GridBagConstraints cons;
+    
+    private final JLabel[] labelArray;
+    private final CustomProgressBar[] progressBarArray;
+ 
    
     private static String msg$1;
     private static String msg$2;
@@ -56,6 +57,11 @@ public final class CenterPanel extends JPanel {
             msg$3 = "Downloading static files :";
             msg$4 = "Searching CSS files :";
         } 
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
         
     }//bloco static    
     
@@ -68,31 +74,32 @@ public final class CenterPanel extends JPanel {
         cons = new GridBagConstraints();
         
         setLayout(layout);
-        setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        setOpaque(true);
+        setBorder(GUInterface.STANDART_BORDER);
         
-        JLabel htmlLabel = new JLabel(msg$1);
-        JLabel editionLabel = new JLabel(msg$2);
-        JLabel staticLabel = new JLabel(msg$3);
-        JLabel cssLabel = new JLabel(msg$4);
+        labelArray = new JLabel[4];
         
+        labelArray[0] = new JLabel(msg$1);
+        labelArray[1] = new JLabel(msg$2);
+        labelArray[2] = new JLabel(msg$3);
+        labelArray[3] = new JLabel(msg$4);        
         
         cons.weightx = 1;
-        cons.weighty = 1;
-        cons.insets = new Insets(0, 4, 0, 0);        
-        addComponent(htmlLabel,    0, 0, 1, 1);
-        addComponent(editionLabel, 1, 0, 1, 1);
-        addComponent(staticLabel,  2, 0, 1, 1);
-        addComponent(cssLabel,     3, 0, 1, 1);        
+        cons.weighty = 0;
+        cons.insets = new Insets(0, 4, 0, 0); 
+        for (int i = 0; i < labelArray.length; i++)
+            addComponent(labelArray[i], i, 0, 1, 1);
+       
+        progressBarArray = new CustomProgressBar[4];
+        
+        for (int i = 0; i < progressBarArray.length; i++)
+            progressBarArray[i] = new CustomProgressBar();
+ 
         
         cons.weightx = 9;
-        cons.weighty = 1;
+        cons.weighty = 0;
         cons.insets = new Insets(10, 4, 10, 4);
-        addComponent(GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR, 0, 1, 10, 1);
-        addComponent(GlobalComponents.EDIT_PROGRESS_BAR, 1, 1, 10, 1);
-        addComponent(GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR,  2, 1, 10, 1);
-        addComponent(GlobalComponents.CSS_PROGRESS_BAR,  3, 1, 10, 1);        
-        
+        for (int i = 0; i < 4; i++) 
+            addComponent(progressBarArray[i], i, 1, 10, 1);  
 
     }//construtor
     
@@ -102,7 +109,7 @@ public final class CenterPanel extends JPanel {
     private void addComponent(Component c, int row, int column, int width, int height) {
         
         cons.anchor = WEST;
-        cons.fill = BOTH;    
+        cons.fill = HORIZONTAL;    
         cons.gridy = row;
         cons.gridx = column;
         cons.gridwidth = width;
@@ -111,5 +118,29 @@ public final class CenterPanel extends JPanel {
         add(c);
         
     }
+    
+    public void setValue(final int indexBar, final int value) {
+        
+        progressBarArray[indexBar].setValue(value);
+        
+    }
+    
+    public void setMaximum(final int indexBar, final int maximum) {
+        
+        progressBarArray[indexBar].setMaximum(maximum);
+        
+    }        
+    
+    public void concurrentSetValue(final int indexBar, final int value) {
+        
+        progressBarArray[indexBar].concurrentSetValue(value);
+        
+    }
+    
+    public void concurrentSetMaximum(final int indexBar, final int maximum) {
+        
+        progressBarArray[indexBar].concurrentSetMaximum(maximum);
+        
+    }    
 
 }//classe CenterPanel

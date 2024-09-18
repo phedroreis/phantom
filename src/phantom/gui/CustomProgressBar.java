@@ -1,8 +1,6 @@
-package phantom.gui.custom;
+package phantom.gui;
 
-import javax.swing.BorderFactory;
 import javax.swing.JProgressBar;
-import javax.swing.border.EtchedBorder;
 
 /**
  *
@@ -10,7 +8,7 @@ import javax.swing.border.EtchedBorder;
  * @since
  * @version
  */
-public final class CustomProgressBar extends JProgressBar{
+final class CustomProgressBar extends JProgressBar{
 
     /**
      * 
@@ -19,7 +17,7 @@ public final class CustomProgressBar extends JProgressBar{
         
         super();
         setStringPainted(true);
-        setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        setBorder(GUInterface.STANDART_BORDER);
         
     }//construtor
     

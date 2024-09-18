@@ -2,6 +2,7 @@ package phantom.gui;
 
 import java.awt.FlowLayout;
 import javax.swing.JPanel;
+import static phantom.gui.GUInterface.STANDART_BORDER;
 
 /**
  *
@@ -9,7 +10,9 @@ import javax.swing.JPanel;
  * @since
  * @version
  */
-public final class NorthPanel extends JPanel{
+final class NorthPanel extends JPanel{
+    
+    private final NorthInnerLeftPanel northLeftPanel;
     
     /**
      * 
@@ -18,10 +21,32 @@ public final class NorthPanel extends JPanel{
         
         setLayout(new FlowLayout());
         
-        add(new NorthLeftPanel());
+        northLeftPanel = new NorthInnerLeftPanel();
         
-        add(new NorthRightPanel());
+        add(northLeftPanel);
+        
+        add(new NorthInnerRightPanel()); 
 
     }//construtor
+    
+    /**
+     * 
+     * @return 
+     */
+    public boolean isFullBackup() {
+        
+        return northLeftPanel.isFullBackup();
+        
+    }//isFullBackup
+    
+    /**
+     * 
+     * @return 
+     */
+    public boolean isPrivateAreaBackup() {
+        
+        return northLeftPanel.isPrivateAreaBackup();
+        
+    }//isPrivateAreaBackup
 
 }//classe NorthPanel

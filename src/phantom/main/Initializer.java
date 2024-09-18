@@ -1,13 +1,10 @@
 package phantom.main;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.EnumSet;
-import java.util.Properties;
 import phantom.global.GlobalStrings;
 import static phantom.global.GlobalConstants.*;
 
@@ -23,7 +20,7 @@ public final class Initializer {
      * 
      * @throws FileNotFoundException 
      */
-    private static void createLogDir() throws FileNotFoundException {
+    private static void createLogDir() throws Exception {
         
         toolbox.file.FileTools.createDirsIfNotExists(LOG_DIR);
         
@@ -32,7 +29,7 @@ public final class Initializer {
     /*
      *
      */
-    private static void createDirs() throws FileNotFoundException {
+    private static void createDirs() throws Exception {
         
         toolbox.log.Log.exec("phantom.main", "Initializer", "createDirs");
         
@@ -43,7 +40,7 @@ public final class Initializer {
             
             String pathname = dir.get();
             
-            toolbox.log.Log.println(pathname + ": criando se inexistir");
+            toolbox.log.Log.println(pathname + " : criado se inexistia");
             
             toolbox.file.FileTools.createDirsIfNotExists(pathname);
         }
@@ -55,7 +52,9 @@ public final class Initializer {
     /*
     *
     */
-    private static void createHtmlFiles() {
+    private static void createFiles() {
+        
+        toolbox.log.Log.exec("phantom.main", "Initializer", "createHtmlFiles"); 
         
         EnumSet<GlobalStrings> Php = 
             EnumSet.range(GlobalStrings.APPPHP_PATHNAME, GlobalStrings.UCPPHP_PATHNAME);
@@ -70,15 +69,44 @@ public final class Initializer {
                 
                 try (PrintWriter p = new PrintWriter(pathname, "utf8")) {
                     
+                    toolbox.log.Log.println(pathname + " : criado");
+                    
                     p.println(GlobalStrings.getHtml(pathname));
                     p.close();
                     
                 }
-                catch (FileNotFoundException | UnsupportedEncodingException e) {} 
+                catch (FileNotFoundException | UnsupportedEncodingException e) {
+                    
+                    e.printStackTrace(System.err);
+                } 
                
             }//if         
 
         }//for
+        
+        String pathname = GlobalStrings.UPDATE_PATHNAME.get();
+        
+        File file = new File(pathname);
+        
+        if (!file.exists()) {
+                
+            try (PrintWriter p = new PrintWriter(pathname, "utf8")) {
+
+                toolbox.log.Log.println(pathname + " : criado");
+
+                p.println("privatearea=0000-00-00T00\\:00\\:00+00\\:00");
+                p.println("publicarea=0000-00-00T00\\:00\\:00+00\\:00");
+                p.close();
+
+            }
+            catch (FileNotFoundException | UnsupportedEncodingException e) {
+
+                phantom.exception.ExceptionTools.crash(e);
+            } 
+
+        }//if           
+
+        toolbox.log.Log.ret("phantom.main", "Initializer", "createHtmlFiles");  
         
     }//createHtmlFiles
     
@@ -86,7 +114,7 @@ public final class Initializer {
      * 
      * @throws FileNotFoundException 
      */
-    public static void init() throws FileNotFoundException {
+    public static void init() throws Exception {
         
         //Cria, se nao existir ainda, o diretorio onde sera gravado o arquivo de log
         createLogDir();
@@ -97,7 +125,8 @@ public final class Initializer {
         //Cria todos os diretorios de trabalho caso ainda nao existam
         createDirs();
         
-        createHtmlFiles();
+        //Cria todos os arquivos necessarios caso ainda nao existam
+        createFiles();
         
     }//init
 

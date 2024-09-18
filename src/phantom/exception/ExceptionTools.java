@@ -2,6 +2,7 @@ package phantom.exception;
 
 import java.awt.Component;
 import javax.swing.JOptionPane;
+import phantom.gui.GUInterface;
 
 /**
  *
@@ -13,13 +14,31 @@ public final class ExceptionTools {
     
     /**
      * 
+     * @param parentComponent
      * @param e 
      */
-    public static void crash(final Exception e) {
+    public static void errMessage(
+        final Component parentComponent, 
+        final Exception e) {
+ 
+        JOptionPane.showMessageDialog(
+            parentComponent, 
+            e,
+            "", 
+            JOptionPane.ERROR_MESSAGE
+        );
+       
+    }//crashMessage    
+    
+    /**
+     * 
+     * @param e 
+     */
+    public static void crash(Exception e) {
         
         e.printStackTrace(System.err);
-
-        System.exit(phantom.global.GlobalExceptionsCodes.getExceptionCode(e));
+        
+        System.exit(phantom.global.GlobalExceptionsCodes.getExceptionCode(e));  
         
     }//crash
     
@@ -32,18 +51,15 @@ public final class ExceptionTools {
         final Component parentComponent, 
         final Exception e) {
         
+        errMessage(parentComponent, e);
+        
         toolbox.log.Log.println(e.toString());
         
         e.printStackTrace(toolbox.log.Log.getStream());
-
-        JOptionPane.showMessageDialog(
-            parentComponent, 
-            e,
-            "Fatal", 
-            JOptionPane.ERROR_MESSAGE
-        );
         
-        crash(e);
+        GUInterface.killMainFrame();
+        
+        crash(e); 
         
     }//crashMessage
 

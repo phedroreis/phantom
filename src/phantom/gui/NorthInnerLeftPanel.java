@@ -13,14 +13,20 @@ import javax.swing.JRadioButton;
  * @since
  * @version
  */
-public final class NorthLeftPanel extends JPanel {
+final class NorthInnerLeftPanel extends JPanel {
     
     private final JRadioButton full;
     private final JRadioButton incremental;
     private final ButtonGroup group;
     
+    private final JRadioButton pub;
+    private final JRadioButton priv;
+    private final ButtonGroup group2;
+    
     private static String msg$1;
     private static String msg$2;
+    private static String msg$3;
+    private static String msg$4;    
     
     /*
     * Internacionaliza as Strings "hardcoded" na classe
@@ -31,12 +37,14 @@ public final class NorthLeftPanel extends JPanel {
             
             ResourceBundle rb = 
                 ResourceBundle.getBundle(
-                    "phantom.properties.NorthLeftPanel", 
+                    "phantom.properties.NorthInnerLeftPanel", 
                     toolbox.locale.Localization.getLocale()
                 );
             
             msg$1 = rb.getString("msg$1");//Full
             msg$2 = rb.getString("msg$2");//Incremental
+            msg$3 = rb.getString("msg$3");//Public Area
+            msg$4 = rb.getString("msg$4");//Private Area
             
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
@@ -44,14 +52,21 @@ public final class NorthLeftPanel extends JPanel {
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "Full";
             msg$2 = "Incremental";
+            msg$3 = "Public Area";
+            msg$4 = "Private Area";            
         } 
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
         
     }//bloco static
 
     /**
      * 
      */
-    public NorthLeftPanel() {
+    public NorthInnerLeftPanel() {
                 
         full = new JRadioButton(msg$1, false);
         incremental = new JRadioButton(msg$2, true);
@@ -65,7 +80,21 @@ public final class NorthLeftPanel extends JPanel {
         box.add(full);
         box.add(incremental);
         
-        add(box);      
+        add(box);     
+        
+        pub = new JRadioButton(msg$3, true);
+        priv = new JRadioButton(msg$4, false);
+        group2 = new ButtonGroup();
+        
+        group2.add(pub);
+        group2.add(priv);
+        
+        Box box2 = Box.createVerticalBox();
+        
+        box2.add(pub);
+        box2.add(priv);
+        
+        add(box2);         
 
     }//construtor
     
@@ -73,10 +102,20 @@ public final class NorthLeftPanel extends JPanel {
      * 
      * @return 
      */
-    public boolean isFull() {
+    public boolean isFullBackup() {
         
         return full.isSelected();
         
     }//isFull  
+    
+     /**
+     * 
+     * @return 
+     */
+    public boolean isPrivateAreaBackup() {
+        
+        return priv.isSelected();
+        
+    }//isPrivateAreaBackup
 
-}//classe NorthLeftPanel
+}//classe NorthInnerLeftPanel

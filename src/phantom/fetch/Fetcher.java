@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -18,6 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static phantom.global.GlobalConstants.*;
+import phantom.gui.GUInterface;
 
 /**
  *
@@ -81,14 +79,20 @@ public final class Fetcher implements Runnable {
             msg$5 = "Downloading files requested by CSS files...";
             msg$6 = "Saving fails file...";
             msg$7 = "Static files download concluded!";
+                
         }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
         
     }//bloco static    
     
     /*
     *
     */
-    private void readFails() throws InterruptedException {        
+    private void readFails() throws Exception {        
              
         try ( Scanner scanner = new Scanner(new File(FAILS_PATHNAME), "utf8") ) { 
             
@@ -109,25 +113,20 @@ public final class Fetcher implements Runnable {
             }//while
 
         }
-        catch (Exception e) {}
+        catch (FileNotFoundException e) {}//Um arquivo de falhas ainda nao foi criado
         
     }//readFails
     
     /*
     *
     */
-    private void saveFails() {
+    private void saveFails() throws Exception {
         
         try (PrintWriter printWriter = new PrintWriter(FAILS_PATHNAME, "utf8")) {
             
             for (Node node : fails) printWriter.println(node);
  
         } 
-        catch (FileNotFoundException | UnsupportedEncodingException e) {
-            
-            phantom.exception.ExceptionTools.crashMessage(null, e);            
-            
-        }
         
     }//saveFails
 
@@ -135,7 +134,7 @@ public final class Fetcher implements Runnable {
      *
      * @throws InterruptedException 
      */
-    public Fetcher() throws InterruptedException {
+    public Fetcher() throws Exception {
         
         fails = new LinkedList<>();
         
@@ -157,22 +156,18 @@ public final class Fetcher implements Runnable {
      * 
      * @throws InterruptedException Caso ocorra excecao quando a thread estiver dormindo.
      */
-    public void queue(final Node node) throws InterruptedException {
+    public void queue(final Node node) throws Exception {
 
         if (new File(node.getPathname()).exists()) return; 
-
-        //if (requestedsUrls.contains(node.getAbsoluteUrl())) return;
         
         if (requestedsPathnames.contains(node.getPathname())) return;
-
-        //requestedsUrls.add(node.getAbsoluteUrl());
-        
+       
         requestedsPathnames.add(node.getPathname());
         
         downloadQueue.put(node);
 
-        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetMaximum(++total);
-        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetValue(count);
+        GUInterface.progressBarConcurrentSetMaximum(2, ++total);
+        GUInterface.progressBarConcurrentSetValue(2, count);
 
     }//queue
     
@@ -180,39 +175,31 @@ public final class Fetcher implements Runnable {
      * 
      * @throws InterruptedException 
      */
-    public void terminate() throws InterruptedException {
+    public void terminate() throws Exception {
 
         downloadQueue.put(Node.TERMINATE);
 
-        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetMaximum(++total);
-        phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetValue(count);
+        GUInterface.progressBarConcurrentSetMaximum(2, ++total);
+        GUInterface.progressBarConcurrentSetValue(2, count);
 
     }//terminate  
     
     /*
     *
     */
-    private void consume() {
+    @SuppressWarnings("UseSpecificCatch")
+    private void consume() throws Exception {
         
         Node node = null;
        
         while (true) {
-            
-            try {
-
-                node = downloadQueue.take();                
+   
+            node = downloadQueue.take();                
   
-                phantom.gui.GlobalComponents.STATIC_DOWNLOAD_PROGRESS_BAR.concurrentSetValue(++count);
+            GUInterface.progressBarConcurrentSetValue(2, ++count);
                   
-                if (node == Node.TERMINATE) break; 
+            if (node == Node.TERMINATE) break; 
 
-            } catch (InterruptedException e) { 
-                
-                //Ver o que o livro faz quando ocorre InterruptedException
-                
-                phantom.exception.ExceptionTools.crashMessage(null, e);
-            }
-            
             String pathname = node.getPathname();
             
             File file = new File(pathname);
@@ -243,89 +230,57 @@ public final class Fetcher implements Runnable {
     /*
     *
     */
-    private void searchInCssFiles() {
+    private void searchInCssFiles() throws Exception {
         
        LinkedList<String> cssFileList = null;
         
         toolbox.file.SearchFolders searchFolders = 
             new toolbox.file.SearchFolders("^.+?\\.css", true);
         
-        try {
+        cssFileList = searchFolders.search(ROOT_DIR);
             
-            cssFileList = searchFolders.search(ROOT_DIR);
-            
-        } 
-        catch (IOException | SecurityException e) {
-            
-            phantom.exception.ExceptionTools.crashMessage(null, e);
-            
-        }
-        
         toolbox.regex.Regex urlRegex = new toolbox.regex.Regex("url\\((\"|')(.+?)(\"|')\\)");  
 
         int countCssFiles = 0;
-        phantom.gui.GlobalComponents.CSS_PROGRESS_BAR.concurrentSetMaximum(cssFileList.size());
-        phantom.gui.GlobalComponents.CSS_PROGRESS_BAR.concurrentSetValue(0);        
+        
+        GUInterface.progressBarConcurrentSetMaximum(3, cssFileList.size());
         
         for (String pathname: cssFileList) {
             
             toolbox.textfile.TextFileHandler textFileHandler;
-            
-            try {
-                
-                textFileHandler = new toolbox.textfile.TextFileHandler(pathname, "utf8");
-                
-                textFileHandler.read();
- 
-                urlRegex.setTarget(textFileHandler.getContent());
-          
-                while ( urlRegex.find() != null ) {
-                    
-                    String download = urlRegex.group(2);
-                     
-                    //Localiza a query do arquivo, se existir
-                    matcher = QUERY.matcher(download);
-                    String query = matcher.find() ? matcher.group() : "";  
-                    
-                    download = download.replace(query, "");
-                 
-                    String relativePathToDownload = 
-                        new File(pathname).getParent().replace("\\", "/") + '/' + download;
-                    
-                    relativePathToDownload = relativePathToDownload.replace(ROOT_DIR, "./");
-                    
-                    Node node = new Node(relativePathToDownload, relativePathToDownload);
-                    
-                    try {
-                        
-                        queue(node);
-                        
-                    } catch (InterruptedException e) {
-                        
-                        phantom.exception.ExceptionTools.crashMessage(null, e);
-                    }
-                    
-                }//while
+      
+            textFileHandler = new toolbox.textfile.TextFileHandler(pathname, "utf8");
 
-            }
-            catch (IOException | IllegalCharsetNameException | UnsupportedCharsetException e) {
-                
-                phantom.exception.ExceptionTools.crashMessage(null, e);  
-                
-            }//try-catch
-            
-            phantom.gui.GlobalComponents.CSS_PROGRESS_BAR.concurrentSetValue(++countCssFiles);             
+            textFileHandler.read();
+
+            urlRegex.setTarget(textFileHandler.getContent());
+
+            while ( urlRegex.find() != null ) {
+
+                String download = urlRegex.group(2);
+
+                //Localiza a query do arquivo, se existir
+                matcher = QUERY.matcher(download);
+                String query = matcher.find() ? matcher.group() : "";  
+
+                download = download.replace(query, "");
+
+                String relativePathToDownload = 
+                    new File(pathname).getParent().replace("\\", "/") + '/' + download;
+
+                relativePathToDownload = relativePathToDownload.replace(ROOT_DIR, "./");
+
+                Node node = new Node(relativePathToDownload, relativePathToDownload);
+
+                queue(node);
+
+            }//while
+
+            GUInterface.progressBarConcurrentSetValue(3, ++countCssFiles);             
   
         }//for
-        
-        try {
-            
-            terminate();
-            
-        } catch (InterruptedException e) {
-            
-            phantom.exception.ExceptionTools.crashMessage(null, e);
-        }        
+    
+        terminate();     
         
     }//searchInCssFiles
 
@@ -335,23 +290,37 @@ public final class Fetcher implements Runnable {
     @Override
     public void run() {
         
-        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$3); 
-        
-        consume();
-        
-        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$4); 
-        
-        searchInCssFiles();
-        
-        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$5);
-        
-        consume(); 
-        
-        phantom.gui.GlobalComponents.TERMINAL.concurrentAppendln(msg$6);
-        
-        saveFails();//Gravar a lista de falhas  
-        
-        phantom.gui.GlobalComponents.TERMINAL.sendTerminateSignal(msg$7);    
+        try {
+            
+            phantom.time.ElapsedTime elapsedTime = new phantom.time.ElapsedTime();
+            elapsedTime.start();
+            
+            GUInterface.terminalConcurrentAppendln(msg$3); 
+
+            consume();
+
+            GUInterface.terminalConcurrentAppendln(msg$4); 
+
+            searchInCssFiles();
+
+            GUInterface.terminalConcurrentAppendln(msg$5);
+
+            consume(); 
+
+            GUInterface.terminalConcurrentAppendln(msg$6);
+
+            saveFails();//Grava a lista de falhas 
+            
+            System.out.println(msg$7);        
+
+            GUInterface.terminalSendTerminateSignal(msg$7 + elapsedTime.toString());
+      
+        }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        } 
  
     }//run      
 

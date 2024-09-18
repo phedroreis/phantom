@@ -1,10 +1,10 @@
 package phantom.pages;
 
-import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import javax.management.modelmbean.XMLParseException;
+import phantom.gui.GUInterface;
 
 /**
  *
@@ -14,7 +14,7 @@ import javax.management.modelmbean.XMLParseException;
  */
 public final class Downloader {
     
-    private static final String FORMAT = "===== %s %s =====%n%n";
+    private static final String FORMAT = "===== %s =====%n%n";
     
     private Main main;
    
@@ -27,8 +27,7 @@ public final class Downloader {
     private static String msg$5;
     private static String msg$6;  
     private static String msg$7;
-    private static String msg$8;
-    
+
     /*
     * Internacionaliza as Strings "hardcoded" na classe
     */
@@ -48,22 +47,26 @@ public final class Downloader {
             msg$4 = rb.getString("msg$4");
             msg$5 = rb.getString("msg$5");
             msg$6 = rb.getString("msg$6");
-            msg$7 = rb.getString("msg$7");
-            msg$8 = rb.getString("msg$8");
-            
+            msg$7 = rb.getString("msg$7");            
+           
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
            
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
-            msg$1 = "main page";
-            msg$2 = "headers";
-            msg$3 = "sections";
-            msg$4 = "topics";
-            msg$5 = "Downloading";
-            msg$6 = "Parsing";  
-            msg$7 = "<<<<NEW POSTS SINCE LAST BACKUP>>>>";
-            msg$8 = "static files";
+            msg$1 = "Downloading main page and getting headers list";
+            msg$2 = "Downloading headers and getting sections list";
+            msg$3 = "Dowloaging sections and getting topics list";
+            msg$4 = "Downloagind topics";
+            msg$5 = "Gabarito, the restricted area is closed!";
+            msg$6 = "Most recently post:"; 
+            msg$7 = "Main page data";   
+            
         }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
         
     }//bloco static     
 
@@ -86,96 +89,140 @@ public final class Downloader {
         return main.getDateTimeOfLastPostOnThisPage();
         
     }//getDateTimeOfLastPostFromThisBackup
+    
+    /*
+    *
+    */
+    private void printMessages(final String msg1, final String msg2) {
+        
+        System.out.printf(FORMAT, msg1);
+  
+        GUInterface.terminalConcurrentAppendln(msg1 + "...");  
+ 
+        toolbox.log.Log.println("**** " + msg2 + " ****");           
+        
+    }//printMessages
+    
+    /*
+    *
+    */
+    private List<Page> downloadPagesList(
+        final String msg,
+        final String logMsg,
+        final List<Page> PagesList
+    ) throws Exception {
+        
+        List<Page> auxList;  
+        
+        List<Page> mergeList = new LinkedList<>();
+        
+        int count = 0;  
+        
+        GUInterface.progressBarSetMaximum(0, PagesList.size());  
+        
+        printMessages(msg, logMsg);
+     
+        for (Page page : PagesList) {
+       
+            auxList = page.download();
+            
+            if (auxList != null) {
+                mergeList.addAll(auxList);
+                System.out.println(page);
+            }
+   
+            GUInterface.progressBarSetValue(0, ++count);
+            
+        }// 
+        
+        return mergeList;
+        
+    }//downloadPagesList
 
     /**
      * 
-     * @throws XMLParseException
-     * @throws IOException
+     * @throws Exception
      */
-    public void downloadAllPages() throws XMLParseException, IOException {
+    public void downloadAllPages() throws Exception {
+        
+        toolbox.log.Log.exec("phantom.pages", "Downloader", "downloadAllPages");
         
         Page.setDateTimeOfLastPostFromLastBackup(dateTimeOfLastPostFromLastBackup);
         
-        LinkedList<Page> headersList;
-        LinkedList<Page> sectionsList = new LinkedList<>();
-        LinkedList<Page> topicsList = new LinkedList<>();
+        List<Page> headersList;
+        List<Page> sectionsList;
+        List<Page> topicsList;
+          
+        main = new phantom.pages.Main(); 
         
-        LinkedList<Page> auxList;
+        System.out.printf(FORMAT, msg$7);
         
-        main = new phantom.pages.Main();
+        System.out.println(main); 
         
-        System.out.printf(FORMAT, msg$5, msg$1);
+        printMessages(
+            msg$1,
+            "Baixando pagina inicial e obtendo lista de cabecalhos"
+        );
+         
+ 
+        headersList = main.download();              
         
-        phantom.gui.GlobalComponents.TERMINAL.append(msg$5 + " " + msg$1 + "...\n");
-        headersList = main.download();
+        if (GUInterface.isPrivateAreaBackup()) (new PrivateHeaders()).removeNonPrivateHeaders(headersList);
+  
         
+        if (headersList.isEmpty()) {
+            
+            main.setDateTimeOfLastPostOnThisPage(dateTimeOfLastPostFromLastBackup);
+            
+            System.out.println(msg$5 + toolbox.string.StringTools.NEWLINE);//Gabarito, the restricted area is closed!
+            
+            GUInterface.terminalConcurrentAppendln(msg$5); 
+            
+            phantom.exception.ExceptionTools.crashMessage(null, new NullPointerException(msg$5));
+        }
+
         //O header que tiver o post mais recente, tera, obviamente, o post mais recente do forum
-        main.setDateTimeOfLastPostOnThisPage(Page.getDateTimeOfLastestPostFromThisPageList(headersList));
+        main.setDateTimeOfLastPostOnThisPage(
+            Page.getDateTimeOfLastestPostFromThisPageList(headersList)        
+        ); 
         
-        System.out.println(main);
+        System.out.println(//Most recently post: 
+            msg$6 
+            + " " 
+            + main.getDateTimeOfLastPostOnThisPage() + " GMT"
+            + toolbox.string.StringTools.NEWLINE
+        );
         
-        System.out.printf(FORMAT, msg$6, msg$2);
+        GUInterface.terminalConcurrentAppendln(
+            msg$6 + " " + main.getDateTimeOfLastPostOnThisPage() + " GMT"
+        ); 
+
+        sectionsList = 
+            downloadPagesList(
+                msg$2,
+                "Baixando cabecalhos e obtendo lista de secoes",
+                headersList
+            );
         
-        int count = 0;
-        phantom.gui.GlobalComponents.TERMINAL.append(msg$6 + " " + msg$2 + "...\n");        
-        phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setMaximum(headersList.size());
-        phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setValue(0);
-        for (Page header : headersList) {
-       
-            auxList = header.download();
-            
-            if (auxList != null) {
-                sectionsList.addAll(auxList);
-                System.out.println(msg$7);
-            }
-            
-            System.out.println(header);       
-            phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setValue(++count);
-            
-        }//for
+ 
+        if (sectionsList.isEmpty()) return;        
+        topicsList = 
+            downloadPagesList(
+                msg$3,
+                "Baixando secoes e obtendo lista de topicos",
+                sectionsList
+            );
+ 
    
-        if (sectionsList.isEmpty()) {
-            System.out.printf(FORMAT, msg$5, msg$8);            
-            return;
-        } 
-        System.out.printf(FORMAT, msg$5, msg$3);
+        if (topicsList.isEmpty()) return;        
+        downloadPagesList(
+            msg$4,
+            "Baixando topicos",
+            topicsList
+        );        
         
-        count = 0;
-        phantom.gui.GlobalComponents.TERMINAL.append(msg$5 + " " + msg$3 + "...\n");
-        phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setMaximum(sectionsList.size());
-        phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setValue(0);
-        for (Page section : sectionsList) {
-      
-            auxList = section.download();
-            
-            if (auxList != null) {
-                topicsList.addAll(auxList);
-                System.out.println(section);
-            }
-                    
-            phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setValue(++count); 
-            
-        }//for    
-   
-        if (topicsList.isEmpty()) {
-            System.out.printf(FORMAT, msg$5, msg$8);            
-            return;
-        } 
-        System.out.printf(FORMAT, msg$5, msg$4);
+        toolbox.log.Log.ret("phantom.pages", "Downloader", "downloadAllPages");  
         
-        count = 0;
-        phantom.gui.GlobalComponents.TERMINAL.append(msg$5 + " " + msg$4 + "...\n");
-        phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setMaximum(topicsList.size());
-        phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setValue(0);
-        for (Page topic : topicsList) {
-       
-            if (topic.download() != null) System.out.println(topic); 
-            
-            phantom.gui.GlobalComponents.HTML_DOWNLOAD_PROGRESS_BAR.setValue(++count);                    
-        }//for  
-        
-        System.out.printf(FORMAT, msg$5, msg$8);
-       
     }//downloadAllPages
 
 }//classe Downloader

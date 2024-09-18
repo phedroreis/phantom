@@ -41,6 +41,11 @@ final class Header extends Page implements Comparable {
             //Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "Error parsing how many topics has the section:";         
         }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }  
         
     }//bloco static     
     
@@ -59,7 +64,7 @@ final class Header extends Page implements Comparable {
     ) {
         
         toolbox.log.Log.exec("phantom.pages", "Header", "Construtor de Header");
-        toolbox.log.Log.param(name, url, filename);
+        toolbox.log.Log.param(name, url, filename, lastPostTime);
         
         setPageName(name);
         setPageUrl(url);
@@ -67,8 +72,7 @@ final class Header extends Page implements Comparable {
         setPageParser(new HeaderPageParser());
         setDateTimeOfLastPostOnThisPage(lastPostTime);
         setNumberOfPages(1);
-        
-        toolbox.log.Log.println(this.toString());
+         
         toolbox.log.Log.ret("phantom.pages", "Header", "Construtor de Header");
         
     }//construtor
@@ -100,7 +104,7 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     private Matcher matcher;
     
     @Override
-    public void openTagLevel0(toolbox.xml.Tag t) throws XMLParseException {
+    public void openTagLevel0(toolbox.xml.Tag t) {
         
         if (t.getTagName().equals("li")) {
             
@@ -157,7 +161,7 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
     }//closeTagLevel0    
     
     @Override
-    public void openTagLevel1(toolbox.xml.Tag t) throws XMLParseException {
+    public void openTagLevel1(toolbox.xml.Tag t) {
         
         String tagName = t.getTagName();
         

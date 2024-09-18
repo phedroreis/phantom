@@ -16,7 +16,10 @@ final class Topic extends Page {
         final String filename, 
         final String numberOfPosts,
         final String lastPostTime) {
-
+        
+        toolbox.log.Log.exec("phantom.pages", "Topic", "Construtor de Topic");
+        toolbox.log.Log.param(name, url, filename, numberOfPosts, lastPostTime);
+        
         setPageName(name);
         setPageUrl(url);
         setPageFilename(filename);
@@ -25,6 +28,8 @@ final class Topic extends Page {
         setNumberOfPages( ( Integer.parseInt(numberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1);
         
         setDateTimeOfLastPostOnThisPage(lastPostTime);
+        
+        toolbox.log.Log.ret("phantom.pages", "Topic", "Construtor de Topic");        
 
     }//construtor
 

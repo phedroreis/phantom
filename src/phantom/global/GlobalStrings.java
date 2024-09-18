@@ -111,7 +111,7 @@ private static final class Constants {
 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<link rel=\"shortcut icon\" href=\"./favicon.png\" />\n\n" +
 "<link href=\"./assets/css/font-awesome.min.css?assets_version=26\" rel=\"stylesheet\">\n" +
 "<link href=\"./styles/basic_aqua/theme/stylesheet.css?assets_version=26\" rel=\"stylesheet\">\n" +
-"<title>AVISO</title>\n<style>\n    h1, h2 { text-align: center; margin-top: 8%;  }\n</style>\n" +
+"<title>AVISO</title>\n<style>\n    h1, h2 { text-align: center; margin-top: 8%;  }\n    h3 { text-align: center; margin-top: 2%;  }</style>\n" +
 "</head>\n\n<body>\n\n<header>\n<a id=\"logo\" class=\"logo\" href=\"./clubeceticismo.com.br.html\" title=\"Aviso\">\n" +
 "<img src=\"./styles/basic_aqua/theme/images/logo.png\" data-src-hd=\"./styles/basic_aqua/theme/images/logo_hd.png\" alt=\"Clube Ceticismo\"/>\n</a>\n</header>\n<body>";    
     
@@ -157,9 +157,9 @@ private static final class Constants {
     public static final String POST_BODY =    
         H1 + 
         "<h2>Este tipo de link n\u00e3o pode ser gerado durante o processo de backup.</h2>" +
-        "<p>Para corrigir este problema em sua c\u00f3pia est\u00e1tica, execute o programa fix.jar.</p>" +
-        "<p>Obs: Se desejado que esse tipo de link aponte para sua respectiva postagem, " +
-        "fix.jar dever\u00e1 ser executado ap\u00f3s cada processo de backup.</p>";  
+        "<h3>Para corrigir este problema em sua c\u00f3pia est\u00e1tica, execute o programa fix.jar.</h3>" +
+        "<h3>Obs: Se desejado que esse tipo de link aponte para sua respectiva postagem, " +
+        "fix.jar dever\u00e1 ser executado ap\u00f3s cada processo de backup.</h3>";  
     
     public static final String POSTING_BODY =    
         H1 + 

@@ -2,10 +2,12 @@ package phantom.pages;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalConstants.*;
+import phantom.gui.GUInterface;
 
 /***********************************************************************************************************************
 * Superclasse para as classes que analisam, coletam, armazenam e fornecem
@@ -73,7 +75,7 @@ protected enum MaxList {
     * Para uma pagina de Section, armazena a lista de Topics deste Section.
     * Para uma pagina de Topic deve armazenar <code>null</code>.
     ==================================================================================================================*/
-    private LinkedList<Page> pagesList;
+    private List<Page> pagesList;
     
     /*
     *
@@ -108,6 +110,11 @@ protected enum MaxList {
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "Last Post : %s%nName : %s%nURL : %s%nFilename : %s%nN. of pages : %s%n";         
         }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }    
         
     }//bloco static      
    
@@ -226,9 +233,13 @@ protected enum MaxList {
     *******************************************************************************************************************/
     public String getPageFilename(final int pageIndex) {
         
-        if (pageIndex == 0) return pageFilename + ".html";
+        String ext = 
+            (pageFilename.startsWith(FORUM_NAME) && GUInterface.isPrivateAreaBackup()) ?
+                ".htm" : ".html";
+         
+        if (pageIndex == 0) return pageFilename + ext;
         
-        return pageFilename + "&start=" + (pageIndex * MaxList.MAX_TOPICS_TITLES_PER_PAGE.get()) + ".html";
+        return pageFilename + "&start=" + (pageIndex * MaxList.MAX_TOPICS_TITLES_PER_PAGE.get()) + ext;
         
     }//getPageFilename  
     
@@ -279,9 +290,11 @@ protected enum MaxList {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    protected String downloadPage(final int indexPage) throws IOException {
+    protected String downloadPage(final int indexPage) throws Exception {
         
         toolbox.log.Log.exec("phantom.pages", "Page", "downloadPage"); 
+        
+        toolbox.log.Log.println(this.getPageFilename(indexPage));
         
         String indexedUrl = getPageUrl(indexPage);
         String indexedFilename = RAW_PAGES_DIR + getPageFilename(indexPage);
@@ -315,12 +328,14 @@ protected enum MaxList {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    protected LinkedList<Page> download() throws XMLParseException, IOException {
+    protected List<Page> download() throws Exception {
         
         //A pagina cujo download foi solicitado nao foi atualizada apos o ultimo backup
         if (dateTimeOfLastPostFromLastBackup.compareTo(dateTimeOfLastPostOnThisPage) >= 0) return null;
         
         toolbox.log.Log.exec("phantom.pages", "Page", "download");
+        
+        toolbox.log.Log.println(this.getPageName());
         
         int n = getNumberOfPages();
         
@@ -351,23 +366,34 @@ protected enum MaxList {
      * @throws XMLParseException
      * @throws IOException 
      */
-    protected LinkedList<Page> read() 
-        throws XMLParseException, IOException, NullPointerException {
+    protected List<Page> read() throws Exception {
         
         if (parser == null) throw new NullPointerException();
         
-        String filename = ROOT_DIR + getPageFilename(0);
+        toolbox.log.Log.exec("phantom.pages", "Page", "read");
         
-        toolbox.textfile.TextFileHandler  tfh = 
-            new toolbox.textfile.TextFileHandler(filename, "utf8");
+        toolbox.log.Log.println(this.getPageName());        
         
-        tfh.read();
+        int n = getNumberOfPages();
         
-        String pageContent = tfh.getContent();
+        for (int i = 0; i < n; i++) {
+        
+            String filename = ROOT_DIR + getPageFilename(i);
 
-        toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
+            toolbox.textfile.TextFileHandler  tfh = 
+                new toolbox.textfile.TextFileHandler(filename, "utf8");
 
-        htmlParser.parse();
+            tfh.read();
+
+            String pageContent = tfh.getContent();
+
+            toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
+
+            htmlParser.parse();
+            
+        }//for
+        
+        toolbox.log.Log.ret("phantom.pages", "Page", "read");          
         
         return pagesList;
         
@@ -385,7 +411,7 @@ protected enum MaxList {
             getPageName(), 
             getPageUrl(0), 
             getPageFilename(0),            
-            dateTimeOfLastPostOnThisPage + " GMT-3", 
+            dateTimeOfLastPostOnThisPage + " GMT", 
             getNumberOfPages()
         );
         
@@ -393,14 +419,14 @@ protected enum MaxList {
     
     /**
      * 
-     * @param Headerslist
+     * @param headerslist
      * 
      * @return 
      */
-    protected static String getDateTimeOfLastestPostFromThisPageList(final LinkedList<Page> Headerslist) {
+    protected static String getDateTimeOfLastestPostFromThisPageList(final List<Page> headerslist) {
         
         toolbox.collection.CollectionsProcessor<Page, Page> cp = 
-            new toolbox.collection.CollectionsProcessor<>(Headerslist); 
+            new toolbox.collection.CollectionsProcessor<>(headerslist); 
         
         Page lastUpdateHeader = 
             cp.reduce(

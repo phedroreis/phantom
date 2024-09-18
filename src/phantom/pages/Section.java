@@ -46,6 +46,11 @@ final class Section extends Page {
             msg$1 = "Unexpected topic ID format from URL: ";  
             msg$2 = "Error parsing how many posts has the topic: ";//
         }
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
         
     }//bloco static   
     
@@ -79,8 +84,7 @@ final class Section extends Page {
             setNumberOfPages( ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 );
         
         setDateTimeOfLastPostOnThisPage(lastPostTime);
-        
-        toolbox.log.Log.println(toolbox.string.StringTools.NEWLINE + this.toString());        
+
         toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");
 
     }//construtor
@@ -101,7 +105,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
     private Matcher matcher;
     
     @Override
-    public void openTagLevel0(toolbox.xml.Tag t) throws XMLParseException {
+    public void openTagLevel0(toolbox.xml.Tag t) {
         
         String tagName = t.getTagName();
         
@@ -114,7 +118,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
     }//openTagLevel0
     
     @Override
-    public void closeTagLevel0 (toolbox.xml.Tag t) throws XMLParseException {
+    public void closeTagLevel0 (toolbox.xml.Tag t) {
         
         addPage(
             new Topic(
@@ -147,7 +151,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
         
         switch (tagName) {
             
-            case "a"://a url de uma section localizada em uma tag a
+            case "a"://a url de um topic localizada em uma tag a
 
                 if (classValue != null && classValue.equals("topictitle")) {
                     
