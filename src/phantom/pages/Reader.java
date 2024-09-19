@@ -83,14 +83,20 @@ public final class Reader {
     }//topicFilenameToUrl                                                                                                             
    
     private static class LexicalComparator implements Comparator<Page> {
+        
+        private String normalize(final String s) {
+            
+            return 
+                toolbox.string.StringTools.normalizeToCompare(s.replaceAll("&([a-z]+|#\\d+);", ""));
+        }
 
         @Override
         public int compare(Page topic, Page otherTopic) {
             
-            String topicName = toolbox.string.StringTools.normalizeToCompare(topic.getPageName());
+            String topicName = normalize(topic.getPageName());
             
-            String otherTopicName = toolbox.string.StringTools.normalizeToCompare(otherTopic.getPageName());
-            
+            String otherTopicName = normalize(otherTopic.getPageName());
+             
             return topicName.compareTo(otherTopicName);
         }
         

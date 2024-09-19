@@ -2,8 +2,8 @@ package phantom.main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.EnumSet;
 import phantom.global.GlobalStrings;
 import static phantom.global.GlobalConstants.*;
@@ -52,61 +52,47 @@ public final class Initializer {
     /*
     *
     */
-    private static void createFiles() {
+    private static void createFilesIfNotExists() {
         
-        toolbox.log.Log.exec("phantom.main", "Initializer", "createHtmlFiles"); 
+        toolbox.log.Log.exec("phantom.main", "Initializer", "createFilesIfNotExists"); 
         
         EnumSet<GlobalStrings> Php = 
-            EnumSet.range(GlobalStrings.APPPHP_PATHNAME, GlobalStrings.UCPPHP_PATHNAME);
+            EnumSet.range(GlobalStrings.UPDATE_PATHNAME, GlobalStrings.HELP_PATHNAME);
+        
+        Class cls = new Initializer().getClass();
         
         for (GlobalStrings php : Php) {
             
-            String pathname = php.get();
+            String targetPathname = php.get();
             
-            File file = new File(pathname);
+            File file = new File(targetPathname);
             
             if (!file.exists()) {
                 
-                try (PrintWriter p = new PrintWriter(pathname, "utf8")) {
+                String sourcePathname = file.getName();
+
+                try (PrintWriter p = new PrintWriter(targetPathname, "utf8")) {
                     
-                    toolbox.log.Log.println(pathname + " : criado");
+                    String contentFile = 
+                        toolbox.textfile.TextFileTools.readTextFileFromJar(cls, sourcePathname);                    
                     
-                    p.println(GlobalStrings.getHtml(pathname));
+                    toolbox.log.Log.println(targetPathname + " : criado");
+                    
+                    p.println(contentFile);
+                    
                     p.close();
                     
                 }
-                catch (FileNotFoundException | UnsupportedEncodingException e) {
+                catch (IOException e) {
                     
-                    e.printStackTrace(System.err);
+                    phantom.exception.ExceptionTools.crashMessage(null, e);
                 } 
                
             }//if         
 
         }//for
         
-        String pathname = GlobalStrings.UPDATE_PATHNAME.get();
-        
-        File file = new File(pathname);
-        
-        if (!file.exists()) {
-                
-            try (PrintWriter p = new PrintWriter(pathname, "utf8")) {
-
-                toolbox.log.Log.println(pathname + " : criado");
-
-                p.println("privatearea=0000-00-00T00\\:00\\:00+00\\:00");
-                p.println("publicarea=0000-00-00T00\\:00\\:00+00\\:00");
-                p.close();
-
-            }
-            catch (FileNotFoundException | UnsupportedEncodingException e) {
-
-                phantom.exception.ExceptionTools.crash(e);
-            } 
-
-        }//if           
-
-        toolbox.log.Log.ret("phantom.main", "Initializer", "createHtmlFiles");  
+        toolbox.log.Log.ret("phantom.main", "Initializer", "createFilesIfNotExists");  
         
     }//createHtmlFiles
     
@@ -126,7 +112,7 @@ public final class Initializer {
         createDirs();
         
         //Cria todos os arquivos necessarios caso ainda nao existam
-        createFiles();
+        createFilesIfNotExists();
         
     }//init
 

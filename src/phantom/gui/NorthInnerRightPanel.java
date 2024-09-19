@@ -28,6 +28,10 @@ final class NorthInnerRightPanel extends JPanel {
     private static String msg$1;
     private static String msg$2;
     private static String msg$3;    
+    private static String msg$4;
+    private static String msg$5;
+    private static String msg$6; 
+    private static String msg$7;    
     
     /*
     * Internacionaliza as Strings "hardcoded" na classe
@@ -45,13 +49,23 @@ final class NorthInnerRightPanel extends JPanel {
             msg$1 = rb.getString("msg$1");//Update
             msg$2 = rb.getString("msg$2");//Browse
             msg$3 = rb.getString("msg$3");//List Topics
+            msg$4 = rb.getString("msg$4");//full
+            msg$5 = rb.getString("msg$5");//incremental
+            msg$6 = rb.getString("msg$6");//private
+            msg$7 = rb.getString("msg$7");//public
+            
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
            
-            // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            // Opcoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "Update";
             msg$2 = "Browse";
             msg$3 = "List Topics";
+            msg$4 = "Backup full";
+            msg$5 = "Backup incremental";
+            msg$6 = "Private area"; 
+            msg$7 = "Public area";
+            
         }
         catch (Exception e) {
             
@@ -83,16 +97,26 @@ final class NorthInnerRightPanel extends JPanel {
             GUInterface.northPanelSetVisible(false);
             GUInterface.centerPanelSetVisible(true);
             GUInterface.southPanelSetVisible(true);
-            if (GUInterface.getMainFrameHeight() < 380)
-                GUInterface.mainFrameSetSize(GUInterface.getMainFrameWidth(), 380);            
+            
+            int pw = GUInterface.getMainFramePreferredWidth();
+            int ph = GUInterface.getMainFramePreferredHeight();            
+            
+            if (GUInterface.getMainFrameHeight() < ph || GUInterface.getMainFrameWidth() < pw)
+                GUInterface.setMainFrameSize(pw, ph);
+            GUInterface.setMainFrameMinimumSize(pw, ph);            
             
             for (int i = 0; i < 4; i++) GUInterface.progressBarSetValue(i, 0);
-
-            BACKUP_ELAPSED_TIME.start();
             
+            String backupType = 
+                (GUInterface.isFullBackup() ? msg$4 : msg$5) + 
+                " : " + 
+                (GUInterface.isPrivateAreaBackup() ? msg$6 : msg$7);
+
+            GUInterface.terminalConcurrentAppendln(backupType);
             toolbox.log.Log.println("******** INICIOU PROCESSO DE BACKUP ********");
-            toolbox.log.Log.println("Backup total: " + GUInterface.isFullBackup());
-            toolbox.log.Log.println("Backup area restrita: " + GUInterface.isPrivateAreaBackup());  
+            toolbox.log.Log.println(backupType);
+            
+            BACKUP_ELAPSED_TIME.start();            
             
             Thread thread = new Thread(new phantom.run.Run());
             thread.start();

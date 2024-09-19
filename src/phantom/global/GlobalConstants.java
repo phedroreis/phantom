@@ -24,9 +24,9 @@ public final class GlobalConstants {
     
     public static final String RAW_PAGES_DIR = GlobalStrings.RAW_PAGES_DIR.get();
     
-    public static final String UPDATE_PATHNAME = GlobalStrings.UPDATE_PATHNAME.get();
+    public static final String FAILS_PATHNAME = GlobalStrings.FAILS_PATHNAME.get();    
     
-    public static final String FAILS_PATHNAME = GlobalStrings.FAILS_PATHNAME.get();
+    public static final String UPDATE_PATHNAME = GlobalStrings.UPDATE_PATHNAME.get();
     
     public static final String CONFIG_PATHNAME = GlobalStrings.CONFIG_PATHNAME.get();
     
@@ -40,7 +40,9 @@ public final class GlobalConstants {
     
     public static final String SEARCHPHP_PATHNAME = GlobalStrings.SEARCHPHP_PATHNAME.get();
     
-    public static final String UCPPHP_PATHNAME = GlobalStrings.UCPPHP_PATHNAME.get();    
+    public static final String UCPPHP_PATHNAME = GlobalStrings.UCPPHP_PATHNAME.get(); 
+    
+    public static final String HELP_PATHNAME = GlobalStrings.HELP_PATHNAME.get();
     
     public static final String ANCIENT_TIMES = GlobalStrings.ANCIENT_TIMES.get();
     

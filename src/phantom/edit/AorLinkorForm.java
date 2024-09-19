@@ -5,17 +5,20 @@ import static phantom.global.GlobalConstants.*;
 import phantom.gui.GUInterface;
 
 /**
- *
- * @author 
- * @since
- * @version
+ * Realiza o parsing e edita atributos href e src de tags a, link ou form.
+ * 
+ * @author Pedro Reis  
+ * @since 1.0
+ * @version 1.0 - 18 de setembro de 2024
  */
 final class AorLinkorForm extends Tag {
     
     /**
+     * Analisa e edita uma url coletada de atributo href ou src de uma tag a, link ou form.
      * 
-     * @param url
-     * @throws Exception 
+     * @param url A url.
+     * 
+     * @throws Exception Qualquer excecao aqui leva ao abortamento do programa.
      */
     @Override
         protected void parseUrl(

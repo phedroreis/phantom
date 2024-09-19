@@ -78,13 +78,13 @@ public final class OrderedList implements Runnable {
                 htmlSyntax.append("<li><a href=\"").
                     append(url).
                     append("\">").
-                    append(pageName).
+                    append(pageName.replace("<", "&lt;").replace(">", "&gt;")).
                     append("</a></li>\n");
                 
                 urlSyntax.append("[url=").
                     append(url).
                     append("][u]").
-                    append(pageName).
+                    append(pageName.replace("[", "[\u0000")).
                     append("[/u][/url]\n");
                 
             }//for

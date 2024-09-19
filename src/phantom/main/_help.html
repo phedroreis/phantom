@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajuda</title>
+  <style>
+    body {
+      padding: 2%;
+    }
+    section {
+      border: solid 1px;
+      padding: 3%;
+      margin: 1%;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .acronymous {
+      color: #afc8fa;
+    }
+    li {
+      font-weight: bolder;
+    }
+    .file {
+      font-family: 'Courier New', Courier, monospace;
+      font-style: italic;
+    }
+    .headerID {
+      font-weight: bolder;
+      font-style: italic;
+    }
+    .tinyletters {
+      font-size: smaller;
+    }
+    .nanoletters {
+      font-size: 7px;
+    }
+  </style>
+</head>
+<body>
+  <article>
+
+    <header>
+      <h1>👻Phantom 1.0</h1>
+      <h2><span class="acronymous">Ph</span>enomenal <span class="acronymous">A</span>dvanced <span class="acronymous">N</span>erd-technology <span class="acronymous">To</span> <span class="acronymous">M</span>ess around with phpBB</h2>
+    </header>
+    <section> 
+
+      <h3>Sobre o Phantom</h3> 
+      <p>Phantom é uma simples ferramenta para gerar uma cópia estática (instalada localmente) do fórum ClubeCeticismo, e atualiza-la incrementalmente sempre que desejado.</p>
+      <p>Você precisa saber muito pouca coisa para usar o Phantom e tudo será explicado aqui.</p>
+      <p>Phantom, na verdade, gera cópias estáticas das áreas pública e privada do fórum. Ou seja, daquela parte do fórum que só o usuário inscrito e logado tem acesso, e daquela visível para qualquer visitante. Para isso, precisa saber quais cabeçalhos (headers) do fórum contém a área privada.</p>
+      <p>No momento em que este documento está sendo preparado, a área privada está restrita a dois cabeçalhos do fórum:</p>
+      <ul>
+        <li><a href="https://clubeceticismo.com.br/viewforum.php?f=6">DECISÕES DO CONSELHO</a></li>
+        <li><a href="https://clubeceticismo.com.br/viewforum.php?f=26">Veteranos do CC</a></li>
+      </ul>
+      <p>Porém, o programa identifica cabeçalhos, não por seus nomes, e sim por IDs atribuídas pelo sistema phpBB</p>
+      <p>A id atribuída a DECISÕES DO CONSELHO pelo sistema foi f=6. E a atribuída a Veteranos do CC foi a f=26. Por padrão, Phantom considera que f=6 e f=26 abrangem toda a área privada do fórum, enquanto outros cabeçalhos dão acesso a seções e tópicos de visualização pública.</p>
+      <p>Mas, e se algo mudar?</p>
+      <p>E se algum novo cabeçalho privado for criado, deletado, tornado público, transferido, etc?</p>
+    </section>
+
+    <section>  
+      <h3>Informar ao programa quais são as áreas privadas</h3>  
+
+      <p>Note que no diretório de trabalho do programa (após executar Phantom pela 1<sup>a</sup> vez) foram criados 3 diretórios:</p>
+      <ul>
+        <li>clubeceticismo.com.br</li>
+        <li>log</li>
+        <li>config</li>
+      </ul>
+      <p><span class="file">clubeceticismo.com.br</span> simula a raiz do sistema de arquivos do servidor do fórum, enquanto <span class="file">log</span> deve conter arquivos de log de execução e o arquivo <span class="file">update.properties</span>, que armazena dados necessários às atualizações incrementais da cópia estática.</p>
+      <p>No diretório <span class="file">config</span>, por padrão, deverá existir ali um arquivo de nome <span class="file">config.properties</span>, responsável por indicar algumas configurações iniciais ao programa.</p>
+      <p><span class="file">config.properties</span> configura Phantom por meio de um conjunto de entradas chave=valor.</p>
+      <p>A chave "privateheaders" deve informar a lista de cabeçalhos privados, seguindo a sintaxe indicada abaixo:</p>
+      <ul>
+        <li>privateheaders=6,26</li>
+      </ul>
+      <p>(Note que não há espaço antes e depois do sinal de igual e nem antes ou depois da vírgula.)</p>
+      <p>O par chave=valor exemplificado acima estaria informando ao programa que os cabeçalhos de ID f=6 e f=26 são os cabeçalhos privados. Qualquer outro cabeçalho não listado nesta entrada será considerado de acesso público.</p>
+      <p>Como saber a ID de cabeçalho?</p>
+      <p>Verifique a URL da página do fórum referente ao cabeçalho: https://clubeceticismo.com.br/viewforum.php?<span class="headerID">f=6</span></p>
+       <p>Esta é a URL de DECISÕES DO CONSELHO. Veja que sua ID f=6 aparece como uma <i>query</i> sendo enviada ao script viewforum.php.</p>
+    </section>
+
+    <section>
+
+      <h3>Configurar outros idiomas</h3>
+
+      <p>Mas Phantom pode falar também em outros idiomas!</p>
+      <p>Por padrão, a interface de Phantom está em Português do Brasil. Mas também pode ser configurada para o Inglês.</p>
+      <p>Para tal bastaria substituir as entradas default pelos pares chave=valor abaixo listados, no arquivo <span class="file">config.properties</span>:</p>
+      <ul>
+        <li>lang=en</li>
+        <li>country=US</li>
+      </ul>
+      <p>Seguindo o padrão internacional de código do idioma em minúsculas e do país em maiúsculas.</p>
+      <p>Para Português do Brasil:</p>
+      <ul>
+        <li>lang=pt</li>
+        <li>country=BR</li>
+      </ul>
+      <p>(Ou nenhuma entrada para lang e country.)</p>
+    </section>
+    <section>
+      <h3>Equipe de Desenvolvimento</h3>
+      <p>Inúmeras pessoas, empresas, instituições e organizações governamentais contribuíram e estão empenhadas no desenvolvimento contínuo desta tecnologia:</p>
+      <ul>
+        <li>Nasa</li>
+        <li>Mossad</li>
+        <li>KGB</li>
+        <li>Casas Bahia</li>
+        <li>Organizações Tabajara</li>
+        <li>Ets</li>
+        <li>O forista Gabarito</li>
+        <li>Pedro Reis</li>
+      </ul>
+      <p class="tinyletters">Phantom pode ser copiado, alterado, distruibuído, vendido, permutado e ignorado livremente sob os termos da licença GPL 3.0</p>
+      <p class="nanoletters">Em um adendo à licença padrão GPL, ao instalar e utilizar Phantom você concorda que sua alma agora pertença ao Diabo.</p>
+    </section>
+    <p>E isso é tudo.</p>
+  </article>
+
+    
+</body>
+</html>

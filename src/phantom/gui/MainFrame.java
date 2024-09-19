@@ -5,17 +5,25 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import static java.awt.GridBagConstraints.*;
 import java.awt.GridBagLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import static phantom.global.GlobalConstants.*;
 
 /**
  *
@@ -25,20 +33,58 @@ import javax.swing.JMenuItem;
  */
 final class MainFrame extends JFrame {
     
+    public static final int PREFERRED_WIDTH = 600;
+    public static final int PREFERRED_HEIGHT = 390;
+    
     private final GridBagLayout layout;
     private final GridBagConstraints cons;   
     
     private final JMenuBar bar;
-    private final JMenu propertiesMenu;
     private final JMenu helpMenu;
-    private final JMenuItem config;
-    private final JMenuItem update;
-    //private final JMenuItem about;
-    //private final JMenuItem help;
+    private final JMenuItem aboutItem;
+    private final JMenuItem helpItem;
     
     private final NorthPanel north;
     private final CenterPanel center;
     private final SouthPanel south;
+    
+    private static String msg$1;
+    private static String msg$2;
+    
+    private JFrame thisFrame;
+    private ImageIcon favicon;
+   
+    /*
+    * Internacionaliza as Strings "hardcoded" na classe
+    */
+    static {
+        
+        try {
+            
+            ResourceBundle rb = 
+                ResourceBundle.getBundle(
+                    "phantom.properties.MainFrame", 
+                    toolbox.locale.Localization.getLocale()
+                );
+            
+            msg$1 = rb.getString("msg$1");//Help
+            msg$2 = rb.getString("msg$2");//About
+           
+        } 
+        catch (NullPointerException | MissingResourceException | ClassCastException e) {
+           
+            //Opcoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$1 = "Help";
+            msg$2 = "About";
+
+        } 
+        catch (Exception e) {
+            
+            phantom.exception.ExceptionTools.crashMessage(null, e);//Aborta backup
+            
+        }        
+        
+    }//bloco static   
     
 
     /**
@@ -46,40 +92,30 @@ final class MainFrame extends JFrame {
      */
     public MainFrame() {
         
-        super("Phantom");
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("favicon.png")));
-        setSize(600, 130); 
-        setMinimumSize(new Dimension(600, 130));
+        super("Phantom");  
+        favicon = new ImageIcon(getClass().getResource("favicon.png"));
+        setIconImage(favicon.getImage());
+        setSize(PREFERRED_WIDTH, 130); 
+        setMinimumSize(new Dimension(PREFERRED_WIDTH, 130));
+        setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  
+        bar = new JMenuBar(); 
         
-        bar = new JMenuBar();
-        setJMenuBar(bar);
+        helpMenu = new JMenu(msg$1);
         
-        propertiesMenu = new JMenu("Properties");
-        helpMenu = new JMenu("Help");
-
+        aboutItem = new JMenuItem(msg$2);
+        aboutItem.addActionListener(new MenuItemListener());
+        helpItem = new JMenuItem(msg$1);
+        helpItem.addActionListener(new MenuItemListener());
         
-        config = new JMenuItem("Config");
-        update = new JMenuItem("Update");
-
-        
-        propertiesMenu.add(config);
-        propertiesMenu.add(update);
-        
-        bar.add(propertiesMenu);
+        helpMenu.add(aboutItem);
+        helpMenu.add(helpItem);
+ 
         bar.add(helpMenu);
         
-        update.setVisible(false);
-        
-        /*
-        config.addActionListener( new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                
-            }
-            
-        });*/
+        setJMenuBar(bar);       
         
         layout = new GridBagLayout();
         cons = new GridBagConstraints();
@@ -92,8 +128,7 @@ final class MainFrame extends JFrame {
         cons.fill = HORIZONTAL;     
         north = new NorthPanel();
         addComponent(north, 0, 0, 1, 1);
-        
-        
+
         center = new CenterPanel();
         addComponent(center, 1, 0, 1, 1);
         
@@ -118,20 +153,6 @@ final class MainFrame extends JFrame {
                               
                 }
                 
-                @Override
-                public void componentShown(ComponentEvent e) {
-
-                    south.terminalResize();
-                              
-                } 
-                
-                @Override
-                public void componentHidden(ComponentEvent e) {
-
-                    south.terminalResize();
-                              
-                }
-                
             }
             
         );
@@ -146,6 +167,8 @@ final class MainFrame extends JFrame {
              
             }
         );
+        
+        thisFrame = this;
 
     }//construtor
     
@@ -278,11 +301,45 @@ final class MainFrame extends JFrame {
         
     }//terminalSendTerminateSignal
     
+    /**
+     * 
+     */
     public void terminalResize() {
         
         south.terminalResize();
         
     }//terminalResize
 
+/*
+*    
+*/    
+private final class MenuItemListener implements ActionListener {
+    
+    private static final String ABOUT_MSG = 
+        "Phantom 1.0\n\nPhantom stands for PHenomenal Advanced Nerd-technology TO Mess around with phpBB.\n\n" +
+        "Developers Team:\n\nNasa\nMossad\nKGB\nEts\nGabarito\nPedro Reis\n\n" +
+        "Phantom is distributed under GPL 3.0 license. Feel free to feel yourself free.";       
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == helpItem) {
+            
+            try {
+                
+                toolbox.file.FileTools.openWebPage(new File(HELP_PATHNAME));
+                
+            } 
+            catch (IOException ex) {
+                
+                phantom.exception.ExceptionTools.errMessage(null, ex);
+            }
+        } 
+        else 
+            JOptionPane.showMessageDialog(thisFrame, ABOUT_MSG, msg$2, JOptionPane.PLAIN_MESSAGE, favicon);
+
+    }
+    
+}//classe privada MenuItemListener 
 
 }//classe MainFrame

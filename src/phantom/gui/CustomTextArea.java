@@ -151,8 +151,7 @@ final class CustomTextArea extends JTextArea implements Runnable {
 
                     GUInterface.northPanelSetVisible(true); 
                     GUInterface.centerPanelSetVisible(false);
-                    if (GUInterface.getMainFrameHeight() < 260)
-                        GUInterface.mainFrameSetSize(GUInterface.getMainFrameWidth(), 260);
+                    
                     /*
                     Salva a data-hora da ultima postagem do forum neste backup.
                     */
