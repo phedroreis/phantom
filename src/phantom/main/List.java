@@ -28,8 +28,10 @@ public class List extends JFrame {
     public List() {
         
         super("Lista de T\u00f3picos");
+        
+        phantom.resources.Resources rsc = new phantom.resources.Resources();
            
-        setIconImage(phantom.resources.ResourcesAnchor.getImage("favicon.png"));
+        setIconImage(rsc.getImage("favicon.png"));
        
         setLayout(new BorderLayout());
         

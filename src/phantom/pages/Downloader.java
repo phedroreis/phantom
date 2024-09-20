@@ -26,7 +26,7 @@ public final class Downloader {
     private static String msg$4;
     private static String msg$5;
     private static String msg$6;  
-    private static String msg$7;
+
 
     /*
     * Internacionaliza as Strings "hardcoded" na classe
@@ -47,7 +47,6 @@ public final class Downloader {
             msg$4 = rb.getString("msg$4");
             msg$5 = rb.getString("msg$5");
             msg$6 = rb.getString("msg$6");
-            msg$7 = rb.getString("msg$7");            
            
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
@@ -59,8 +58,7 @@ public final class Downloader {
             msg$4 = "Downloagind topics";
             msg$5 = "Gabarito, the restricted area is closed!";
             msg$6 = "Most recently post:"; 
-            msg$7 = "Main page data";   
-            
+           
         }
         catch (Exception e) {
             
@@ -126,10 +124,7 @@ public final class Downloader {
        
             auxList = page.download();
             
-            if (auxList != null) {
-                mergeList.addAll(auxList);
-                System.out.println(page);
-            }
+            if (auxList != null) mergeList.addAll(auxList);  
    
             GUInterface.progressBarSetValue(0, ++count);
             
@@ -154,16 +149,11 @@ public final class Downloader {
         List<Page> topicsList;
           
         main = new phantom.pages.Main(); 
-        
-        System.out.printf(FORMAT, msg$7);
-        
-        System.out.println(main); 
-        
+
         printMessages(
             msg$1,
             "Baixando pagina inicial e obtendo lista de cabecalhos"
         );
-         
  
         headersList = main.download();              
         

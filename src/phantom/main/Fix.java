@@ -39,7 +39,8 @@ public final class Fix extends JFrame {
         
         super("Fix");
         
-        setIconImage(phantom.resources.ResourcesAnchor.getImage("favicon.png"));    
+        phantom.resources.Resources rsc = new phantom.resources.Resources();
+        setIconImage(rsc.getImage("favicon.png"));    
         
         setSize(350, 80);
         

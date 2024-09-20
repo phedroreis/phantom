@@ -89,8 +89,9 @@ final class MainFrame extends JFrame {
      */
     public MainFrame() {
         
-        super("Phantom");  
-        favicon = phantom.resources.ResourcesAnchor.getImageIcon("favicon.png");
+        super("Phantom"); 
+        phantom.resources.Resources resources = new phantom.resources.Resources();
+        favicon = resources.getImageIcon("favicon.png");
         setIconImage(favicon.getImage());
         setSize(PREFERRED_WIDTH, 130); 
         setMinimumSize(new Dimension(PREFERRED_WIDTH, 130));

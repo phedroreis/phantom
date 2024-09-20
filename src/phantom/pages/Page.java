@@ -337,12 +337,17 @@ protected enum MaxList {
         
         toolbox.log.Log.println(this.getPageName());
         
-        int n = getNumberOfPages();
+        System.out.println(this);
         
+        int n = getNumberOfPages();
+         
         for (int i = 0; i < n; i++) {
             
-            String pageContent = downloadPage(i);
+            if ( (i % 30 == 0) && (i != 0) ) System.out.println(); 
+            System.out.print((i + 1) + " "); 
             
+            String pageContent = downloadPage(i);
+
             if (parser != null) {//Page eh instancia de Main, Header ou Section
             
                 toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
@@ -351,6 +356,8 @@ protected enum MaxList {
             }
 
         }//for
+        
+        System.out.println(toolbox.string.StringTools.NEWLINE);
         
         toolbox.log.Log.ret("phantom.pages", "Page", "download");     
         

@@ -59,6 +59,8 @@ public final class Initializer {
         EnumSet<GlobalStrings> Php = 
             EnumSet.range(GlobalStrings.UPDATE_PATHNAME, GlobalStrings.HELP_PATHNAME);
         
+        phantom.resources.Resources rsc = new phantom.resources.Resources();
+        
         for (GlobalStrings php : Php) {
             
             String targetPathname = php.get();
@@ -73,7 +75,7 @@ public final class Initializer {
                     
                     String contentFile = 
                         toolbox.textfile.TextFileTools.readTextFileFromInputStream(
-                            phantom.resources.ResourcesAnchor.getResourceAsStream(sourcePathname),
+                            rsc.getResourceAsStream(sourcePathname),
                             "utf8"
                         );                    
                     
