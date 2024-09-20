@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -50,9 +48,8 @@ final class MainFrame extends JFrame {
     
     private static String msg$1;
     private static String msg$2;
-    
-    private JFrame thisFrame;
-    private ImageIcon favicon;
+
+    private final ImageIcon favicon;
    
     /*
     * Internacionaliza as Strings "hardcoded" na classe
@@ -93,7 +90,7 @@ final class MainFrame extends JFrame {
     public MainFrame() {
         
         super("Phantom");  
-        favicon = new ImageIcon(getClass().getResource("favicon.png"));
+        favicon = phantom.resources.ResourcesAnchor.getImageIcon("favicon.png");
         setIconImage(favicon.getImage());
         setSize(PREFERRED_WIDTH, 130); 
         setMinimumSize(new Dimension(PREFERRED_WIDTH, 130));
@@ -167,8 +164,6 @@ final class MainFrame extends JFrame {
              
             }
         );
-        
-        thisFrame = this;
 
     }//construtor
     
@@ -336,7 +331,7 @@ private final class MenuItemListener implements ActionListener {
             }
         } 
         else 
-            JOptionPane.showMessageDialog(thisFrame, ABOUT_MSG, msg$2, JOptionPane.PLAIN_MESSAGE, favicon);
+            JOptionPane.showMessageDialog(null, ABOUT_MSG, msg$2, JOptionPane.PLAIN_MESSAGE, favicon);
 
     }
     

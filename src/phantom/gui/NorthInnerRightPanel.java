@@ -158,7 +158,7 @@ final class NorthInnerRightPanel extends JPanel {
      */
     private class Boo extends MouseAdapter {
         
-        ImageIcon ghost = new ImageIcon(getClass().getResource("ghost.png"));
+        ImageIcon ghost = phantom.resources.ResourcesAnchor.getImageIcon("ghost.png");
         
         @Override
         public void mouseEntered(MouseEvent e) {        

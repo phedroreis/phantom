@@ -2,7 +2,6 @@ package phantom.main;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -31,6 +30,7 @@ public final class Fix extends JFrame {
     private final JProgressBar fileProcessingProgressBar;
     
     private final JProgressBar replacingProgressBar;
+   
     
     /**
      * 
@@ -39,7 +39,7 @@ public final class Fix extends JFrame {
         
         super("Fix");
         
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("favicon.png")));        
+        setIconImage(phantom.resources.ResourcesAnchor.getImage("favicon.png"));    
         
         setSize(350, 80);
         

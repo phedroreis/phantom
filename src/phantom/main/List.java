@@ -1,7 +1,6 @@
 package phantom.main;
 
 import java.awt.BorderLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -24,14 +23,14 @@ public class List extends JFrame {
     private final JRadioButton lastPost;
     private final JRadioButton creationDate;
     private final ButtonGroup buttonGroup;
-    private final JButton jButton;    
+    private final JButton jButton;  
 
     public List() {
         
         super("Lista de T\u00f3picos");
-        
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("favicon.png")));        
-        
+           
+        setIconImage(phantom.resources.ResourcesAnchor.getImage("favicon.png"));
+       
         setLayout(new BorderLayout());
         
         addWindowListener(

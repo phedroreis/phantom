@@ -59,8 +59,6 @@ public final class Initializer {
         EnumSet<GlobalStrings> Php = 
             EnumSet.range(GlobalStrings.UPDATE_PATHNAME, GlobalStrings.HELP_PATHNAME);
         
-        Class cls = new Initializer().getClass();
-        
         for (GlobalStrings php : Php) {
             
             String targetPathname = php.get();
@@ -74,7 +72,10 @@ public final class Initializer {
                 try (PrintWriter p = new PrintWriter(targetPathname, "utf8")) {
                     
                     String contentFile = 
-                        toolbox.textfile.TextFileTools.readTextFileFromJar(cls, sourcePathname);                    
+                        toolbox.textfile.TextFileTools.readTextFileFromInputStream(
+                            phantom.resources.ResourcesAnchor.getResourceAsStream(sourcePathname),
+                            "utf8"
+                        );                    
                     
                     toolbox.log.Log.println(targetPathname + " : criado");
                     
