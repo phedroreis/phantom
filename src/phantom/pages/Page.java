@@ -87,6 +87,8 @@ protected enum MaxList {
     */
     private static String dateTimeOfLastPostFromLastBackup;
     
+    private static int totalNumberOfPagesInThisPagesList;
+    
     private static String msg$1;
     
     /*
@@ -138,11 +140,32 @@ protected enum MaxList {
     
     /**
      * 
+     */
+    protected static void resetTotalNumberOfPagesInThisPagesList() {
+        
+        totalNumberOfPagesInThisPagesList = 0;
+        
+    }//resetTotalNumberOfPagesInThisPagesList
+    
+    /**
+     * 
+     * @return 
+     */
+    protected static int getTotalNumberOfPagesInThisPagesList() {
+        
+        return totalNumberOfPagesInThisPagesList;
+        
+    }//getTotalNumberOfPagesInThisPagesList    
+    
+    /**
+     * 
      * @param n 
      */
     protected void setNumberOfPages(final int n) {
         
         numberOfPages = n;
+        
+        totalNumberOfPagesInThisPagesList += n;
         
     }//setNumberOfPages
     
@@ -342,11 +365,13 @@ protected enum MaxList {
         int n = getNumberOfPages();
          
         for (int i = 0; i < n; i++) {
+       
+            String pageContent = downloadPage(i);
             
             if ( (i % 30 == 0) && (i != 0) ) System.out.println(); 
             System.out.print((i + 1) + " "); 
             
-            String pageContent = downloadPage(i);
+            GUInterface.progressBarIncrementCounter(0);            
 
             if (parser != null) {//Page eh instancia de Main, Header ou Section
             

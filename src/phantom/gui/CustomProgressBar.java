@@ -9,6 +9,8 @@ import javax.swing.JProgressBar;
  * @version
  */
 final class CustomProgressBar extends JProgressBar{
+    
+    private int counter;
 
     /**
      * 
@@ -18,8 +20,27 @@ final class CustomProgressBar extends JProgressBar{
         super();
         setStringPainted(true);
         setBorder(GUInterface.STANDART_BORDER);
+        counter = 0;
         
     }//construtor
+    
+    /**
+     * 
+     */
+    public void resetCounter() {
+        
+        counter = 0;
+        
+    }//resetCounter
+    
+    /**
+     * 
+     */
+    public void incrementCounter() {
+        
+        setValue(++counter);
+        
+    }//incrementCounter
     
     /**
      * 

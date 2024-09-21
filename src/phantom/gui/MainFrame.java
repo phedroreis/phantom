@@ -239,7 +239,7 @@ final class MainFrame extends JFrame {
      */
     public void progressBarSetValue(final int indexBar, final int value) {
         
-        center.setValue(indexBar, value);
+        center.progressBarSetValue(indexBar, value);
         
     }//progressBarSetValue
     
@@ -250,7 +250,7 @@ final class MainFrame extends JFrame {
      */
     public void progressBarSetMaximum(final int indexBar, final int maximum) {
         
-        center.setMaximum(indexBar, maximum);
+        center.progressBarSetMaximum(indexBar, maximum);
         
     }//progressBarSetMaximum        
     
@@ -261,7 +261,7 @@ final class MainFrame extends JFrame {
      */
     public void progressBarConcurrentSetValue(final int indexBar, final int value) {
         
-        center.concurrentSetValue(indexBar, value);
+        center.progressBarconcurrentSetValue(indexBar, value);
         
     }//progressBarConcurrentSetValue
     
@@ -272,9 +272,29 @@ final class MainFrame extends JFrame {
      */
     public void progressBarConcurrentSetMaximum(final int indexBar, final int maximum) {
         
-        center.concurrentSetMaximum(indexBar, maximum);
+        center.progressBarconcurrentSetMaximum(indexBar, maximum);
         
     }//progressBarConcurrentSetMaximum  
+    
+    /**
+     * 
+     * @param indexBar 
+     */
+    public void progressBarResetCounter(final int indexBar) {
+        
+        center.progressBarResetCounter(indexBar);
+        
+    }//progressBarResetCounter
+    
+    /**
+     * 
+     * @param indexBar 
+     */
+    public void progressBarIncrementCounter(final int indexBar) {
+        
+        center.progressBarIncrementCounter(indexBar);
+        
+    }//progressBarIncrementCounter
     
     /**
      * 

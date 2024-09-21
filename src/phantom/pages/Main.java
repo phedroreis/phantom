@@ -47,7 +47,7 @@ private class MainPageParser extends toolbox.xml.TagParser {
     private String headerName;
     private String headerURL;
     private String headerFilename;
-    private String lastPostTime = null;
+    private String lastPostTime;
     
     @Override
     public void openTagLevel0(final toolbox.xml.Tag t) {

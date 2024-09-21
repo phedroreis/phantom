@@ -114,19 +114,17 @@ public final class Downloader {
         
         List<Page> mergeList = new LinkedList<>();
         
-        int count = 0;  
+        printMessages(msg, logMsg);        
         
-        GUInterface.progressBarSetMaximum(0, PagesList.size());  
-        
-        printMessages(msg, logMsg);
+        GUInterface.progressBarSetMaximum(0, Page.getTotalNumberOfPagesInThisPagesList()); 
+        GUInterface.progressBarResetCounter(0);        
+        Page.resetTotalNumberOfPagesInThisPagesList();
      
         for (Page page : PagesList) {
        
             auxList = page.download();
             
             if (auxList != null) mergeList.addAll(auxList);  
-   
-            GUInterface.progressBarSetValue(0, ++count);
             
         }// 
         
@@ -147,6 +145,8 @@ public final class Downloader {
         List<Page> headersList;
         List<Page> sectionsList;
         List<Page> topicsList;
+        
+        Page.resetTotalNumberOfPagesInThisPagesList();
           
         main = new phantom.pages.Main(); 
 
@@ -154,7 +154,12 @@ public final class Downloader {
             msg$1,
             "Baixando pagina inicial e obtendo lista de cabecalhos"
         );
- 
+        
+        
+        GUInterface.progressBarSetMaximum(0, Page.getTotalNumberOfPagesInThisPagesList()); 
+        GUInterface.progressBarResetCounter(0);        
+        Page.resetTotalNumberOfPagesInThisPagesList();
+        
         headersList = main.download();              
         
         if (GUInterface.isPrivateAreaBackup()) (new PrivateHeaders()).removeNonPrivateHeaders(headersList);

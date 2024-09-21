@@ -2,7 +2,7 @@ package phantom.pages;
 
 
 /***********************************************************************************************************************
- *  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Topic.
+ * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Topic.
  * 
  * @author Pedro Reis
  * @since 1.0

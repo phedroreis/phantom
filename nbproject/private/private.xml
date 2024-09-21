@@ -4,10 +4,12 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/GUInterface.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CustomProgressBar.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Downloader.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Initializer.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/NorthInnerRightPanel.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/List.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CenterPanel.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Fix.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Main.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Main.java</file>
@@ -16,6 +18,9 @@
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Reader.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/NorthInnerLeftPanel.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CustomTextArea.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Section.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Topic.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Header.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/MainFrame.java</file>
         </group>
     </open-files>

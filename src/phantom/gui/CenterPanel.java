@@ -119,28 +119,38 @@ final class CenterPanel extends JPanel {
         
     }
     
-    public void setValue(final int indexBar, final int value) {
+    public void progressBarSetValue(final int indexBar, final int value) {
         
         progressBarArray[indexBar].setValue(value);
         
     }
     
-    public void setMaximum(final int indexBar, final int maximum) {
+    public void progressBarSetMaximum(final int indexBar, final int maximum) {
         
         progressBarArray[indexBar].setMaximum(maximum);
         
     }        
     
-    public void concurrentSetValue(final int indexBar, final int value) {
+    public void progressBarconcurrentSetValue(final int indexBar, final int value) {
         
         progressBarArray[indexBar].concurrentSetValue(value);
         
     }
     
-    public void concurrentSetMaximum(final int indexBar, final int maximum) {
+    public void progressBarconcurrentSetMaximum(final int indexBar, final int maximum) {
         
         progressBarArray[indexBar].concurrentSetMaximum(maximum);
         
-    }    
+    } 
+    
+    public void progressBarResetCounter(final int indexBar) {
+        
+        progressBarArray[indexBar].resetCounter();
+    }
+    
+    public void progressBarIncrementCounter(final int indexBar) {
+        
+        progressBarArray[indexBar].incrementCounter();
+    }
 
 }//classe CenterPanel

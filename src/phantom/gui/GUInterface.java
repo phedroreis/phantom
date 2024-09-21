@@ -138,7 +138,19 @@ public final class GUInterface {
         
         MAIN_FRAME.progressBarConcurrentSetMaximum(indexBar, max);
         
-    }  
+    } 
+    
+    public static void progressBarResetCounter(final int indexBar) {
+        
+        MAIN_FRAME.progressBarResetCounter(indexBar);
+        
+    }
+    
+    public static void progressBarIncrementCounter(final int indexBar) {
+        
+        MAIN_FRAME.progressBarIncrementCounter(indexBar);
+        
+    }
     
     public static void terminalConcurrentAppendln(final String text) {
         
