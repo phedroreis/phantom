@@ -1,11 +1,19 @@
-package phantom.run;
+package phantom.threads;
 
 import java.io.File;
 import java.nio.file.NoSuchFileException;
 import java.util.TreeSet;
 import static phantom.global.GlobalConstants.*;
 
-public final class OrderedList implements Runnable {
+/**
+ * 
+ * @author Pedro Reis
+ * 
+ * @since 1.0
+ * 
+ * @version 1.0
+ */
+public final class BuildOrderedList implements Runnable {
     
     private static final String HEAD =
 "<!DOCTYPE html>\n<html lang=\"pt-br\">\n<head>\n<meta charset=\"utf-8\" />\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
@@ -23,7 +31,7 @@ public final class OrderedList implements Runnable {
      * 
      * @param orderBy 
      */
-    public OrderedList(final int orderBy) {
+    public BuildOrderedList(final int orderBy) {
         
         this.orderBy = orderBy;
         
@@ -110,4 +118,4 @@ public final class OrderedList implements Runnable {
             
     }//showTopicList
 
-}//classe OrderedList
+}//classe BuildOrderedList

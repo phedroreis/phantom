@@ -1,14 +1,17 @@
 package phantom.gui;
 
 import javax.swing.JProgressBar;
+import static phantom.global.GlobalConstants.*;
 
 /**
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * 
+ * @since 1.1 - 22 de setembro de 2024
+ * 
+ * @version 1.0
  */
-final class CustomProgressBar extends JProgressBar{
+public final class CustomProgressBar extends JProgressBar {
     
     private int counter;
 
@@ -19,7 +22,7 @@ final class CustomProgressBar extends JProgressBar{
         
         super();
         setStringPainted(true);
-        setBorder(GUInterface.STANDART_BORDER);
+        setBorder(STANDART_BORDER);
         counter = 0;
         
     }//construtor
@@ -30,6 +33,9 @@ final class CustomProgressBar extends JProgressBar{
     public void resetCounter() {
         
         counter = 0;
+        java.awt.EventQueue.invokeLater(() -> {
+            setValue(0);
+        });         
         
     }//resetCounter
     
@@ -38,32 +44,23 @@ final class CustomProgressBar extends JProgressBar{
      */
     public void incrementCounter() {
         
-        setValue(++counter);
+        java.awt.EventQueue.invokeLater(() -> {
+            setValue(++counter);
+        }); 
         
     }//incrementCounter
-    
-    /**
-     * 
-     * @param value 
-     */
-    public void concurrentSetValue(final int value) {
-        
-        java.awt.EventQueue.invokeLater(() -> {
-            setValue(value);
-        });  
-        
-    }//concurrentSetValue    
-    
+   
     /**
      * 
      * @param max 
      */
-    public void concurrentSetMaximum(final int max) {
+    @Override
+    public void setMaximum(final int max) {
         
         java.awt.EventQueue.invokeLater(() -> {
-            setMaximum(max);
+            super.setMaximum(max);
         }); 
         
-    }//concurrentSetMaximum
+    }//setMaximum
 
 }//classe CustomProgressBar

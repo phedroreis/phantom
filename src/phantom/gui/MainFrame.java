@@ -3,12 +3,12 @@ package phantom.gui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import static java.awt.GridBagConstraints.*;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.WEST;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -21,36 +21,45 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
+
+
 
 /**
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * 
+ * @since 1.1 - 21 de setembro de 2024
+ * 
+ * @version 1.0
  */
-final class MainFrame extends JFrame {
+public final class MainFrame extends JFrame {
     
-    public static final int PREFERRED_WIDTH = 600;
-    public static final int PREFERRED_HEIGHT = 390;
+    private static MainFrame mainFrameReference;
+
+    private static final Dimension MIN_SIZE_CENTER_PANEL_HIDDEN = new Dimension(630, 300);
     
-    private final GridBagLayout layout;
-    private final GridBagConstraints cons;   
+    private static final Dimension MIN_SIZE_CENTER_PANEL_VISIBLE = new Dimension(630, 500);
     
-    private final JMenuBar bar;
+    private final ImageIcon ghostIcon;
+    
+    private final JMenuBar menuBar;
     private final JMenu helpMenu;
     private final JMenuItem aboutItem;
-    private final JMenuItem helpItem;
+    private final JMenuItem helpItem; 
     
-    private final NorthPanel north;
-    private final CenterPanel center;
-    private final SouthPanel south;
+    private final GridBagLayout layout;
+    private final GridBagConstraints cons;
+    
+    private final NorthPanel northPanel;
+    private final CenterPanel centerPanel;
+    private final SouthPanel southPanel;
+    private final StatusPanel statusBar;
     
     private static String msg$1;
     private static String msg$2;
 
-    private final ImageIcon favicon;
-   
     /*
     * Internacionaliza as Strings "hardcoded" na classe
     */
@@ -81,79 +90,129 @@ final class MainFrame extends JFrame {
             
         }        
         
-    }//bloco static   
+    }//bloco static 
     
+    public static void setTheMainFrameReference(final MainFrame theMainFrame) {
+        
+        mainFrameReference = theMainFrame;
+    }
+    
+    public static MainFrame getTheMainFrameReference() {
+        
+        return mainFrameReference;
+    }
+    
+    public static Terminal getTheTerminalReference() {
+        
+        return mainFrameReference.getTerminal();
+    }
+    
+    public static CustomProgressBar getHtmlProgressBarReference() {
+        
+        return mainFrameReference.getHtmlProgressBar();
+    }
+    
+    public static CustomProgressBar getEditProgressBarReference() {
+        
+        return mainFrameReference.getEditProgressBar();
+    }    
+  
+    public static CustomProgressBar getStaticProgressBarReference() {
+        
+        return mainFrameReference.getStaticProgressBar();
+    }  
 
+    public static CustomProgressBar getCssProgressBarReference() {
+        
+        return mainFrameReference.getCssProgressBar();
+    } 
+    
+    public static JRadioButton getFullBackupRadioButtonReference() {
+        
+        return mainFrameReference.getFullBackupRadioButton();
+    
+    }
+    
+    public static JRadioButton getPrivateAreaRadioButtonReference() {
+        
+        return mainFrameReference.getPrivateAreaRadioButton();    
+    }   
+    
+    public static void setCenterPanelVisible(final boolean visible) {
+        
+        mainFrameReference.centerPanelVisible(visible);
+    }
+    
+    public static void killMainFrame() {
+
+        if (mainFrameReference.isShowing())
+            mainFrameReference.dispatchEvent(
+                new WindowEvent(mainFrameReference, WindowEvent.WINDOW_CLOSING)
+            );
+
+    }//killMainFrame
+    
+    
     /**
      * 
      */
     public MainFrame() {
         
-        super("Phantom"); 
+        super("Phantom 1.1");
+        
         phantom.resources.Resources resources = new phantom.resources.Resources();
-        favicon = resources.getImageIcon("favicon.png");
-        setIconImage(favicon.getImage());
-        setSize(PREFERRED_WIDTH, 130); 
-        setMinimumSize(new Dimension(PREFERRED_WIDTH, 130));
-        setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+        ghostIcon = resources.getImageIcon("ghost.png");
+        setIconImage(ghostIcon.getImage());
+        
+        setSize(MIN_SIZE_CENTER_PANEL_HIDDEN);
+        
         setLocationRelativeTo(null);
+        
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-  
-        bar = new JMenuBar(); 
+
+        menuBar = new JMenuBar(); 
         
         helpMenu = new JMenu(msg$1);
         
+        MenuItemListener menuItemListener = new MenuItemListener();
+        
         aboutItem = new JMenuItem(msg$2);
-        aboutItem.addActionListener(new MenuItemListener());
+        aboutItem.addActionListener(menuItemListener);
         helpItem = new JMenuItem(msg$1);
-        helpItem.addActionListener(new MenuItemListener());
+        helpItem.addActionListener(menuItemListener);
         
         helpMenu.add(aboutItem);
         helpMenu.add(helpItem);
  
-        bar.add(helpMenu);
+        menuBar.add(helpMenu);
         
-        setJMenuBar(bar);       
-        
+        setJMenuBar(menuBar);  
         layout = new GridBagLayout();
-        cons = new GridBagConstraints();
+        cons = new GridBagConstraints();        
         
         setLayout(layout);
   
         cons.weightx = 1;
         cons.weighty = 0;
         cons.anchor = WEST;
-        cons.fill = HORIZONTAL;     
-        north = new NorthPanel();
-        addComponent(north, 0, 0, 1, 1);
-
-        center = new CenterPanel();
-        addComponent(center, 1, 0, 1, 1);
+        cons.fill = HORIZONTAL; 
+        northPanel = new NorthPanel();
+        addComponent(northPanel, 0, 0, 1, 1);
         
-        cons.weightx = 1;
+        centerPanel = new CenterPanel();
+        addComponent(centerPanel, 1, 0, 1, 1); 
+        
+        statusBar = new StatusPanel();  
+        addComponent(statusBar, 3, 0, 1, 1);  
+
+        northPanel.addStatusBar(statusBar);        
+        
         cons.weighty = 1000;
-        cons.anchor = WEST;
         cons.fill = BOTH;     
-        south = new SouthPanel();  
-        addComponent(south, 2, 0, 1, 1);
+        southPanel = new SouthPanel();  
+        addComponent(southPanel, 2, 0, 1, 1); 
         
-        center.setVisible(false);
-        
-        south.setVisible(false);
-        
-        addComponentListener(
-            
-            new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-
-                    south.terminalResize();
-                              
-                }
-                
-            }
-            
-        );
+        centerPanelVisible(false);        
        
         addWindowListener(
             new WindowAdapter() {
@@ -164,7 +223,7 @@ final class MainFrame extends JFrame {
                 }
              
             }
-        );
+        );        
 
     }//construtor
     
@@ -180,159 +239,75 @@ final class MainFrame extends JFrame {
         layout.setConstraints(c, cons);
         add(c);
         
-    }//addComponent
+    }//addComponent  
+     
+    protected void centerPanelVisible(final boolean visible) {
+ 
+        northPanel.setVisible(!visible);
+        centerPanel.setVisible(visible);
+        
+        if (visible) {
+            
+            setMinimumSize(MIN_SIZE_CENTER_PANEL_VISIBLE);
+            setPreferredSize(MIN_SIZE_CENTER_PANEL_VISIBLE);            
+        }
+        else {
+            
+            setMinimumSize(MIN_SIZE_CENTER_PANEL_HIDDEN);
+            setPreferredSize(MIN_SIZE_CENTER_PANEL_HIDDEN);  
+        }
+        
+    }//centerPanelVisible
     
-    /**
-     * 
-     * @return 
-     */
-    public boolean isFullBackup() {
-        
-        return north.isFullBackup();
-        
-    }//isFullBackup 
-    
-    /**
-     * 
-     * @return 
-     */
-    public boolean isPrivateAreaBackup() {
-        
-        return north.isPrivateAreaBackup();
-        
-    }//isPrivateAreaBackup
-    
-    /**
-     * 
-     * @param isVisible 
-     */
-    public void northPanelSetVisible(final boolean isVisible) {
-        
-        north.setVisible(isVisible);
-        
-    }//northPanelSetVisible
-    
-     /**
-     * 
-     * @param isVisible 
-     */
-    public void centerPanelSetVisible(final boolean isVisible) {
-        
-        center.setVisible(isVisible);
-        
-    }//centerhPanelSetVisible
-    
-     /**
-     * 
-     * @param isVisible 
-     */
-    public void southPanelSetVisible(final boolean isVisible) {
-        
-        south.setVisible(isVisible);
-        
-    }//southPanelSetVisible
-    
-    /**
-     * 
-     * @param indexBar
-     * @param value 
-     */
-    public void progressBarSetValue(final int indexBar, final int value) {
-        
-        center.progressBarSetValue(indexBar, value);
-        
-    }//progressBarSetValue
-    
-    /**
-     * 
-     * @param indexBar
-     * @param maximum 
-     */
-    public void progressBarSetMaximum(final int indexBar, final int maximum) {
-        
-        center.progressBarSetMaximum(indexBar, maximum);
-        
-    }//progressBarSetMaximum        
-    
-    /**
-     * 
-     * @param indexBar
-     * @param value 
-     */
-    public void progressBarConcurrentSetValue(final int indexBar, final int value) {
-        
-        center.progressBarconcurrentSetValue(indexBar, value);
-        
-    }//progressBarConcurrentSetValue
-    
-    /**
-     * 
-     * @param indexBar
-     * @param maximum 
-     */
-    public void progressBarConcurrentSetMaximum(final int indexBar, final int maximum) {
-        
-        center.progressBarconcurrentSetMaximum(indexBar, maximum);
-        
-    }//progressBarConcurrentSetMaximum  
-    
-    /**
-     * 
-     * @param indexBar 
-     */
-    public void progressBarResetCounter(final int indexBar) {
-        
-        center.progressBarResetCounter(indexBar);
-        
-    }//progressBarResetCounter
-    
-    /**
-     * 
-     * @param indexBar 
-     */
-    public void progressBarIncrementCounter(final int indexBar) {
-        
-        center.progressBarIncrementCounter(indexBar);
-        
-    }//progressBarIncrementCounter
-    
-    /**
-     * 
-     * @param text 
-     */
-    public void terminalConcurrentAppendln(final String text) {
-        
-        south.terminalConcurrentAppendln(text);
-        
-    }//terminalConcurrentAppendln
-    
-    /**
-     * 
-     * @param signal
-     * @throws Exception 
-     */
-    public void terminalSendTerminateSignal(final String signal) throws Exception {
-        
-        south.terminalSendTerminateSignal(signal);
-        
-    }//terminalSendTerminateSignal
-    
-    /**
-     * 
-     */
-    public void terminalResize() {
-        
-        south.terminalResize();
-        
-    }//terminalResize
 
+    protected Terminal getTerminal() {
+        
+        return southPanel.getTerminal();
+        
+    }//getTerminal
+
+    protected JRadioButton getFullBackupRadioButton() {
+        
+        return northPanel.getFullBackupRadioButton();
+        
+    }//getFullBackupRadioButton
+    
+    protected JRadioButton getPrivateAreaRadioButton() {
+        
+        return northPanel.getPrivateAreaRadioButton();
+        
+    }//getPrivateAreaRadioButton  
+    
+    protected CustomProgressBar getHtmlProgressBar() {
+        
+        return centerPanel.getHtmlProgressBar();
+        
+    }//getHtmlProgressBar
+
+    protected CustomProgressBar getEditProgressBar() {
+        
+        return centerPanel.getEditProgressBar();
+        
+    }//getEditProgressBar
+
+    protected CustomProgressBar getStaticProgressBar() {
+        
+        return centerPanel.getStaticProgressBar();
+        
+    }//getStaticProgressBar
+
+    protected CustomProgressBar getCssProgressBar() {
+        
+        return centerPanel.getCssProgressBar();
+        
+    }//getCssProgressBar     
 /*
 *    
 */    
 private final class MenuItemListener implements ActionListener {
     
     private static final String ABOUT_MSG = 
-        "Phantom 1.0\n\nPhantom stands for PHenomenal Advanced Nerd-technology TO Mess around with phpBB.\n\n" +
+        "Phantom 1.1\n\nPhantom stands for PHenomenal Advanced Nerd-technology TO Mess around with phpBB.\n\n" +
         "Developers Team:\n\nNasa\nMossad\nKGB\nEts\nGabarito\nPedro Reis\n\n" +
         "Phantom is distributed under GPL 3.0 license. Feel free to feel yourself free.";       
 
@@ -352,7 +327,7 @@ private final class MenuItemListener implements ActionListener {
             }
         } 
         else 
-            JOptionPane.showMessageDialog(null, ABOUT_MSG, msg$2, JOptionPane.PLAIN_MESSAGE, favicon);
+            JOptionPane.showMessageDialog(null, ABOUT_MSG, msg$2, JOptionPane.PLAIN_MESSAGE, ghostIcon);
 
     }
     

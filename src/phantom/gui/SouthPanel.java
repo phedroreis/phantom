@@ -1,68 +1,47 @@
 package phantom.gui;
 
+import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 /**
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * 
+ * @since 1.1 - 21 de setembro de 2024
+ * 
+ * @version 1.0
  */
 final class SouthPanel extends JPanel {
     
-    private final JScrollPane scroll;
+    private final JScrollPane scrollPane;
     
-    private final phantom.gui.CustomTextArea terminal;
+    private final Terminal terminal;
     
     /**
      * 
      */
-    public SouthPanel() {
+    protected SouthPanel() {
         
-        terminal = new phantom.gui.CustomTextArea();
+        setLayout(new BorderLayout());
         
-        /*
-        Monitor de threads sinaliza quando todas terminarem e reabilita panel com botoes
-        */
-        terminal.startThreadsMonitor();
+        terminal = new Terminal();
         
-        scroll = new JScrollPane(terminal);
-        
-        scroll.setBorder(GUInterface.STANDART_BORDER);
+        scrollPane = new JScrollPane(terminal);
               
-        add(scroll);       
+        add(scrollPane);       
         
     }//construtor
     
     /**
      * 
-     * @param text 
+     * @return 
      */
-    public void terminalConcurrentAppendln(final String text) {
+    protected Terminal getTerminal() {
         
-        terminal.concurrentAppendln(text);
+        return terminal;
         
-    }//terminalConcurrentAppendln
-    
-    /**
-     * 
-     * @param signal
-     * @throws Exception 
-     */
-    public void terminalSendTerminateSignal(final String signal) throws Exception {
-        
-        terminal.sendTerminateSignal(signal);
-        
-    }//terminalSendTerminateSignal 
-    
-    /**
-     * 
-     */
-    public void terminalResize() {
-        
-        terminal.setDimensions(getWidth(), getHeight());
-        
-    }//terminalResize    
+    }//getTerminal    
+
 
 }//classe SouthPanel

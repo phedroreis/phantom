@@ -2,7 +2,6 @@ package phantom.exception;
 
 import java.awt.Component;
 import javax.swing.JOptionPane;
-import phantom.gui.GUInterface;
 
 /**
  *
@@ -57,7 +56,7 @@ public final class ExceptionTools {
         
         e.printStackTrace(toolbox.log.Log.getStream());
         
-        GUInterface.killMainFrame();
+        phantom.gui.MainFrame.killMainFrame();
         
         crash(e); 
         

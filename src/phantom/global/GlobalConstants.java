@@ -1,5 +1,9 @@
 package phantom.global;
 
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+
 /**
  *
  * @author 
@@ -47,5 +51,9 @@ public final class GlobalConstants {
     public static final String ANCIENT_TIMES = GlobalStrings.ANCIENT_TIMES.get();
     
     public static final String DISTANT_FUTURE = GlobalStrings.DISTANT_FUTURE.get();
+    
+    public static final Border STANDART_BORDER = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+    
+    public static final String FORMAT = "===== %s =====%n%n"; 
 
 }//classe GlobalConstants

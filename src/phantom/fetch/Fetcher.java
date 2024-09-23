@@ -15,7 +15,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static phantom.global.GlobalConstants.*;
-import phantom.gui.GUInterface;
 
 /**
  *
@@ -34,6 +33,10 @@ public final class Fetcher implements Runnable {
     private final Set<String> requestedsPathnames;
     
     private final LinkedBlockingQueue<Node> downloadQueue;
+    
+    private final phantom.gui.Terminal terminal;
+    private final phantom.gui.CustomProgressBar staticProgressBar;
+    private final phantom.gui.CustomProgressBar cssProgressBar;
     
     private int total;
     
@@ -145,7 +148,12 @@ public final class Fetcher implements Runnable {
         //ler a lista de falhas do backup anterior e inserir em downloadQueue
         readFails(); 
         
-        total = 0; count = 0;
+        total = 0; 
+        
+        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        
+        staticProgressBar = phantom.gui.MainFrame.getStaticProgressBarReference();
+        cssProgressBar = phantom.gui.MainFrame.getCssProgressBarReference();
 
     }//construtor
     
@@ -166,8 +174,7 @@ public final class Fetcher implements Runnable {
         
         downloadQueue.put(node);
 
-        GUInterface.progressBarConcurrentSetMaximum(2, ++total);
-        GUInterface.progressBarConcurrentSetValue(2, count);
+        staticProgressBar.setMaximum(++total); 
 
     }//queue
     
@@ -179,9 +186,8 @@ public final class Fetcher implements Runnable {
 
         downloadQueue.put(Node.TERMINATE);
 
-        GUInterface.progressBarConcurrentSetMaximum(2, ++total);
-        GUInterface.progressBarConcurrentSetValue(2, count);
-
+        staticProgressBar.setMaximum(++total);
+ 
     }//terminate  
     
     /*
@@ -196,7 +202,7 @@ public final class Fetcher implements Runnable {
    
             node = downloadQueue.take();                
   
-            GUInterface.progressBarConcurrentSetValue(2, ++count);
+            staticProgressBar.incrementCounter();
                   
             if (node == Node.TERMINATE) break; 
 
@@ -240,10 +246,8 @@ public final class Fetcher implements Runnable {
         cssFileList = searchFolders.search(ROOT_DIR);
             
         toolbox.regex.Regex urlRegex = new toolbox.regex.Regex("url\\((\"|')(.+?)(\"|')\\)");  
-
-        int countCssFiles = 0;
         
-        GUInterface.progressBarConcurrentSetMaximum(3, cssFileList.size());
+        cssProgressBar.setMaximum(cssFileList.size());
         
         for (String pathname: cssFileList) {
             
@@ -276,7 +280,7 @@ public final class Fetcher implements Runnable {
 
             }//while
 
-            GUInterface.progressBarConcurrentSetValue(3, ++countCssFiles);             
+            cssProgressBar.incrementCounter();             
   
         }//for
     
@@ -295,25 +299,25 @@ public final class Fetcher implements Runnable {
             phantom.time.ElapsedTime elapsedTime = new phantom.time.ElapsedTime();
             elapsedTime.start();
             
-            GUInterface.terminalConcurrentAppendln(msg$3); 
+            terminal.appendln(msg$3); 
 
             consume();
 
-            GUInterface.terminalConcurrentAppendln(msg$4); 
+            terminal.appendln(msg$4); 
 
             searchInCssFiles();
 
-            GUInterface.terminalConcurrentAppendln(msg$5);
+            terminal.appendln(msg$5);
 
             consume(); 
 
-            GUInterface.terminalConcurrentAppendln(msg$6);
+            terminal.appendln(msg$6);
 
             saveFails();//Grava a lista de falhas 
             
             System.out.println(msg$7);        
 
-            GUInterface.terminalSendTerminateSignal(msg$7 + elapsedTime.toString());
+            phantom.threads.ThreadsMonitor.sendTerminateSignal(msg$7 + elapsedTime.toString());
       
         }
         catch (Exception e) {

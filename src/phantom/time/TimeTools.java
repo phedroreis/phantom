@@ -1,10 +1,11 @@
 package phantom.time;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import static phantom.global.GlobalConstants.*;
-import phantom.gui.GUInterface;
 
 /**
  *
@@ -71,7 +72,7 @@ public final class TimeTools {
         
         String type;
         
-        if (GUInterface.isPrivateAreaBackup()) {
+        if (phantom.gui.MainFrame.getPrivateAreaRadioButtonReference().isSelected()) {
             priv = datetime;
             type = "private";
         }
@@ -81,7 +82,11 @@ public final class TimeTools {
         }
         
         property.setProperty("privatearea", priv);
-        property.setProperty("publicarea", pub);        
+        property.setProperty("publicarea", pub); 
+        
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        property.setProperty("datetime", now.format(formatter));
                
         try {
             
@@ -101,7 +106,7 @@ public final class TimeTools {
      /**
      * 
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
 	public static String readDateTimeOfLastPostFromLastBackup() throws Exception {
 
@@ -121,7 +126,7 @@ public final class TimeTools {
 
         String lastPost;
         
-        if (GUInterface.isPrivateAreaBackup()) 
+        if (phantom.gui.MainFrame.getPrivateAreaRadioButtonReference().isSelected()) 
             
             lastPost = property.getProperty("privatearea");
         
@@ -151,5 +156,19 @@ public final class TimeTools {
         return lastPost;
         
     }//readDateTimeOfLastPostFromLastBackup 
+    
+    public static String readDateTimeOfLastBackup() throws IOException {
+        
+        toolbox.config.Property property = new toolbox.config.Property(UPDATE_PATHNAME);
+ 
+        property.load(); 
+
+        String datetime = property.getProperty("datetime");
+        
+        if (datetime == null) return " --- ";
+            
+        return datetime;
+      
+    }
 
 }//classe TimeTools

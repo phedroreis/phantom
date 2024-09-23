@@ -3,25 +3,43 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/GUInterface.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/Script.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/exception/ExceptionTools.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/Terminal.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CustomProgressBar.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Downloader.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Initializer.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/NorthInnerRightPanel.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/List.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CenterPanel.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/List.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Fix.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Main.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Main.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Page.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/package-info.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/resources/Resources.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Reader.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/NorthInnerLeftPanel.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CustomTextArea.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Section.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/Tag.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/AorLinkorForm.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/threads/BuildOrderedList.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Topic.java</file>
-            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Header.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/threads/StartBackup.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Finalizer.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/fetch/Fetcher.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/time/TimeTools.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/MainFrame.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/global/GlobalConstants.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/Editor.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/package-info.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/threads/ThreadsMonitor.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Downloader.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/NorthPanel.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/SouthPanel.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/ImageType.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/PrivateHeaders.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Main.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Page.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Reader.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Section.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/fetch/Node.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/StatusPanel.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Header.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/Img.java</file>
         </group>
     </open-files>
 </project-private>

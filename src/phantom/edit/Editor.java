@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
-import phantom.gui.GUInterface;
 
 /**
  *
@@ -21,6 +21,10 @@ public final class Editor {
     private static HashMap<String, String> url2staticUrl;
     
     private static phantom.fetch.Fetcher fetcher;
+    
+    private final phantom.gui.Terminal terminal;
+    private final phantom.gui.CustomProgressBar editProgressBar;
+    private final JRadioButton privateAreaBackup;
 
     private static String msg$1;
     private static String msg$2;
@@ -64,7 +68,11 @@ public final class Editor {
      */
     public Editor() {
         
-        if (GUInterface.isPrivateAreaBackup())
+        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        privateAreaBackup = phantom.gui.MainFrame.getPrivateAreaRadioButtonReference();
+        editProgressBar = phantom.gui.MainFrame.getEditProgressBarReference();
+        
+        if (privateAreaBackup.isSelected())
             mainPageFile = FORUM_NAME + ".htm";
         else
             mainPageFile = MAIN_PAGE_FILE;
@@ -94,13 +102,12 @@ public final class Editor {
         
         String MainPageUrl = MAIN_PAGE_URL + "\"";
 
-        GUInterface.terminalConcurrentAppendln(msg$1);
+        terminal.appendln(msg$1);
         
         phantom.time.ElapsedTime elapsedTime = new phantom.time.ElapsedTime();
         elapsedTime.start();
         
-        int count = 0;
-        GUInterface.progressBarSetMaximum(1, listPages.size());
+        editProgressBar.setMaximum(listPages.size());
         
         toolbox.log.Log.println("Iniciou edicao de arquivos HTML de pags. do forum");        
           
@@ -147,11 +154,11 @@ public final class Editor {
             
             rawFile.delete();
             
-            GUInterface.progressBarSetValue(1, ++count); 
+            editProgressBar.incrementCounter(); 
             
         }//for
 
-        GUInterface.terminalSendTerminateSignal(msg$2 + elapsedTime.toString());
+        phantom.threads.ThreadsMonitor.sendTerminateSignal(msg$2 + elapsedTime.toString());
          
         toolbox.log.Log.println("Envia sinal para objeto fetcher: lista de downloads finalizada!");
         

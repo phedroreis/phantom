@@ -2,7 +2,7 @@ package phantom.edit;
 
 import java.util.HashMap;
 import static phantom.global.GlobalConstants.*;
-import phantom.gui.GUInterface;
+
 
 /**
  * Realiza o parsing e edita atributos href e src de tags a, link ou form.
@@ -55,8 +55,11 @@ final class AorLinkorForm extends Tag {
                 
                 case "/index.php"://Este script gera a pag. inicial do forum
                     
+                    boolean isPrivateAreaBackup = 
+                        phantom.gui.MainFrame.getPrivateAreaRadioButtonReference().isSelected();
+                    
                     staticUrl = 
-                        "./" + (GUInterface.isPrivateAreaBackup() ? FORUM_NAME + ".htm" : MAIN_PAGE_FILE);                    
+                        "./" + (isPrivateAreaBackup ? FORUM_NAME + ".htm" : MAIN_PAGE_FILE);                    
                     
                     break;    
                     

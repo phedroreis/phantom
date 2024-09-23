@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import javax.management.modelmbean.XMLParseException;
+import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
-import phantom.gui.GUInterface;
 
 /***********************************************************************************************************************
 * Superclasse para as classes que analisam, coletam, armazenam e fornecem
@@ -256,8 +256,11 @@ protected enum MaxList {
     *******************************************************************************************************************/
     public String getPageFilename(final int pageIndex) {
         
+        JRadioButton privateAreaBackup = 
+            phantom.gui.MainFrame.getPrivateAreaRadioButtonReference();
+        
         String ext = 
-            (pageFilename.startsWith(FORUM_NAME) && GUInterface.isPrivateAreaBackup()) ?
+            (pageFilename.startsWith(FORUM_NAME) && privateAreaBackup.isSelected()) ?
                 ".htm" : ".html";
          
         if (pageIndex == 0) return pageFilename + ext;
@@ -371,7 +374,7 @@ protected enum MaxList {
             if ( (i % 30 == 0) && (i != 0) ) System.out.println(); 
             System.out.print((i + 1) + " "); 
             
-            GUInterface.progressBarIncrementCounter(0);            
+            phantom.gui.MainFrame.getHtmlProgressBarReference().incrementCounter();
 
             if (parser != null) {//Page eh instancia de Main, Header ou Section
             
@@ -443,7 +446,7 @@ protected enum MaxList {
             getPageName(), 
             getPageUrl(0), 
             getPageFilename(0),            
-            dateTimeOfLastPostOnThisPage + " GMT", 
+            dateTimeOfLastPostOnThisPage, 
             getNumberOfPages()
         );
         

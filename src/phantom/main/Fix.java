@@ -284,3 +284,4 @@ private static class PagesFilter implements DirectoryStream.Filter<Path> {
 }//classe privada PagesFilter  
 
 }//classe Fix
+

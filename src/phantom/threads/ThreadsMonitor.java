@@ -1,30 +1,28 @@
-package phantom.gui;
+package phantom.threads;
 
-import java.awt.Canvas;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.concurrent.LinkedBlockingQueue;
-import javax.swing.JTextArea;
 import static phantom.time.GlobalCrons.*;
 
 /**
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * 
+ * @since 1.1 - 21 de setembro de 2024
+ * 
+ * @version 1.0
  */
-final class CustomTextArea extends JTextArea implements Runnable {
+public class ThreadsMonitor implements Runnable {
     
-    private static final int FONT_SIZE = 11;
-    private static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, FONT_SIZE);
-    private static final FontMetrics FM = new Canvas().getFontMetrics(MONO);
-    private static final int LINE_HEIGHT = FM.getHeight();
+    private static int countTerminateSignals;
     
-    private int countTerminateSignals;
-    private final LinkedBlockingQueue<String> terminateSignalsQueue;
-
+    private static String dateTimeOfLastPostFromThisBackup;
+    
+    private static final LinkedBlockingQueue<String> TERMINATE_SIGNALS_QUEUE = 
+        new LinkedBlockingQueue<>();
+   
+    private final phantom.gui.Terminal terminal;
     
     private static String msg$1;
     
@@ -37,7 +35,7 @@ final class CustomTextArea extends JTextArea implements Runnable {
             
             ResourceBundle rb = 
                 ResourceBundle.getBundle(
-                    "phantom.properties.CustomTextArea", 
+                    "phantom.properties.ThreadsMonitor", 
                     toolbox.locale.Localization.getLocale()
                 );
             
@@ -59,84 +57,60 @@ final class CustomTextArea extends JTextArea implements Runnable {
 
     /**
      * 
+     * 
      */
-    public CustomTextArea() {
+    public ThreadsMonitor() { 
+   
+        terminal = phantom.gui.MainFrame.getTheTerminalReference();
 
-        super(8, 66);
-        
-        setFont(MONO);
- 
-        setEditable(false); 
-      
-        terminateSignalsQueue = new LinkedBlockingQueue<>();
-        countTerminateSignals = 0;
-        
+        countTerminateSignals = 0;        
+
     }//construtor
     
-    /**
-     * 
-     */
-    public void startThreadsMonitor() {
-        
-        Thread thread = new Thread(this);
-        thread.start();
-        
-    }//monitoring
-    
-    /**
-     * 
-     * 
-     */ 
-    public void setDimensions(final int panelWidth, final int panelHeight) {
-        
-        if (panelHeight == 0) return; //south panel nao e visivel
-        setColumns(panelWidth / (FONT_SIZE - 2));
-        setRows((panelHeight / LINE_HEIGHT) - 2);
-
-    }//resize
-    
-    /**
+   /**
      * 
      * @param signal 
      * @throws Exception Em caso de InterruptedException 
      */
-    public void sendTerminateSignal(final String signal) throws Exception {
+    public static void sendTerminateSignal(final String signal) throws Exception {
         
-        terminateSignalsQueue.put(signal);
+        TERMINATE_SIGNALS_QUEUE.put(signal);
   
     }//sendTerminateSignal
     
     /**
      * 
-     * @param append 
+     * @param datetime 
      */
-    public void concurrentAppendln(final String append) {
+    public static void setDateTimeOfLastPostFromLastBackup(final String datetime) {
         
-        java.awt.EventQueue.invokeLater(() -> {
-            append(append + '\n');
-        });  
+        dateTimeOfLastPostFromThisBackup = datetime;
         
-    }//concurrentAppendln
-
+    }//setDateTimeOfLastPostFromThisBackup
+    
+    /**
+     * 
+     */
     @Override
+    @SuppressWarnings("UseSpecificCatch")
     public void run() {
         
         while (true) {
             
             try {
                 
-                String terminateSignal = terminateSignalsQueue.take();
+                String terminateSignal = TERMINATE_SIGNALS_QUEUE.take();
                 
-                concurrentAppendln(terminateSignal);
+                terminal.appendln(terminateSignal);
                 
                 countTerminateSignals++;
                 
                 if (countTerminateSignals == 2) {
                     
-                    concurrentAppendln(
+                    terminal.appendln(
                         msg$1 + 
                         BACKUP_ELAPSED_TIME.toString() +
-                        '\n'
+                        toolbox.string.StringTools.NEWLINE
                     );
                     
                     System.out.println(
@@ -149,15 +123,14 @@ final class CustomTextArea extends JTextArea implements Runnable {
                     
                     countTerminateSignals = 0;
 
-                    GUInterface.northPanelSetVisible(true); 
-                    GUInterface.centerPanelSetVisible(false);
+                    phantom.gui.MainFrame.setCenterPanelVisible(false);
                     
                     /*
                     Salva a data-hora da ultima postagem do forum neste backup.
                     */
                     phantom.time.TimeTools.saveDateTimeOfLastPostFromThisBackup(
                         
-                        GUInterface.getDateTimeOfLastPostFromLastBackup()
+                        dateTimeOfLastPostFromThisBackup
                         
                     );
                     
@@ -173,5 +146,5 @@ final class CustomTextArea extends JTextArea implements Runnable {
         }
         
     }//run
-
-}//classe CustomTextArea
+    
+}//classe ThreadsMonitor

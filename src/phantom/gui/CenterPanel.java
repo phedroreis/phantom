@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import static java.awt.GridBagConstraints.*;
+import static phantom.global.GlobalConstants.*;
 
 /**
  *
@@ -21,8 +22,17 @@ final class CenterPanel extends JPanel {
     private final GridBagLayout layout;
     private final GridBagConstraints cons;
     
-    private final JLabel[] labelArray;
-    private final CustomProgressBar[] progressBarArray;
+    private final JLabel htmlLabel;
+    private final CustomProgressBar htmlProgressBar;
+    
+    private final JLabel editLabel;
+    private final CustomProgressBar editProgressBar;
+    
+    private final JLabel staticLabel;
+    private final CustomProgressBar staticProgressBar;
+    
+    private final JLabel cssLabel;
+    private final CustomProgressBar cssProgressBar;
  
    
     private static String msg$1;
@@ -68,38 +78,44 @@ final class CenterPanel extends JPanel {
     /**
      * 
      */
-    public CenterPanel() {
+    protected CenterPanel() {
+        
+        setBorder(STANDART_BORDER);
         
         layout = new GridBagLayout();
         cons = new GridBagConstraints();
         
         setLayout(layout);
-        setBorder(GUInterface.STANDART_BORDER);
-        
-        labelArray = new JLabel[4];
-        
-        labelArray[0] = new JLabel(msg$1);
-        labelArray[1] = new JLabel(msg$2);
-        labelArray[2] = new JLabel(msg$3);
-        labelArray[3] = new JLabel(msg$4);        
         
         cons.weightx = 1;
         cons.weighty = 0;
-        cons.insets = new Insets(0, 4, 0, 0); 
-        for (int i = 0; i < labelArray.length; i++)
-            addComponent(labelArray[i], i, 0, 1, 1);
-       
-        progressBarArray = new CustomProgressBar[4];
+        cons.insets = new Insets(0, 4, 0, 0);
         
-        for (int i = 0; i < progressBarArray.length; i++)
-            progressBarArray[i] = new CustomProgressBar();
- 
+        htmlLabel = new JLabel(msg$1);
+        editLabel = new JLabel(msg$2);
+        staticLabel = new JLabel(msg$3);
+        cssLabel = new JLabel(msg$4); 
+        
+        cons.weightx = 1;
+        cons.weighty = 0;
+        cons.insets = new Insets(0, 4, 0, 0);
+        addComponent(htmlLabel, 0, 0, 1, 1); 
+        addComponent(editLabel, 1, 0, 1, 1);
+        addComponent(staticLabel, 2, 0, 1, 1); 
+        addComponent(cssLabel, 3, 0, 1, 1); 
+        
+        htmlProgressBar = new CustomProgressBar();
+        editProgressBar = new CustomProgressBar();
+        staticProgressBar = new CustomProgressBar();
+        cssProgressBar = new CustomProgressBar();
         
         cons.weightx = 9;
         cons.weighty = 0;
         cons.insets = new Insets(10, 4, 10, 4);
-        for (int i = 0; i < 4; i++) 
-            addComponent(progressBarArray[i], i, 1, 10, 1);  
+        addComponent(htmlProgressBar, 0, 1, 10, 1);  
+        addComponent(editProgressBar, 1, 1, 10, 1);
+        addComponent(staticProgressBar, 2, 1, 10, 1);
+        addComponent(cssProgressBar, 3, 1, 10, 1);
 
     }//construtor
     
@@ -117,40 +133,46 @@ final class CenterPanel extends JPanel {
         layout.setConstraints(c, cons);
         add(c);
         
-    }
+    }//addComponent    
     
-    public void progressBarSetValue(final int indexBar, final int value) {
+    /**
+     * 
+     * @return 
+     */
+    protected CustomProgressBar getHtmlProgressBar() {
         
-        progressBarArray[indexBar].setValue(value);
+        return htmlProgressBar;
         
-    }
-    
-    public void progressBarSetMaximum(final int indexBar, final int maximum) {
+    }//getHtmlProgressBar
+
+    /**
+     * 
+     * @return 
+     */
+    protected CustomProgressBar getEditProgressBar() {
         
-        progressBarArray[indexBar].setMaximum(maximum);
+        return editProgressBar;
         
-    }        
-    
-    public void progressBarconcurrentSetValue(final int indexBar, final int value) {
+    }//getEditProgressBar
+
+    /**
+     * 
+     * @return 
+     */
+    protected CustomProgressBar getStaticProgressBar() {
         
-        progressBarArray[indexBar].concurrentSetValue(value);
+        return staticProgressBar;
         
-    }
-    
-    public void progressBarconcurrentSetMaximum(final int indexBar, final int maximum) {
+    }//getStaticProgressBar
+
+    /**
+     * 
+     * @return 
+     */
+    protected CustomProgressBar getCssProgressBar() {
         
-        progressBarArray[indexBar].concurrentSetMaximum(maximum);
+        return cssProgressBar;
         
-    } 
-    
-    public void progressBarResetCounter(final int indexBar) {
-        
-        progressBarArray[indexBar].resetCounter();
-    }
-    
-    public void progressBarIncrementCounter(final int indexBar) {
-        
-        progressBarArray[indexBar].incrementCounter();
-    }
+    }//getCssProgressBar    
 
 }//classe CenterPanel

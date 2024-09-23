@@ -79,7 +79,7 @@ public class List extends JFrame {
                 else
                     choice = 2;
                     
-                phantom.run.OrderedList lt = new phantom.run.OrderedList(choice);
+                phantom.threads.BuildOrderedList lt = new phantom.threads.BuildOrderedList(choice);
                 
                 Thread thread = new Thread(lt); thread.start();
             }

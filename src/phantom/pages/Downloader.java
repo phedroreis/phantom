@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import phantom.gui.GUInterface;
+import javax.swing.JRadioButton;
+import static phantom.global.GlobalConstants.*;
+
 
 /**
  *
@@ -14,11 +16,15 @@ import phantom.gui.GUInterface;
  */
 public final class Downloader {
     
-    private static final String FORMAT = "===== %s =====%n%n";
-    
     private Main main;
    
     private String dateTimeOfLastPostFromLastBackup;
+    
+    private final phantom.gui.CustomProgressBar htmlProgressBar;
+    
+    private final phantom.gui.Terminal terminal;
+    
+    private final JRadioButton privateAreaRadioButton;
     
     private static String msg$1;
     private static String msg$2;
@@ -56,8 +62,8 @@ public final class Downloader {
             msg$2 = "Downloading headers and getting sections list";
             msg$3 = "Dowloaging sections and getting topics list";
             msg$4 = "Downloagind topics";
-            msg$5 = "Gabarito, the restricted area is closed!";
-            msg$6 = "Most recently post:"; 
+            msg$5 = "Gabarito, the restricted area is close!";
+            msg$6 = "Most recent post :"; 
            
         }
         catch (Exception e) {
@@ -75,6 +81,10 @@ public final class Downloader {
     public Downloader(final String lastPostDateTime) {
         
         dateTimeOfLastPostFromLastBackup = lastPostDateTime;
+ 
+        htmlProgressBar = phantom.gui.MainFrame.getHtmlProgressBarReference();
+        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        privateAreaRadioButton = phantom.gui.MainFrame.getPrivateAreaRadioButtonReference();
 
     }//construtor
 
@@ -95,7 +105,7 @@ public final class Downloader {
         
         System.out.printf(FORMAT, msg1);
   
-        GUInterface.terminalConcurrentAppendln(msg1 + "...");  
+        terminal.appendln(msg1 + "...");  
  
         toolbox.log.Log.println("**** " + msg2 + " ****");           
         
@@ -116,8 +126,8 @@ public final class Downloader {
         
         printMessages(msg, logMsg);        
         
-        GUInterface.progressBarSetMaximum(0, Page.getTotalNumberOfPagesInThisPagesList()); 
-        GUInterface.progressBarResetCounter(0);        
+        htmlProgressBar.setMaximum(Page.getTotalNumberOfPagesInThisPagesList()); 
+        htmlProgressBar.resetCounter();        
         Page.resetTotalNumberOfPagesInThisPagesList();
      
         for (Page page : PagesList) {
@@ -156,13 +166,13 @@ public final class Downloader {
         );
         
         
-        GUInterface.progressBarSetMaximum(0, Page.getTotalNumberOfPagesInThisPagesList()); 
-        GUInterface.progressBarResetCounter(0);        
+        htmlProgressBar.setMaximum(Page.getTotalNumberOfPagesInThisPagesList()); 
+        htmlProgressBar.resetCounter();        
         Page.resetTotalNumberOfPagesInThisPagesList();
         
         headersList = main.download();              
         
-        if (GUInterface.isPrivateAreaBackup()) (new PrivateHeaders()).removeNonPrivateHeaders(headersList);
+        if (privateAreaRadioButton.isSelected()) (new PrivateHeaders()).removeNonPrivateHeaders(headersList);
   
         
         if (headersList.isEmpty()) {
@@ -171,7 +181,7 @@ public final class Downloader {
             
             System.out.println(msg$5 + toolbox.string.StringTools.NEWLINE);//Gabarito, the restricted area is closed!
             
-            GUInterface.terminalConcurrentAppendln(msg$5); 
+            terminal.appendln(msg$5); 
             
             phantom.exception.ExceptionTools.crashMessage(null, new NullPointerException(msg$5));
         }
@@ -184,13 +194,11 @@ public final class Downloader {
         System.out.println(//Most recently post: 
             msg$6 
             + " " 
-            + main.getDateTimeOfLastPostOnThisPage() + " GMT"
+            + main.getDateTimeOfLastPostOnThisPage() 
             + toolbox.string.StringTools.NEWLINE
         );
         
-        GUInterface.terminalConcurrentAppendln(
-            msg$6 + " " + main.getDateTimeOfLastPostOnThisPage() + " GMT"
-        ); 
+        terminal.appendln(msg$6 + " " + main.getDateTimeOfLastPostOnThisPage()); 
 
         sectionsList = 
             downloadPagesList(
