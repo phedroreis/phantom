@@ -24,8 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
 
-
-
 /**
  *
  * @author Pedro Reis
@@ -59,6 +57,7 @@ public final class MainFrame extends JFrame {
     
     private static String msg$1;
     private static String msg$2;
+    private static String msg$3;    
 
     /*
     * Internacionaliza as Strings "hardcoded" na classe
@@ -75,6 +74,7 @@ public final class MainFrame extends JFrame {
             
             msg$1 = rb.getString("msg$1");//Help
             msg$2 = rb.getString("msg$2");//About
+            msg$3 = rb.getString("msg$3");//Incremental : Public Area
            
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
@@ -82,6 +82,7 @@ public final class MainFrame extends JFrame {
             //Opcoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "Help";
             msg$2 = "About";
+            msg$3 = "Incremental : Public Area";           
 
         } 
         catch (Exception e) {
@@ -92,20 +93,21 @@ public final class MainFrame extends JFrame {
         
     }//bloco static 
     
-    public static void setTheMainFrameReference(final MainFrame theMainFrame) {
+    public static void setMainFrameReference(final MainFrame theMainFrame) {
         
         mainFrameReference = theMainFrame;
     }
     
-    public static MainFrame getTheMainFrameReference() {
+    public static JRadioButton getFullBackupRadioButtonReference() {
         
-        return mainFrameReference;
+        return mainFrameReference.getFullBackupRadioButton();
+    
     }
     
-    public static Terminal getTheTerminalReference() {
+    public static JRadioButton getPrivateAreaRadioButtonReference() {
         
-        return mainFrameReference.getTerminal();
-    }
+        return mainFrameReference.getPrivateAreaRadioButton();    
+    }    
     
     public static CustomProgressBar getHtmlProgressBarReference() {
         
@@ -126,23 +128,24 @@ public final class MainFrame extends JFrame {
         
         return mainFrameReference.getCssProgressBar();
     } 
-    
-    public static JRadioButton getFullBackupRadioButtonReference() {
+ 
+    public static Terminal getTerminalReference() {
         
-        return mainFrameReference.getFullBackupRadioButton();
+        return mainFrameReference.getTerminal();
+    }    
     
-    }
-    
-    public static JRadioButton getPrivateAreaRadioButtonReference() {
+    protected static StatusPanel getStatusBarReference() {
         
-        return mainFrameReference.getPrivateAreaRadioButton();    
-    }   
+        return mainFrameReference.statusBar;
+        
+    }    
     
     public static void setCenterPanelVisible(final boolean visible) {
         
         mainFrameReference.centerPanelVisible(visible);
     }
     
+
     public static void killMainFrame() {
 
         if (mainFrameReference.isShowing())
@@ -204,8 +207,8 @@ public final class MainFrame extends JFrame {
         
         statusBar = new StatusPanel();  
         addComponent(statusBar, 3, 0, 1, 1);  
-
-        northPanel.addStatusBar(statusBar);        
+        
+        statusBar.showStatus(msg$3);
         
         cons.weighty = 1000;
         cons.fill = BOTH;     

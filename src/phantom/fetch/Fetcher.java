@@ -77,10 +77,10 @@ public final class Fetcher implements Runnable {
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
             msg$1 = "GOT IT :";
             msg$2 = "FAIL :";
-            msg$3 = "Downloading static files...";
-            msg$4 = "Searching in CSS files...";
-            msg$5 = "Downloading files requested by CSS files...";
-            msg$6 = "Saving fails file...";
+            msg$3 = "Downloading static files";
+            msg$4 = "Searching in CSS files";
+            msg$5 = "Downloading files requested by CSS files";
+            msg$6 = "Saving fails file";
             msg$7 = "Static files download concluded!";
                 
         }
@@ -150,7 +150,7 @@ public final class Fetcher implements Runnable {
         
         total = 0; 
         
-        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        terminal = phantom.gui.MainFrame.getTerminalReference();
         
         staticProgressBar = phantom.gui.MainFrame.getStaticProgressBarReference();
         cssProgressBar = phantom.gui.MainFrame.getCssProgressBarReference();

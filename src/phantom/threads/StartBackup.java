@@ -57,7 +57,7 @@ public final class StartBackup implements Runnable {
     public StartBackup() {
         
         fullBackupRadioButton = phantom.gui.MainFrame.getFullBackupRadioButtonReference();
-        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        terminal = phantom.gui.MainFrame.getTerminalReference();
     }
 
     @Override

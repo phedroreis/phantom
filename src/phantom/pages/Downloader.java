@@ -32,6 +32,7 @@ public final class Downloader {
     private static String msg$4;
     private static String msg$5;
     private static String msg$6;  
+    private static String msg$7;     
 
 
     /*
@@ -53,6 +54,7 @@ public final class Downloader {
             msg$4 = rb.getString("msg$4");
             msg$5 = rb.getString("msg$5");
             msg$6 = rb.getString("msg$6");
+            msg$7 = rb.getString("msg$7");        
            
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
@@ -64,6 +66,7 @@ public final class Downloader {
             msg$4 = "Downloagind topics";
             msg$5 = "Gabarito, the restricted area is close!";
             msg$6 = "Most recent post :"; 
+            msg$7 = "No new posts since the last backup";             
            
         }
         catch (Exception e) {
@@ -83,7 +86,7 @@ public final class Downloader {
         dateTimeOfLastPostFromLastBackup = lastPostDateTime;
  
         htmlProgressBar = phantom.gui.MainFrame.getHtmlProgressBarReference();
-        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        terminal = phantom.gui.MainFrame.getTerminalReference();
         privateAreaRadioButton = phantom.gui.MainFrame.getPrivateAreaRadioButtonReference();
 
     }//construtor
@@ -101,13 +104,13 @@ public final class Downloader {
     /*
     *
     */
-    private void printMessages(final String msg1, final String msg2) {
+    private void printMessages(final String msg) {
         
-        System.out.printf(FORMAT, msg1);
+        System.out.printf(FORMAT, msg);
   
-        terminal.appendln(msg1 + "...");  
+        terminal.appendln(msg);  
  
-        toolbox.log.Log.println("**** " + msg2 + " ****");           
+        toolbox.log.Log.println("**** " + msg + " ****");           
         
     }//printMessages
     
@@ -116,7 +119,6 @@ public final class Downloader {
     */
     private List<Page> downloadPagesList(
         final String msg,
-        final String logMsg,
         final List<Page> PagesList
     ) throws Exception {
         
@@ -124,7 +126,7 @@ public final class Downloader {
         
         List<Page> mergeList = new LinkedList<>();
         
-        printMessages(msg, logMsg);        
+        printMessages(msg);        
         
         htmlProgressBar.setMaximum(Page.getTotalNumberOfPagesInThisPagesList()); 
         htmlProgressBar.resetCounter();        
@@ -160,14 +162,10 @@ public final class Downloader {
           
         main = new phantom.pages.Main(); 
 
-        printMessages(
-            msg$1,
-            "Baixando pagina inicial e obtendo lista de cabecalhos"
-        );
-        
+        printMessages(msg$1);        
         
         htmlProgressBar.setMaximum(Page.getTotalNumberOfPagesInThisPagesList()); 
-        htmlProgressBar.resetCounter();        
+         
         Page.resetTotalNumberOfPagesInThisPagesList();
         
         headersList = main.download();              
@@ -200,29 +198,18 @@ public final class Downloader {
         
         terminal.appendln(msg$6 + " " + main.getDateTimeOfLastPostOnThisPage()); 
 
-        sectionsList = 
-            downloadPagesList(
-                msg$2,
-                "Baixando cabecalhos e obtendo lista de secoes",
-                headersList
-            );
+        sectionsList = downloadPagesList(msg$2, headersList);        
+ 
+        if (sectionsList.isEmpty()) {
+            
+            printMessages(msg$7);
+            return;
+            
+        } 
         
- 
-        if (sectionsList.isEmpty()) return;        
-        topicsList = 
-            downloadPagesList(
-                msg$3,
-                "Baixando secoes e obtendo lista de topicos",
-                sectionsList
-            );
- 
+        topicsList = downloadPagesList(msg$3, sectionsList); 
    
-        if (topicsList.isEmpty()) return;        
-        downloadPagesList(
-            msg$4,
-            "Baixando topicos",
-            topicsList
-        );        
+        downloadPagesList(msg$4, topicsList);        
         
         toolbox.log.Log.ret("phantom.pages", "Downloader", "downloadAllPages");  
         

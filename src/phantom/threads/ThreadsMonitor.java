@@ -61,7 +61,7 @@ public class ThreadsMonitor implements Runnable {
      */
     public ThreadsMonitor() { 
    
-        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        terminal = phantom.gui.MainFrame.getTerminalReference();
 
         countTerminateSignals = 0;        
 

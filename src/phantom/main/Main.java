@@ -78,7 +78,7 @@ public final class Main {
             
             phantom.gui.MainFrame mainFrame = new phantom.gui.MainFrame();
             
-            phantom.gui.MainFrame.setTheMainFrameReference(mainFrame);
+            phantom.gui.MainFrame.setMainFrameReference(mainFrame);
             
             phantom.threads.ThreadsMonitor threadsMonitor = new phantom.threads.ThreadsMonitor();
             
@@ -86,7 +86,7 @@ public final class Main {
             
             thread.start();
             
-            phantom.gui.Terminal terminal = phantom.gui.MainFrame.getTheTerminalReference();
+            phantom.gui.Terminal terminal = phantom.gui.MainFrame.getTerminalReference();
             
             mainFrame.setVisible(true);
             

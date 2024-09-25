@@ -49,7 +49,7 @@ public final class Editor {
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
            
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
-            msg$1 = "Starting forum pages edition...";
+            msg$1 = "Starting forum pages edition";
             msg$2 = "Forum pages edition is concluded!";
         }
         catch (Exception e) {
@@ -68,7 +68,7 @@ public final class Editor {
      */
     public Editor() {
         
-        terminal = phantom.gui.MainFrame.getTheTerminalReference();
+        terminal = phantom.gui.MainFrame.getTerminalReference();
         privateAreaBackup = phantom.gui.MainFrame.getPrivateAreaRadioButtonReference();
         editProgressBar = phantom.gui.MainFrame.getEditProgressBarReference();
         

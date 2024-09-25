@@ -43,8 +43,6 @@ final class NorthPanel extends JPanel {
     private final ImageIcon download;    
     private final ImageIcon list;  
     
-    private StatusPanel statusBar;
-    
     private static String msg$1;
     private static String msg$2;
     private static String msg$3;
@@ -180,7 +178,7 @@ final class NorthPanel extends JPanel {
         start.addActionListener(new StartButtonActionListener());
         browse.addActionListener(new BrowseButtonActionListener());
         listTopics.addActionListener(new ListTopicsButtonActionListener());
-        RadioButtonActionListener listener = new RadioButtonActionListener();
+        ShowStatus listener = new ShowStatus();
         full.addActionListener(listener);
         incremental.addActionListener(listener);
         pub.addActionListener(listener);
@@ -194,28 +192,7 @@ final class NorthPanel extends JPanel {
 
     }//construtor
     
-    private void showStatus() {
-        
-        MainFrame mainFrame = (MainFrame)getTopLevelAncestor();        
-        boolean isFullBackup = mainFrame.getFullBackupRadioButton().isSelected();
-        boolean isPrivateAreaBackup = mainFrame.getPrivateAreaRadioButton().isSelected();
-
-        String backupType = 
-            (isFullBackup ? msg$1 : msg$2) + " : " + (isPrivateAreaBackup ? msg$4 : msg$3);  
-        
-        statusBar.showStatus(backupType);
-    }    
     
-    /*
-    *
-    */
-    protected void addStatusBar(final StatusPanel statusBar) {
-        
-        this.statusBar = statusBar;
-        showStatus();
-        
-    }//addStatusBar
-
     /**
      * 
      * @return 
@@ -243,7 +220,9 @@ private class ShowMsg extends MouseAdapter {
 
     @Override
     public void mouseEntered(MouseEvent e) {
+        
         Object source = e.getSource();
+        StatusPanel statusBar = MainFrame.getStatusBarReference();
 
         if (source == start)                 
             statusBar.showMsg(msg$8 + " [" + (full.isSelected() ? msg$1 : msg$2) + "]");
@@ -265,11 +244,29 @@ private class ShowMsg extends MouseAdapter {
     @Override
     public void mouseExited(MouseEvent e) {
 
-        statusBar.clearMsg();
+        MainFrame.getStatusBarReference().clearMsg();
 
     }
 
 }//classe privada ShowMsg
+
+/*
+*
+*/
+private final class ShowStatus implements ActionListener {
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        
+        String backupType = 
+            (full.isSelected() ? msg$1 : msg$2) + " : " + (pub.isSelected() ? msg$3 : msg$4);  
+        
+        MainFrame.getStatusBarReference().showStatus(backupType);
+        
+    }
+    
+    
+}//classe privada ShowStatus
 
 /*
 *
@@ -279,21 +276,17 @@ private final class StartButtonActionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent ae) {
         
-        MainFrame mainFrame = (MainFrame)getTopLevelAncestor();
-        mainFrame.getHtmlProgressBar().resetCounter();
-        mainFrame.getEditProgressBar().resetCounter();
-        mainFrame.getStaticProgressBar().resetCounter();
-        mainFrame.getCssProgressBar().resetCounter();
+        MainFrame.getHtmlProgressBarReference().resetCounter();
+        MainFrame.getEditProgressBarReference().resetCounter();
+        MainFrame.getStaticProgressBarReference().resetCounter();
+        MainFrame.getCssProgressBarReference().resetCounter();
 
-        mainFrame.centerPanelVisible(true);
-
-        boolean isFullBackup = mainFrame.getFullBackupRadioButton().isSelected();
-        boolean isPrivateAreaBackup = mainFrame.getPrivateAreaRadioButton().isSelected();
+        MainFrame.setCenterPanelVisible(true);
 
         String backupType = 
-            (isFullBackup ? msg$1 : msg$2) + " : " + (isPrivateAreaBackup ? msg$4 : msg$3);
+            (full.isSelected() ? msg$1 : msg$2) + " : " + (pub.isSelected() ? msg$3 : msg$4);
 
-        Terminal terminal = mainFrame.getTerminal();
+        Terminal terminal = MainFrame.getTerminalReference();
 
         terminal.appendln(backupType);
         toolbox.log.Log.println("******** INICIOU PROCESSO DE BACKUP ********");
@@ -354,21 +347,5 @@ private final class ListTopicsButtonActionListener implements ActionListener {
     }
     
 }//classe privada ListTopicsButtonActionListener   
-
-/*
-*
-*/
-private final class RadioButtonActionListener implements ActionListener {
-
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-        
-        showStatus();
-        
-    }
-    
-    
-}//classe privada RadioButtonActionListener
- 
 
 }//classe NorthPanel

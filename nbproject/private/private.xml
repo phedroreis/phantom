@@ -11,6 +11,7 @@
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/CenterPanel.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/List.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Fix.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/time/ElapsedTime.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Main.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/package-info.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/resources/Resources.java</file>
@@ -25,8 +26,10 @@
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/MainFrame.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/global/GlobalConstants.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/Editor.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/properties/MainFrame_pt_BR.properties</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/edit/package-info.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/threads/ThreadsMonitor.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/properties/ElapsedTime_en_US.properties</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Downloader.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/NorthPanel.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/gui/SouthPanel.java</file>
@@ -34,6 +37,7 @@
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/PrivateHeaders.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/main/Main.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Page.java</file>
+            <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/properties/MainFrame_en_US.properties</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Reader.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/pages/Section.java</file>
             <file>file:/home/hugo/dev/java/netbeans/phantom/src/phantom/fetch/Node.java</file>
