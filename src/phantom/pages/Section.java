@@ -127,7 +127,8 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 topicFilename, 
                 topicNumberOfPosts, 
                 topicLastPostTime
-            )
+            ),
+            ( Integer.parseInt(topicNumberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1
         );
         /*
         Anula campos para que o proximo objeto Topic nao receba acidentalmente dados deste.

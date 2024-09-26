@@ -214,7 +214,8 @@ final class NorthPanel extends JPanel {
     }//getPrivateAreaRadioButton
     
 /*
-*
+* Mouse Listener que exibe mensagens explicativas na barra de status quando o ponteiro esta
+  sobre algum elemento da interface.  
 */
 private class ShowMsg extends MouseAdapter {
 
@@ -251,7 +252,8 @@ private class ShowMsg extends MouseAdapter {
 }//classe privada ShowMsg
 
 /*
-*
+* Exibe o status (tipo) do backup (se total ou incremental, se escopo area publica ou privada) no
+* campo de status da barra de status da interface.
 */
 private final class ShowStatus implements ActionListener {
 
@@ -269,7 +271,7 @@ private final class ShowStatus implements ActionListener {
 }//classe privada ShowStatus
 
 /*
-*
+* Mouse listener para quando o botao de iniciar bakcup e clicado.
 */
 private final class StartButtonActionListener implements ActionListener {
 
@@ -301,7 +303,7 @@ private final class StartButtonActionListener implements ActionListener {
 }//classe privada StartButtonActionListener
 
 /*
-*
+* Mouse listener processa o click no botao Navegar da interface.
 */
 private final class BrowseButtonActionListener implements ActionListener {
 
@@ -335,7 +337,7 @@ private final class BrowseButtonActionListener implements ActionListener {
 }//classe privada BrowseButtonActionListener
 
 /*
-*
+* Mouse listener processa o botao Listar Topicos da interface.
 */
 private final class ListTopicsButtonActionListener implements ActionListener {
 

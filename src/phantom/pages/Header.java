@@ -140,6 +140,8 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
                 msg$1 + toolbox.string.StringTools.NEWLINE + tagLiContent
             );
         
+        int nTopics = Integer.parseInt(sectionNumberOfTopics);
+        
         addPage(
             new Section(
                 sectionName, 
@@ -147,8 +149,10 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
                 sectionFilename, 
                 sectionNumberOfTopics, 
                 sectionLastPostTime
-            )
+            ),
+            nTopics == 0 ? 1 : ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 
         );
+        
         /*
         Anula campos para que o proximo objeto Section nao receba acidentalmente dados deste.
         */

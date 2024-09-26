@@ -10,9 +10,11 @@ import static phantom.global.GlobalConstants.*;
 
 /**
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * 
+ * @since 1.0 
+ * 
+ * @version 1.0
  */
 public final class Downloader {
     
@@ -26,6 +28,8 @@ public final class Downloader {
     
     private final JRadioButton privateAreaRadioButton;
     
+    private int totalPagesInPagesList;
+    
     private static String msg$1;
     private static String msg$2;
     private static String msg$3;
@@ -33,7 +37,9 @@ public final class Downloader {
     private static String msg$5;
     private static String msg$6;  
     private static String msg$7;     
-
+    private static String msg$8;
+    private static String msg$9;  
+    private static String msg$10; 
 
     /*
     * Internacionaliza as Strings "hardcoded" na classe
@@ -54,7 +60,10 @@ public final class Downloader {
             msg$4 = rb.getString("msg$4");
             msg$5 = rb.getString("msg$5");
             msg$6 = rb.getString("msg$6");
-            msg$7 = rb.getString("msg$7");        
+            msg$7 = rb.getString("msg$7");  
+            msg$8 = rb.getString("msg$8");
+            msg$9 = rb.getString("msg$9");
+            msg$10 = rb.getString("msg$10");              
            
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
@@ -66,7 +75,11 @@ public final class Downloader {
             msg$4 = "Downloagind topics";
             msg$5 = "Gabarito, the restricted area is close!";
             msg$6 = "Most recent post :"; 
-            msg$7 = "No new posts since the last backup";             
+            msg$7 = "No new posts since the last backup";  
+            msg$8 = "%,d headers (%,d pages)";
+            msg$9 = "%,d sections (%,d pages)";
+            msg$10 = "%,d topics (%,d pages)";             
+            
            
         }
         catch (Exception e) {
@@ -88,18 +101,10 @@ public final class Downloader {
         htmlProgressBar = phantom.gui.MainFrame.getHtmlProgressBarReference();
         terminal = phantom.gui.MainFrame.getTerminalReference();
         privateAreaRadioButton = phantom.gui.MainFrame.getPrivateAreaRadioButtonReference();
+        
+        totalPagesInPagesList = 1;
 
     }//construtor
-
-    /**
-     * 
-     * @return 
-     */
-    public String getDateTimeOfLastPostFromThisBackup() {
-        
-        return main.getDateTimeOfLastPostOnThisPage();
-        
-    }//getDateTimeOfLastPostFromThisBackup
     
     /*
     *
@@ -127,18 +132,22 @@ public final class Downloader {
         List<Page> mergeList = new LinkedList<>();
         
         printMessages(msg);        
-        
-        htmlProgressBar.setMaximum(Page.getTotalNumberOfPagesInThisPagesList()); 
-        htmlProgressBar.resetCounter();        
-        Page.resetTotalNumberOfPagesInThisPagesList();
+ 
+        htmlProgressBar.setMaximum(totalPagesInPagesList);
+        htmlProgressBar.resetCounter();  
+        totalPagesInPagesList = 0;
      
         for (Page page : PagesList) {
        
-            auxList = page.download();
+            auxList = page.download(dateTimeOfLastPostFromLastBackup);
+
+            if (auxList != null) {
+                
+                totalPagesInPagesList += page.getTotalNumberOfPagesInPagesList();
+                mergeList.addAll(auxList);
+            }  
             
-            if (auxList != null) mergeList.addAll(auxList);  
-            
-        }// 
+        }//for 
         
         return mergeList;
         
@@ -152,30 +161,22 @@ public final class Downloader {
         
         toolbox.log.Log.exec("phantom.pages", "Downloader", "downloadAllPages");
         
-        Page.setDateTimeOfLastPostFromLastBackup(dateTimeOfLastPostFromLastBackup);
-        
         List<Page> headersList;
         List<Page> sectionsList;
         List<Page> topicsList;
-        
-        Page.resetTotalNumberOfPagesInThisPagesList();
-          
+                          
         main = new phantom.pages.Main(); 
 
         printMessages(msg$1);        
         
-        htmlProgressBar.setMaximum(Page.getTotalNumberOfPagesInThisPagesList()); 
-         
-        Page.resetTotalNumberOfPagesInThisPagesList();
-        
-        headersList = main.download();              
+        htmlProgressBar.setMaximum(totalPagesInPagesList); 
+                          
+        headersList = main.download(dateTimeOfLastPostFromLastBackup);              
         
         if (privateAreaRadioButton.isSelected()) (new PrivateHeaders()).removeNonPrivateHeaders(headersList);
   
         
         if (headersList.isEmpty()) {
-            
-            main.setDateTimeOfLastPostOnThisPage(dateTimeOfLastPostFromLastBackup);
             
             System.out.println(msg$5 + toolbox.string.StringTools.NEWLINE);//Gabarito, the restricted area is closed!
             
@@ -189,15 +190,19 @@ public final class Downloader {
             Page.getDateTimeOfLastestPostFromThisPageList(headersList)        
         ); 
         
-        System.out.println(//Most recently post: 
-            msg$6 
-            + " " 
-            + main.getDateTimeOfLastPostOnThisPage() 
-            + toolbox.string.StringTools.NEWLINE
+        printMessages(msg$6 + " " + main.getDateTimeOfLastPostOnThisPage());
+        
+        phantom.threads.ThreadsMonitor.setDateTimeOfLastPostFromLastBackup(
+            main.getDateTimeOfLastPostOnThisPage()
         );
         
-        terminal.appendln(msg$6 + " " + main.getDateTimeOfLastPostOnThisPage()); 
+        totalPagesInPagesList = main.getTotalNumberOfPagesInPagesList();
+        
+        String headersInfo = 
+            String.format(toolbox.locale.Localization.getLocale(), msg$8, headersList.size(), totalPagesInPagesList);
 
+        terminal.appendln(headersInfo);
+   
         sectionsList = downloadPagesList(msg$2, headersList);        
  
         if (sectionsList.isEmpty()) {
@@ -207,7 +212,17 @@ public final class Downloader {
             
         } 
         
+        String sectionsInfo = 
+            String.format(toolbox.locale.Localization.getLocale(), msg$9, sectionsList.size(), totalPagesInPagesList);
+
+        terminal.appendln(sectionsInfo);
+        
         topicsList = downloadPagesList(msg$3, sectionsList); 
+        
+        String topicsInfo = 
+            String.format(toolbox.locale.Localization.getLocale(), msg$10, topicsList.size(), totalPagesInPagesList);
+
+        terminal.appendln(topicsInfo);
    
         downloadPagesList(msg$4, topicsList);        
         

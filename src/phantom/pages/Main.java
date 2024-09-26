@@ -85,7 +85,8 @@ private class MainPageParser extends toolbox.xml.TagParser {
                     headerURL,
                     headerFilename,
                     lastPostTime
-                )
+                ),
+                1
             );
             /*
             Anula campos para que o proximo objeto Header nao receba acidentalmente dados deste.

@@ -82,12 +82,7 @@ protected enum MaxList {
     */
     private String dateTimeOfLastPostOnThisPage; 
     
-    /*
-    *
-    */
-    private static String dateTimeOfLastPostFromLastBackup;
-    
-    private static int totalNumberOfPagesInThisPagesList;
+    private int totalNumberOfPagesInPagesList;
     
     private static String msg$1;
     
@@ -126,36 +121,19 @@ protected enum MaxList {
     { 
         pagesList = new LinkedList<>();
         dateTimeOfLastPostOnThisPage = null;
+        totalNumberOfPagesInPagesList = 0;
     }
-    
-    /**
-     * 
-     * @param datetime
-     */
-    protected static void setDateTimeOfLastPostFromLastBackup(final String datetime) {
-        
-        dateTimeOfLastPostFromLastBackup = datetime;
-        
-    }//setDateTimeOfLastPostOnLastBackup
-    
-    /**
-     * 
-     */
-    protected static void resetTotalNumberOfPagesInThisPagesList() {
-        
-        totalNumberOfPagesInThisPagesList = 0;
-        
-    }//resetTotalNumberOfPagesInThisPagesList
+   
     
     /**
      * 
      * @return 
      */
-    protected static int getTotalNumberOfPagesInThisPagesList() {
+    protected int getTotalNumberOfPagesInPagesList() {
         
-        return totalNumberOfPagesInThisPagesList;
+        return totalNumberOfPagesInPagesList;
         
-    }//getTotalNumberOfPagesInThisPagesList    
+    }//getTotalNumberOfPagesInPagesList    
     
     /**
      * 
@@ -164,8 +142,6 @@ protected enum MaxList {
     protected void setNumberOfPages(final int n) {
         
         numberOfPages = n;
-        
-        totalNumberOfPagesInThisPagesList += n;
         
     }//setNumberOfPages
     
@@ -203,10 +179,14 @@ protected enum MaxList {
      * Este metodo permite que um objeto Header, Section ou Topic seja adicionado a pagesList.
      * 
      * @param page Objeto com dados da pagina de Header, Section ou Topic.
+     * 
+     * @param numberOfPages 
      ******************************************************************************************************************/
-    protected void addPage(final Page page) {
+    protected void addPage(final Page page, final int numberOfPages) {
         
         pagesList.add(page);
+        
+        totalNumberOfPagesInPagesList += numberOfPages;
         
     }//addPage    
     
@@ -345,6 +325,8 @@ protected enum MaxList {
      * Baixa a pagina e faz o parsing desta.
      * 
      * 
+     * @param dateTimeOfLastPostFromLastBackup
+     * 
      * @return A lista de Headers da pag. principal, ou de Sections de um Header, ou de Topics de um 
      * Section.
      * 
@@ -354,7 +336,7 @@ protected enum MaxList {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    protected List<Page> download() throws Exception {
+    protected List<Page> download(final String dateTimeOfLastPostFromLastBackup) throws Exception {
         
         //A pagina cujo download foi solicitado nao foi atualizada apos o ultimo backup
         if (dateTimeOfLastPostFromLastBackup.compareTo(dateTimeOfLastPostOnThisPage) >= 0) return null;
@@ -389,7 +371,7 @@ protected enum MaxList {
         
         toolbox.log.Log.ret("phantom.pages", "Page", "download");     
         
-        if (parser == null) addPage(this);//A lista contem a propria pag. de Topic
+        if (parser == null) addPage(this, 1);//A lista contem a propria pag. de Topic
         
         return pagesList;  
         

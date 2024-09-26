@@ -85,10 +85,6 @@ public final class StartBackup implements Runnable {
             Baixa, incrementalmente, paginas do forum (Main, Headers, Sections, Topics)
             */
             downloader.downloadAllPages();
-                                    
-            ThreadsMonitor.setDateTimeOfLastPostFromLastBackup(
-                downloader.getDateTimeOfLastPostFromThisBackup()            
-            );            
             
             terminal.appendln(msg$1 + elapsedTime.toString());
 

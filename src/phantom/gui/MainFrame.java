@@ -93,59 +93,110 @@ public final class MainFrame extends JFrame {
         
     }//bloco static 
     
+    /**
+     * 
+     * @param theMainFrame 
+     */
     public static void setMainFrameReference(final MainFrame theMainFrame) {
         
         mainFrameReference = theMainFrame;
-    }
+        
+    }//setMainFrameReference
     
+    /**
+     * 
+     * @return 
+     */
     public static JRadioButton getFullBackupRadioButtonReference() {
         
         return mainFrameReference.getFullBackupRadioButton();
     
-    }
+    }//getFullBackupRadioButtonReference
     
+    /**
+     * 
+     * @return 
+     */
     public static JRadioButton getPrivateAreaRadioButtonReference() {
         
-        return mainFrameReference.getPrivateAreaRadioButton();    
-    }    
+        return mainFrameReference.getPrivateAreaRadioButton();
+        
+    }//getPrivateAreaRadioButtonReference    
     
+    /**
+     * 
+     * @return 
+     */
     public static CustomProgressBar getHtmlProgressBarReference() {
         
         return mainFrameReference.getHtmlProgressBar();
-    }
+        
+    }//getHtmlProgressBarReference
     
+    /**
+     * 
+     * @return 
+     */
     public static CustomProgressBar getEditProgressBarReference() {
         
         return mainFrameReference.getEditProgressBar();
-    }    
+        
+    }//getEditProgressBarReference    
   
+    /**
+     * 
+     * @return 
+     */
     public static CustomProgressBar getStaticProgressBarReference() {
         
         return mainFrameReference.getStaticProgressBar();
-    }  
+        
+    }//getStaticProgressBarReference  
 
+    /**
+     * 
+     * @return 
+     */
     public static CustomProgressBar getCssProgressBarReference() {
         
         return mainFrameReference.getCssProgressBar();
-    } 
+        
+    }//getCssProgressBarReference 
  
+    /**
+     * 
+     * @return 
+     */
     public static Terminal getTerminalReference() {
         
         return mainFrameReference.getTerminal();
-    }    
-    
+        
+    }//getTerminalReference    
+
+    /**
+     * 
+     * @return 
+     */
     protected static StatusPanel getStatusBarReference() {
         
         return mainFrameReference.statusBar;
         
-    }    
-    
+    }//getStatusBarReference    
+
+    /**
+     * 
+     * @param visible 
+     */    
     public static void setCenterPanelVisible(final boolean visible) {
         
         mainFrameReference.centerPanelVisible(visible);
-    }
+        
+    }//setCenterPanelVisible
     
 
+    /**
+     * 
+     */
     public static void killMainFrame() {
 
         if (mainFrameReference.isShowing())
@@ -157,7 +208,7 @@ public final class MainFrame extends JFrame {
     
     
     /**
-     * 
+     * Construtor da classe.
      */
     public MainFrame() {
         
@@ -231,7 +282,7 @@ public final class MainFrame extends JFrame {
     }//construtor
     
     /*
-    *
+    * Adiciona um componente ao JFrame utilizando GridBagLayout.
     */
     private void addComponent(Component c, int row, int column, int width, int height) {
  
@@ -244,6 +295,9 @@ public final class MainFrame extends JFrame {
         
     }//addComponent  
      
+    /*
+    * Determina se centerPanel esta visivel ou nao.
+    */
     protected void centerPanelVisible(final boolean visible) {
  
         northPanel.setVisible(!visible);
@@ -263,24 +317,47 @@ public final class MainFrame extends JFrame {
     }//centerPanelVisible
     
 
+    /**
+    * Retorna uma referencia para o terminal da interface.
+    * 
+    * @return A referencia.
+    */
     protected Terminal getTerminal() {
         
         return southPanel.getTerminal();
         
     }//getTerminal
 
+    /**
+     * Retorna uma referencia para acessar o estado do botao de radio da interface que indica
+     * se o backup sera total.
+     * 
+     * @return A referencia.
+     */
     protected JRadioButton getFullBackupRadioButton() {
         
         return northPanel.getFullBackupRadioButton();
         
     }//getFullBackupRadioButton
     
+    /**
+     * Retorna uma referencia para acessar o botao de radio da interface que indica se 
+     * o backup tera como escopo a area privada do forum.
+     * 
+     * @return A referencia.
+     */
     protected JRadioButton getPrivateAreaRadioButton() {
         
         return northPanel.getPrivateAreaRadioButton();
         
     }//getPrivateAreaRadioButton  
-    
+
+    /**
+     * Retorna uma referencia para a barra de progresso que indica a evolucao do download
+     * de paginas do forum.
+     * 
+     * @return A referencia.
+     */
     protected CustomProgressBar getHtmlProgressBar() {
         
         return centerPanel.getHtmlProgressBar();
