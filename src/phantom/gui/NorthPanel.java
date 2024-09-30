@@ -17,14 +17,14 @@ import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
 import static phantom.time.GlobalCrons.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
  * 
  * @since 1.1 - 21 de setembro de 2024
  * 
  * @version 1.0
- */
+ **********************************************************************************************************************/
 final class NorthPanel extends JPanel {
     
     private final JRadioButton full;
@@ -57,9 +57,9 @@ final class NorthPanel extends JPanel {
     private static String msg$12; 
     private static String msg$13; 
     private static String msg$14;    
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -112,9 +112,9 @@ final class NorthPanel extends JPanel {
         
     }//bloco static
 
-    /**
+    /*******************************************************************************************************************
      * 
-     */
+     ******************************************************************************************************************/
     @SuppressWarnings("UseSpecificCatch")
     public NorthPanel() {
         
@@ -193,37 +193,37 @@ final class NorthPanel extends JPanel {
     }//construtor
     
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected JRadioButton getFullBackupRadioButton() {
         
         return full;
         
     }//getFullBackupRadioButton
     
-    /**
+    /*******************************************************************************************************************
     * 
     * @return 
-    */
+    *******************************************************************************************************************/
     protected JRadioButton getPrivateAreaRadioButton() {
         
         return priv;
         
     }//getPrivateAreaRadioButton
     
-/*
+/*======================================================================================================================
 * Mouse Listener que exibe mensagens explicativas na barra de status quando o ponteiro esta
   sobre algum elemento da interface.  
-*/
+======================================================================================================================*/
 private class ShowMsg extends MouseAdapter {
 
     @Override
     public void mouseEntered(MouseEvent e) {
         
         Object source = e.getSource();
-        StatusPanel statusBar = MainFrame.getStatusBarReference();
+        StatusBar statusBar = MainFrame.getStatusBarReference();
 
         if (source == start)                 
             statusBar.showMsg(msg$8 + " [" + (full.isSelected() ? msg$1 : msg$2) + "]");
@@ -251,10 +251,10 @@ private class ShowMsg extends MouseAdapter {
 
 }//classe privada ShowMsg
 
-/*
+/*======================================================================================================================
 * Exibe o status (tipo) do backup (se total ou incremental, se escopo area publica ou privada) no
 * campo de status da barra de status da interface.
-*/
+======================================================================================================================*/
 private final class ShowStatus implements ActionListener {
 
     @Override
@@ -270,9 +270,9 @@ private final class ShowStatus implements ActionListener {
     
 }//classe privada ShowStatus
 
-/*
+/*======================================================================================================================
 * Mouse listener para quando o botao de iniciar bakcup e clicado.
-*/
+======================================================================================================================*/
 private final class StartButtonActionListener implements ActionListener {
 
     @Override
@@ -302,9 +302,9 @@ private final class StartButtonActionListener implements ActionListener {
     
 }//classe privada StartButtonActionListener
 
-/*
+/*======================================================================================================================
 * Mouse listener processa o click no botao Navegar da interface.
-*/
+======================================================================================================================*/
 private final class BrowseButtonActionListener implements ActionListener {
 
     @Override
@@ -312,10 +312,8 @@ private final class BrowseButtonActionListener implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
 
         try {
-            
-            MainFrame mainFrame = (MainFrame)getTopLevelAncestor();
-            
-            boolean isPrivateAreaBackup = mainFrame.getPrivateAreaRadioButton().isSelected();               
+             
+            boolean isPrivateAreaBackup = MainFrame.getPrivateAreaRadioButtonReference().isSelected();               
 
             String ext = isPrivateAreaBackup ? ".htm" : ".html"; 
 
@@ -336,9 +334,9 @@ private final class BrowseButtonActionListener implements ActionListener {
     
 }//classe privada BrowseButtonActionListener
 
-/*
+/*======================================================================================================================
 * Mouse listener processa o botao Listar Topicos da interface.
-*/
+======================================================================================================================*/
 private final class ListTopicsButtonActionListener implements ActionListener {
 
     @Override

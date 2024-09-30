@@ -1,12 +1,12 @@
 package phantom.global;
 
-/**
+/***********************************************************************************************************************
  * Classe para declarar Strings constantes acessiveis a todos os outros pacotes do projeto.
  * 
  * @author Pedro Reis
  * @since 1.0
  * @version 1.0 - 27 de agosto de 2024
- */
+ **********************************************************************************************************************/
 public enum GlobalStrings {
     
     FORUM_NAME(Constants.FORUM_NAME),//clubeceticismo.com.br
@@ -55,10 +55,10 @@ public enum GlobalStrings {
         
     }//construtor   
     
-    /**
+    /*******************************************************************************************************************
      *
      * @return
-     */
+     ******************************************************************************************************************/
     public String get() {
         
         return value;

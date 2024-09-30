@@ -5,14 +5,14 @@ import java.nio.file.NoSuchFileException;
 import java.util.TreeSet;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  * 
  * @author Pedro Reis
  * 
  * @since 1.0
  * 
  * @version 1.0
- */
+ **********************************************************************************************************************/
 public final class BuildOrderedList implements Runnable {
     
     private static final String HEAD =
@@ -27,19 +27,19 @@ public final class BuildOrderedList implements Runnable {
 
     private final int orderBy;
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param orderBy 
-     */
+     ******************************************************************************************************************/
     public BuildOrderedList(final int orderBy) {
         
         this.orderBy = orderBy;
         
     }//construtor
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     @Override
     public void run() {
 
@@ -48,21 +48,19 @@ public final class BuildOrderedList implements Runnable {
             showTopicsList();
 
         } 
-        catch (IllegalArgumentException | NoSuchFileException e) {
-            
-            phantom.exception.ExceptionTools.errMessage(null, e);
-        }
         catch (Exception e) {
+            
+            e.printStackTrace(System.err);
 
-            phantom.exception.ExceptionTools.crashMessage(null, e);
+            System.exit(0);
         }
 
     }//run
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @throws Exception 
-     */
+     ******************************************************************************************************************/
     public void showTopicsList() throws Exception {
         
             StringBuilder htmlSyntax = new StringBuilder(HEAD);
@@ -110,7 +108,7 @@ public final class BuildOrderedList implements Runnable {
 
             toolbox.file.FileTools.openWebPage(new File(pathname)); 
             
-            pathname = "_list.url";
+            pathname = "_list.txt";
             
             tfh.setContent(urlSyntax.toString());
 

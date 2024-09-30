@@ -6,10 +6,10 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
- */
+ **********************************************************************************************************************/
 public final class Main {
     
     private static String msg$1;
@@ -60,9 +60,9 @@ public final class Main {
         }            
     }
 
-    /**
+    /*******************************************************************************************************************
      * @param args the command line arguments
-     */
+     ******************************************************************************************************************/
     @SuppressWarnings("UseSpecificCatch")
     public static void main(String[] args) {
  
@@ -93,7 +93,7 @@ public final class Main {
             terminal.appendln(msg$1);   
             terminal.appendln(
                 msg$2 + " " +
-                phantom.time.TimeTools.readDateTimeOfLastBackup() + " " + msg$3 +
+                phantom.time.TimeTools.readLastBackupDateTime() + " " + msg$3 +
                 toolbox.string.StringTools.NEWLINE
             );
         }

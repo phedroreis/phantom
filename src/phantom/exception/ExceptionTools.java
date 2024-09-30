@@ -3,19 +3,21 @@ package phantom.exception;
 import java.awt.Component;
 import javax.swing.JOptionPane;
 
-/**
+/***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
- */
+ * @author Pedro Reis
+ * 
+ * @since 1.0
+ * 
+ * @version 1.0
+ **********************************************************************************************************************/
 public final class ExceptionTools {
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param parentComponent
      * @param e 
-     */
+     ******************************************************************************************************************/
     public static void errMessage(
         final Component parentComponent, 
         final Exception e) {
@@ -29,10 +31,10 @@ public final class ExceptionTools {
        
     }//crashMessage    
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param e 
-     */
+     ******************************************************************************************************************/
     public static void crash(Exception e) {
         
         e.printStackTrace(System.err);
@@ -41,11 +43,11 @@ public final class ExceptionTools {
         
     }//crash
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param parentComponent
      * @param e 
-     */
+     ******************************************************************************************************************/
     public static void crashMessage(
         final Component parentComponent, 
         final Exception e) {

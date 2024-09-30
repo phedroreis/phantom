@@ -8,27 +8,27 @@ import java.util.EnumSet;
 import phantom.global.GlobalStrings;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
  * @since 1.0
  * @version 1.0 - 27 de agosto de 2024
- */
+ **********************************************************************************************************************/
 public final class Initializer {
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @throws FileNotFoundException 
-     */
+     ******************************************************************************************************************/
     private static void createLogDir() throws Exception {
         
         toolbox.file.FileTools.createDirsIfNotExists(LOG_DIR);
         
     }//createLogDir  
     
-    /*
+    /*==================================================================================================================
      *
-     */
+     =================================================================================================================*/
     private static void createDirs() throws Exception {
         
         toolbox.log.Log.exec("phantom.main", "Initializer", "createDirs");
@@ -49,9 +49,9 @@ public final class Initializer {
         
     }//createDirs
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private static void createFilesIfNotExists() {
         
         toolbox.log.Log.exec("phantom.main", "Initializer", "createFilesIfNotExists"); 
@@ -99,10 +99,10 @@ public final class Initializer {
         
     }//createHtmlFiles
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @throws FileNotFoundException 
-     */
+     ******************************************************************************************************************/
     public static void init() throws Exception {
         
         //Cria, se nao existir ainda, o diretorio onde sera gravado o arquivo de log

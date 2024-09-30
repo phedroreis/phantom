@@ -15,12 +15,12 @@ import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author 
  * @since
  * @version
- */
+ **********************************************************************************************************************/
 public final class Fix extends JFrame {
     
     private TreeMap<String, String> idMapToFilename;
@@ -32,9 +32,9 @@ public final class Fix extends JFrame {
     private final JProgressBar replacingProgressBar;
    
     
-    /**
+    /*******************************************************************************************************************
      * 
-     */
+     ******************************************************************************************************************/
     public Fix() {
         
         super("Fix");
@@ -68,9 +68,9 @@ public final class Fix extends JFrame {
         
     }//construtor
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private void fix() throws IOException, XMLParseException {
         
         toolbox.file.SearchFolders searchFolders = 
@@ -172,12 +172,12 @@ public final class Fix extends JFrame {
         
     }//fix
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param args
      * @throws IOException
      * @throws XMLParseException 
-     */
+     ******************************************************************************************************************/
     public static void main(String[] args) throws IOException, XMLParseException {
         
         Fix fix = new Fix();
@@ -195,9 +195,9 @@ private final class Parser extends toolbox.xml.TagParser {
     
     private final String filename;
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     public Parser(final String filename) {
         
         this.filename = filename;
@@ -284,4 +284,3 @@ private static class PagesFilter implements DirectoryStream.Filter<Path> {
 }//classe privada PagesFilter  
 
 }//classe Fix
-

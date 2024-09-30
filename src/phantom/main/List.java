@@ -11,10 +11,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
- */
+ **********************************************************************************************************************/
 public class List extends JFrame {
     
     private final JPanel westPanel;
@@ -28,6 +28,10 @@ public class List extends JFrame {
     public List() {
         
         super("Lista de T\u00f3picos");
+        
+        phantom.gui.MainFrame m = new phantom.gui.MainFrame();
+        
+        phantom.gui.MainFrame.setMainFrameReference(m);
         
         phantom.resources.Resources rsc = new phantom.resources.Resources();
            
@@ -100,9 +104,9 @@ public class List extends JFrame {
         
     }//construtor
     
-    /**
+    /*******************************************************************************************************************
      * @param args the command line arguments
-     */
+     ******************************************************************************************************************/
     @SuppressWarnings("UseSpecificCatch")
     public static void main(String[] args) {
   

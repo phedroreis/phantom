@@ -5,19 +5,17 @@ import java.util.ResourceBundle;
 import java.util.concurrent.LinkedBlockingQueue;
 import static phantom.time.GlobalCrons.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
  * 
  * @since 1.1 - 21 de setembro de 2024
  * 
  * @version 1.0
- */
+ **********************************************************************************************************************/
 public class ThreadsMonitor implements Runnable {
     
     private static int countTerminateSignals;
-    
-    private static String dateTimeOfLastPostFromThisBackup;
     
     private static final LinkedBlockingQueue<String> TERMINATE_SIGNALS_QUEUE = 
         new LinkedBlockingQueue<>();
@@ -26,9 +24,9 @@ public class ThreadsMonitor implements Runnable {
     
     private static String msg$1;
     
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -55,10 +53,10 @@ public class ThreadsMonitor implements Runnable {
         
     }//bloco static        
 
-    /**
+    /*******************************************************************************************************************
      * 
      * 
-     */
+     ******************************************************************************************************************/
     public ThreadsMonitor() { 
    
         terminal = phantom.gui.MainFrame.getTerminalReference();
@@ -67,30 +65,20 @@ public class ThreadsMonitor implements Runnable {
 
     }//construtor
     
-   /**
+   /********************************************************************************************************************
      * 
      * @param signal 
      * @throws Exception Em caso de InterruptedException 
-     */
+     ******************************************************************************************************************/
     public static void sendTerminateSignal(final String signal) throws Exception {
         
         TERMINATE_SIGNALS_QUEUE.put(signal);
   
     }//sendTerminateSignal
     
-    /**
+    /*******************************************************************************************************************
      * 
-     * @param datetime 
-     */
-    public static void setDateTimeOfLastPostFromLastBackup(final String datetime) {
-        
-        dateTimeOfLastPostFromThisBackup = datetime;
-        
-    }//setDateTimeOfLastPostFromThisBackup
-    
-    /**
-     * 
-     */
+     ******************************************************************************************************************/
     @Override
     @SuppressWarnings("UseSpecificCatch")
     public void run() {
@@ -128,11 +116,7 @@ public class ThreadsMonitor implements Runnable {
                     /*
                     Salva a data-hora da ultima postagem do forum neste backup.
                     */
-                    phantom.time.TimeTools.saveDateTimeOfLastPostFromThisBackup(
-                        
-                        dateTimeOfLastPostFromThisBackup
-                        
-                    );
+                    phantom.time.TimeTools.saveLastPostDateTime();
                     
                     toolbox.log.Log.println("******** SALVOU REGISTRO DE ULTIMO POST ********");
                     

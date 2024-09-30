@@ -10,35 +10,35 @@ import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author 
  * @since
  * @version
- */
+ **********************************************************************************************************************/
 public final class Reader {
     
     private static final int LEXICAL = 0;
     private static final int LAST_POST = 1;
     private static final int CREATION_DATE = 2;
     
-    private static final Pattern PATTERN = Pattern.compile("\\d+");    
+    private static final Pattern TOPIC_INDEX_FINDER = Pattern.compile("\\d+");    
     
     private Main main;
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param orderBy
      * @return 
      * @throws XMLParseException
      * @throws IOException
-     */
+     ******************************************************************************************************************/
     public TreeSet<Page> readAllPages(final int orderBy) throws Exception {
         
         List<Page> sectionsList = new LinkedList<>();
         List<Page> topicsList = new LinkedList<>();
         
-        main = new phantom.pages.Main();
+        main = new Main();
 
         List<Page> headersList = main.read();
        
@@ -70,70 +70,86 @@ public final class Reader {
         
     }//readAllPages 
     
+    /**
+     * 
+     * @param page
+     * @return
+     * @throws IllegalArgumentException 
+     */
     public static String topicFilenameToUrl(final Page page) 
         throws IllegalArgumentException {
         
         if (!(page instanceof Topic)) throw new IllegalArgumentException();
         
-        Matcher matcher = PATTERN.matcher(page.getPageFilename(0));
+        Matcher matcher = TOPIC_INDEX_FINDER.matcher(page.getPageFilename(0));
         matcher.find();
         
         return ROOT_URL + "viewtopic.php?t=" + matcher.group();  
         
-    }//topicFilenameToUrl                                                                                                             
-   
-    private static class LexicalComparator implements Comparator<Page> {
-        
-        private String normalize(final String s) {
-            
-            return 
-                toolbox.string.StringTools.normalizeToCompare(s.replaceAll("&([a-z]+|#\\d+);", ""));
-        }
-
-        @Override
-        public int compare(Page topic, Page otherTopic) {
-            
-            String topicName = normalize(topic.getPageName());
-            
-            String otherTopicName = normalize(otherTopic.getPageName());
-             
-            return topicName.compareTo(otherTopicName);
-        }
-        
-    }
+    }//topicFilenameToUrl 
     
-    private static class LastPostComparator implements Comparator<Page> {
+/*======================================================================================================================
+*    
+======================================================================================================================*/
+private static final class LexicalComparator implements Comparator<Page> {
 
-        @Override
-        public int compare(Page topic, Page otherTopic) {
- 
-            return 
-                -topic.getDateTimeOfLastPostOnThisPage().compareTo(
-                    otherTopic.getDateTimeOfLastPostOnThisPage()
-                );
-        }
-        
-    }  
-    
-    private static class CreationDateComparator implements Comparator<Page> {
+    private String normalize(final String s) {
 
-        private static Matcher matcher;
-
-        @Override
-        public int compare(Page topic, Page otherTopic) {
-            
-            matcher = PATTERN.matcher(topic.getPageFilename(0));
-            int a;
-            matcher.find();
-            a = Integer.parseInt(matcher.group());
-            
-            matcher = PATTERN.matcher(otherTopic.getPageFilename(0));
-            int b;
-            matcher.find();
-            b = Integer.parseInt(matcher.group());            
-            
-            return b - a;            
-        }       
+        return 
+            toolbox.string.StringTools.normalizeToCompare(s.replaceAll("&([a-z]+|#\\d+);", ""));
     }
+
+    @Override
+    public int compare(Page topic, Page otherTopic) {
+
+        String topicName = normalize(topic.getPageName());
+
+        String otherTopicName = normalize(otherTopic.getPageName());
+
+        return topicName.compareTo(otherTopicName);
+    }
+
+}//classe privada LexicalComparator
+
+/*======================================================================================================================
+*
+======================================================================================================================*/
+private static final class LastPostComparator implements Comparator<Page> {
+
+    @Override
+    public int compare(Page topic, Page otherTopic) {
+
+        return 
+            -topic.getLastPostDateTime().compareTo(
+                otherTopic.getLastPostDateTime()
+            );
+    }
+
+}//LastPostComparator  
+
+/*======================================================================================================================
+*
+======================================================================================================================*/
+private static class CreationDateComparator implements Comparator<Page> {
+
+    private static Matcher matcher;
+
+    @Override
+    public int compare(Page topic, Page otherTopic) {
+
+        matcher = TOPIC_INDEX_FINDER.matcher(topic.getPageFilename(0));
+        int a;
+        matcher.find();
+        a = Integer.parseInt(matcher.group());
+
+        matcher = TOPIC_INDEX_FINDER.matcher(otherTopic.getPageFilename(0));
+        int b;
+        matcher.find();
+        b = Integer.parseInt(matcher.group());            
+
+        return b - a;            
+    }   
+    
+}//CreationDateComparator
 
 }//classe Reader

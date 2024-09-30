@@ -11,12 +11,12 @@ import java.awt.GridBagConstraints;
 import static java.awt.GridBagConstraints.*;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author 
  * @since
  * @version
- */
+ **********************************************************************************************************************/
 final class CenterPanel extends JPanel {
     
     private final GridBagLayout layout;
@@ -40,9 +40,9 @@ final class CenterPanel extends JPanel {
     private static String msg$3;
     private static String msg$4;
     
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -75,9 +75,9 @@ final class CenterPanel extends JPanel {
         
     }//bloco static    
     
-    /**
+    /*******************************************************************************************************************
      * 
-     */
+     ******************************************************************************************************************/
     protected CenterPanel() {
         
         setBorder(STANDART_BORDER);
@@ -119,9 +119,9 @@ final class CenterPanel extends JPanel {
 
     }//construtor
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private void addComponent(Component c, int row, int column, int width, int height) {
         
         cons.anchor = WEST;
@@ -135,40 +135,40 @@ final class CenterPanel extends JPanel {
         
     }//addComponent    
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected CustomProgressBar getHtmlProgressBar() {
         
         return htmlProgressBar;
         
     }//getHtmlProgressBar
 
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected CustomProgressBar getEditProgressBar() {
         
         return editProgressBar;
         
     }//getEditProgressBar
 
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected CustomProgressBar getStaticProgressBar() {
         
         return staticProgressBar;
         
     }//getStaticProgressBar
 
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected CustomProgressBar getCssProgressBar() {
         
         return cssProgressBar;

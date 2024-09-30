@@ -8,19 +8,17 @@ import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
 
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
  * 
  * @since 1.0 
  * 
  * @version 1.0
- */
+ **********************************************************************************************************************/
 public final class Downloader {
     
     private Main main;
-   
-    private String dateTimeOfLastPostFromLastBackup;
     
     private final phantom.gui.CustomProgressBar htmlProgressBar;
     
@@ -29,7 +27,8 @@ public final class Downloader {
     private final JRadioButton privateAreaRadioButton;
     
     private int totalPagesInPagesList;
-    
+
+    private static String msg$0;
     private static String msg$1;
     private static String msg$2;
     private static String msg$3;
@@ -41,9 +40,9 @@ public final class Downloader {
     private static String msg$9;  
     private static String msg$10; 
 
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -53,7 +52,8 @@ public final class Downloader {
                     "phantom.properties.Downloader", 
                     toolbox.locale.Localization.getLocale()
                 );
-            
+
+            msg$0 = rb.getString("msg$0");            
             msg$1 = rb.getString("msg$1");
             msg$2 = rb.getString("msg$2");
             msg$3 = rb.getString("msg$3");
@@ -69,6 +69,7 @@ public final class Downloader {
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
            
             // Opcaoes default caso falhe a chamada a rb.getString() [Locale en_US : default]
+            msg$0 = "Most recent post in last backup :";             
             msg$1 = "Downloading main page and getting headers list";
             msg$2 = "Downloading headers and getting sections list";
             msg$3 = "Dowloaging sections and getting topics list";
@@ -90,13 +91,10 @@ public final class Downloader {
         
     }//bloco static     
 
-    /**
+    /*******************************************************************************************************************
      * 
-     * @param lastPostDateTime 
-     */
-    public Downloader(final String lastPostDateTime) {
-        
-        dateTimeOfLastPostFromLastBackup = lastPostDateTime;
+     ******************************************************************************************************************/
+    public Downloader() {
  
         htmlProgressBar = phantom.gui.MainFrame.getHtmlProgressBarReference();
         terminal = phantom.gui.MainFrame.getTerminalReference();
@@ -106,9 +104,9 @@ public final class Downloader {
 
     }//construtor
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private void printMessages(final String msg) {
         
         System.out.printf(FORMAT, msg);
@@ -119,15 +117,15 @@ public final class Downloader {
         
     }//printMessages
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private List<Page> downloadPagesList(
         final String msg,
         final List<Page> PagesList
     ) throws Exception {
         
-        List<Page> auxList;  
+        List<Page> resultList;  
         
         List<Page> mergeList = new LinkedList<>();
         
@@ -139,12 +137,12 @@ public final class Downloader {
      
         for (Page page : PagesList) {
        
-            auxList = page.download(dateTimeOfLastPostFromLastBackup);
+            resultList = page.download();
 
-            if (auxList != null) {
+            if (resultList != null) {
                 
                 totalPagesInPagesList += page.getTotalNumberOfPagesInPagesList();
-                mergeList.addAll(auxList);
+                mergeList.addAll(resultList);
             }  
             
         }//for 
@@ -153,10 +151,10 @@ public final class Downloader {
         
     }//downloadPagesList
 
-    /**
+    /*******************************************************************************************************************
      * 
      * @throws Exception
-     */
+     ******************************************************************************************************************/
     public void downloadAllPages() throws Exception {
         
         toolbox.log.Log.exec("phantom.pages", "Downloader", "downloadAllPages");
@@ -164,14 +162,25 @@ public final class Downloader {
         List<Page> headersList;
         List<Page> sectionsList;
         List<Page> topicsList;
+        
+        phantom.time.TimeTools.readLastPostDateTime();
+        
+        printMessages(msg$0 + " " + phantom.time.TimeTools.getLastPostDateTime());
                           
-        main = new phantom.pages.Main(); 
+        main = new Main(); 
 
         printMessages(msg$1);        
         
         htmlProgressBar.setMaximum(totalPagesInPagesList); 
                           
-        headersList = main.download(dateTimeOfLastPostFromLastBackup);              
+        headersList = main.download(); 
+        
+        if (headersList.isEmpty()) {            
+            
+            printMessages(msg$7);
+            return;
+            
+        }             
         
         if (privateAreaRadioButton.isSelected()) (new PrivateHeaders()).removeNonPrivateHeaders(headersList);
   
@@ -186,15 +195,11 @@ public final class Downloader {
         }
 
         //O header que tiver o post mais recente, tera, obviamente, o post mais recente do forum
-        main.setDateTimeOfLastPostOnThisPage(
+        main.setLastPostDateTime(
             Page.getDateTimeOfLastestPostFromThisPageList(headersList)        
         ); 
         
-        printMessages(msg$6 + " " + main.getDateTimeOfLastPostOnThisPage());
-        
-        phantom.threads.ThreadsMonitor.setDateTimeOfLastPostFromLastBackup(
-            main.getDateTimeOfLastPostOnThisPage()
-        );
+        printMessages(msg$6 + " " + main.getLastPostDateTime());
         
         totalPagesInPagesList = main.getTotalNumberOfPagesInPagesList();
         
@@ -204,13 +209,6 @@ public final class Downloader {
         terminal.appendln(headersInfo);
    
         sectionsList = downloadPagesList(msg$2, headersList);        
- 
-        if (sectionsList.isEmpty()) {
-            
-            printMessages(msg$7);
-            return;
-            
-        } 
         
         String sectionsInfo = 
             String.format(toolbox.locale.Localization.getLocale(), msg$9, sectionsList.size(), totalPagesInPagesList);
@@ -224,7 +222,10 @@ public final class Downloader {
 
         terminal.appendln(topicsInfo);
    
-        downloadPagesList(msg$4, topicsList);        
+        downloadPagesList(msg$4, topicsList);
+        
+      
+        phantom.time.TimeTools.setLastPostDateTime(main.getLastPostDateTime());
         
         toolbox.log.Log.ret("phantom.pages", "Downloader", "downloadAllPages");  
         

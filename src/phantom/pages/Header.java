@@ -9,20 +9,23 @@ import javax.management.modelmbean.XMLParseException;
 
 /***********************************************************************************************************************
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Header.
+ * 
  * @author Pedro Reis
- * @since 1.0
- * @version 1.0 - 22 de agosto de 2024
+ * 
+ * @since 1.0 - 22 de agosto de 2024
+ * 
+ * @version 1.0 
  **********************************************************************************************************************/
 final class Header extends Page implements Comparable {
     
     private static final Pattern NUMBER_OF_TOPICS_FINDER = 
-        Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+?)<");
+        Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+)");
     
     private static String msg$1;
     
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -70,22 +73,22 @@ final class Header extends Page implements Comparable {
         setPageUrl(url);
         setPageFilename(filename);
         setPageParser(new HeaderPageParser());
-        setDateTimeOfLastPostOnThisPage(lastPostTime);
+        setLastPostDateTime(lastPostTime);
         setNumberOfPages(1);
          
         toolbox.log.Log.ret("phantom.pages", "Header", "Construtor de Header");
         
     }//construtor
 
-    /**
+    /*******************************************************************************************************************
      * 
      * @param t
      * @return 
-     */
+     ******************************************************************************************************************/
     @Override
     public int compareTo(Object t) {
         
-        return getDateTimeOfLastPostOnThisPage().compareTo( ((Header)t).getDateTimeOfLastPostOnThisPage() );
+        return getLastPostDateTime().compareTo( ((Header)t).getLastPostDateTime() );
         
     }//compareTo
     

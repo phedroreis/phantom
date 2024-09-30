@@ -5,8 +5,10 @@ package phantom.pages;
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Topic.
  * 
  * @author Pedro Reis
- * @since 1.0
- * @version 1.0 - 22 de agosto de 2024
+ * 
+ * @since 1.0 - 22 de agosto de 2024
+ * 
+ * @version 1.0
  **********************************************************************************************************************/
 final class Topic extends Page {
 
@@ -27,7 +29,7 @@ final class Topic extends Page {
         
         setNumberOfPages( ( Integer.parseInt(numberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1);
         
-        setDateTimeOfLastPostOnThisPage(lastPostTime);
+        setLastPostDateTime(lastPostTime);
         
         toolbox.log.Log.ret("phantom.pages", "Topic", "Construtor de Topic");        
 

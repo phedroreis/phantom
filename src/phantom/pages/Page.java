@@ -19,9 +19,9 @@ import static phantom.global.GlobalConstants.*;
 ***********************************************************************************************************************/
 public abstract class Page {    
 
-/**
+/***********************************************************************************************************************
  * Enumera constantes
- */    
+ **********************************************************************************************************************/
 protected enum MaxList {
 
    MAX_SECTIONS_TITLES_PER_PAGE(50),//Nao utilizado nesta versao
@@ -57,9 +57,9 @@ protected enum MaxList {
     ==================================================================================================================*/
     private String pageUrl; 
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private int numberOfPages;
     
     /*==================================================================================================================
@@ -77,18 +77,27 @@ protected enum MaxList {
     ==================================================================================================================*/
     private List<Page> pagesList;
     
+    /*==================================================================================================================
+    *
+    ==================================================================================================================*/
+    private String lastPostDateTime; 
+    
     /*
     *
     */
-    private String dateTimeOfLastPostOnThisPage; 
-    
     private int totalNumberOfPagesInPagesList;
     
+    /*
+    *
+    */
+    private boolean isListingTopics;
+    
+  
     private static String msg$1;
     
-    /*
+    /*==================================================================================================================
     * BLOCO DE INICIALIZACAO ESTATICO : Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -120,60 +129,60 @@ protected enum MaxList {
     ==================================================================================================================*/
     { 
         pagesList = new LinkedList<>();
-        dateTimeOfLastPostOnThisPage = null;
+        lastPostDateTime = null;
         totalNumberOfPagesInPagesList = 0;
     }
    
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected int getTotalNumberOfPagesInPagesList() {
         
         return totalNumberOfPagesInPagesList;
         
     }//getTotalNumberOfPagesInPagesList    
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param n 
-     */
+     ******************************************************************************************************************/
     protected void setNumberOfPages(final int n) {
         
         numberOfPages = n;
         
     }//setNumberOfPages
     
-    /*
+    /*==================================================================================================================
      * retirar este metodo se continuar private e permitir acesso direto ao campo
      * @return 
-     */
+     =================================================================================================================*/
     private int getNumberOfPages() {
         
         return numberOfPages;
         
     }//getNumberOfPages
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param datetime 
-     */
-    public void setDateTimeOfLastPostOnThisPage(final String datetime) {        
+     ******************************************************************************************************************/
+    public void setLastPostDateTime(final String datetime) {        
         
-        dateTimeOfLastPostOnThisPage = datetime;
+        lastPostDateTime = datetime;
         
-    }//setDateTimeOfLastPostOnThisPage
+    }//setLastPostDateTime
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
-    protected String getDateTimeOfLastPostOnThisPage() {
+     ******************************************************************************************************************/
+    protected String getLastPostDateTime() {
         
-        return dateTimeOfLastPostOnThisPage;
+        return lastPostDateTime;
         
-    }//getDateTimeOfLastPostOnThisPage 
+    }//getLastPostDateTime
    
     /*******************************************************************************************************************
      * Este metodo permite que um objeto Header, Section ou Topic seja adicionado a pagesList.
@@ -183,6 +192,10 @@ protected enum MaxList {
      * @param numberOfPages 
      ******************************************************************************************************************/
     protected void addPage(final Page page, final int numberOfPages) {
+
+        if (isListingTopics || phantom.gui.MainFrame.getFullBackupRadioButtonReference().isSelected()) {}
+        else if (phantom.time.TimeTools.getLastPostDateTime().compareTo(page.getLastPostDateTime()) >= 0) 
+            return;
         
         pagesList.add(page);
         
@@ -325,8 +338,6 @@ protected enum MaxList {
      * Baixa a pagina e faz o parsing desta.
      * 
      * 
-     * @param dateTimeOfLastPostFromLastBackup
-     * 
      * @return A lista de Headers da pag. principal, ou de Sections de um Header, ou de Topics de um 
      * Section.
      * 
@@ -336,11 +347,8 @@ protected enum MaxList {
      * 
      * @throws IOException Em caso de erro de IO.
      ******************************************************************************************************************/
-    protected List<Page> download(final String dateTimeOfLastPostFromLastBackup) throws Exception {
-        
-        //A pagina cujo download foi solicitado nao foi atualizada apos o ultimo backup
-        if (dateTimeOfLastPostFromLastBackup.compareTo(dateTimeOfLastPostOnThisPage) >= 0) return null;
-        
+    protected List<Page> download() throws Exception {
+
         toolbox.log.Log.exec("phantom.pages", "Page", "download");
         
         toolbox.log.Log.println(this.getPageName());
@@ -377,15 +385,17 @@ protected enum MaxList {
         
     }//download 
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @return
      * @throws XMLParseException
      * @throws IOException 
-     */
+     ******************************************************************************************************************/
     protected List<Page> read() throws Exception {
         
         if (parser == null) throw new NullPointerException();
+        
+        isListingTopics = true;
         
         toolbox.log.Log.exec("phantom.pages", "Page", "read");
         
@@ -416,30 +426,29 @@ protected enum MaxList {
         
     }//read
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     @Override
     public String toString() {
              
-        return String.format(
-            msg$1, 
+        return String.format(msg$1, 
             getPageName(), 
             getPageUrl(0), 
             getPageFilename(0),            
-            dateTimeOfLastPostOnThisPage, 
+            lastPostDateTime, 
             getNumberOfPages()
         );
         
     }//toString
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param headerslist
      * 
      * @return 
-     */
+     ******************************************************************************************************************/
     protected static String getDateTimeOfLastestPostFromThisPageList(final List<Page> headerslist) {
         
         toolbox.collection.CollectionsProcessor<Page, Page> cp = 
@@ -454,7 +463,7 @@ protected enum MaxList {
                 }
             );
         
-        return lastUpdateHeader.getDateTimeOfLastPostOnThisPage();        
+        return lastUpdateHeader.getLastPostDateTime();        
         
     }//getForumLastPostTime
     

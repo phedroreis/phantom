@@ -30,8 +30,7 @@ final class Main extends Page {
         
         setPageParser(new MainPageParser());
         
-        //Ajustado para futuro distante para que a pagina principal seja sempre baixada.
-        setDateTimeOfLastPostOnThisPage(DISTANT_FUTURE);
+        setLastPostDateTime(phantom.time.TimeTools.getLastPostDateTime());
         
         setNumberOfPages(1);
  

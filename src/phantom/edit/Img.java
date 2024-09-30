@@ -3,12 +3,14 @@ package phantom.edit;
 import java.util.HashMap;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
- */
+ * @author Pedro Reis
+ * 
+ * @since 1.0
+ * 
+ * @version 1.0
+ **********************************************************************************************************************/
 final class Img extends Tag {
     
     @Override

@@ -10,12 +10,14 @@ import java.util.ResourceBundle;
 import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
- */
+ * @author Pedro Reis
+ * 
+ * @since 1.0
+ * 
+ * @version 1.0
+ **********************************************************************************************************************/
 public final class Editor {
 
     private static HashMap<String, String> url2staticUrl;
@@ -29,9 +31,9 @@ public final class Editor {
     private static String msg$1;
     private static String msg$2;
     
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -63,9 +65,9 @@ public final class Editor {
     
     private final String mainPageFile;
     
-    /**
+    /*******************************************************************************************************************
      * 
-     */
+     ******************************************************************************************************************/
     public Editor() {
         
         terminal = phantom.gui.MainFrame.getTerminalReference();
@@ -79,10 +81,10 @@ public final class Editor {
         
     }//construtor
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @throws Exception 
-     */
+     ******************************************************************************************************************/
     public void edit() throws Exception {
         
         toolbox.log.Log.exec("phantom.edit", "Editor", "edit");

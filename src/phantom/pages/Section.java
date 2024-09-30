@@ -11,21 +11,23 @@ import javax.management.modelmbean.XMLParseException;
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Section.
  * 
  * @author Pedro Reis
- * @since 1.0
- * @version 1.0 - 22 de agosto de 2024
+ * 
+ * @since 1.0 - 22 de agosto de 2024
+ * 
+ * @version 1.0 
  **********************************************************************************************************************/
 final class Section extends Page {
     
-    private static final Pattern FILENAME_FINDER = Pattern.compile("(t=\\d+?)\\D");
+    private static final Pattern FILENAME_FINDER = Pattern.compile("t=\\d+");
     
     private static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("\\d+");
     
     private static String msg$1;
     private static String msg$2;
     
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -54,14 +56,14 @@ final class Section extends Page {
         
     }//bloco static   
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @param name
      * @param url
      * @param filename 
      * @param numberOfTopics 
      * @param lastPostTime 
-     */
+     ******************************************************************************************************************/
     protected Section(
         final String name, 
         final String url, 
@@ -83,7 +85,7 @@ final class Section extends Page {
         else
             setNumberOfPages( ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 );
         
-        setDateTimeOfLastPostOnThisPage(lastPostTime);
+        setLastPostDateTime(lastPostTime);
 
         toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");
 
@@ -162,7 +164,7 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                     
                     if (matcher.find()) 
                         
-                        topicFilename = matcher.group(1);
+                        topicFilename = matcher.group();
                     
                     else 
                         

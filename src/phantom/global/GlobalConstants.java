@@ -4,12 +4,12 @@ import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-/**
+/***********************************************************************************************************************
  *
  * @author 
  * @since
  * @version
- */
+ **********************************************************************************************************************/
 public final class GlobalConstants {
     
     public static final String FORUM_NAME = GlobalStrings.FORUM_NAME.get();

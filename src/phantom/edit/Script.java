@@ -3,12 +3,14 @@ package phantom.edit;
 import java.util.HashMap;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
- */
+ * @author Pedro Reis
+ * 
+ * @since 1.0
+ * 
+ * @version 1.0
+ **********************************************************************************************************************/
 final class Script extends Tag {
     
     @Override
@@ -17,7 +19,7 @@ final class Script extends Tag {
         final phantom.fetch.Fetcher fetcher,
         final HashMap<String, String> url2staticUrl) throws Exception {
         
-        if (url == null || !( url.matches("\\./.+") || url.startsWith(ROOT_URL) )) 
+        if (url == null || !( url.matches("\\./[\\s\\S]+") || url.startsWith(ROOT_URL) )) 
             return;
         
         setFetcher(fetcher);

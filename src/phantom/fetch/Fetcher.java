@@ -16,15 +16,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static phantom.global.GlobalConstants.*;
 
-/**
+/***********************************************************************************************************************
  *
  * @author Pedro Reis
- * @since 1.0
- * @version 1.0 - 1 de setembro de 2024
- */
+ * 
+ * @since 1.0 - 1 de setembro de 2024
+ * 
+ * @version 1.0
+ **********************************************************************************************************************/
 public final class Fetcher implements Runnable {
     
-    private static final Pattern QUERY = Pattern.compile("\\?.*$");//Localiza queries em arqs.
+    private static final Pattern QUERY = Pattern.compile("\\?[\\s\\S]*$");//Localiza queries em arqs.
     
     private Matcher matcher;
 
@@ -50,9 +52,9 @@ public final class Fetcher implements Runnable {
     private static String msg$6;  
     private static String msg$7;
     
-    /*
+    /*==================================================================================================================
     * Internacionaliza as Strings "hardcoded" na classe
-    */
+    ==================================================================================================================*/
     static {
         
         try {
@@ -92,9 +94,9 @@ public final class Fetcher implements Runnable {
         
     }//bloco static    
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private void readFails() throws Exception {        
              
         try ( Scanner scanner = new Scanner(new File(FAILS_PATHNAME), "utf8") ) { 
@@ -120,9 +122,9 @@ public final class Fetcher implements Runnable {
         
     }//readFails
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private void saveFails() throws Exception {
         
         try (PrintWriter printWriter = new PrintWriter(FAILS_PATHNAME, "utf8")) {
@@ -133,10 +135,10 @@ public final class Fetcher implements Runnable {
         
     }//saveFails
 
-    /**
+    /*******************************************************************************************************************
      *
      * @throws InterruptedException 
-     */
+     ******************************************************************************************************************/
     public Fetcher() throws Exception {
         
         fails = new LinkedList<>();
@@ -157,13 +159,13 @@ public final class Fetcher implements Runnable {
 
     }//construtor
     
-    /**
+    /*******************************************************************************************************************
      * Insere um node na fila de download caso ainda nao exista outro com a mesma URL.
 
      * @param node
      * 
      * @throws InterruptedException Caso ocorra excecao quando a thread estiver dormindo.
-     */
+     ******************************************************************************************************************/
     public void queue(final Node node) throws Exception {
 
         if (new File(node.getPathname()).exists()) return; 
@@ -178,10 +180,10 @@ public final class Fetcher implements Runnable {
 
     }//queue
     
-    /**
+    /*******************************************************************************************************************
      * 
      * @throws InterruptedException 
-     */
+     ******************************************************************************************************************/
     public void terminate() throws Exception {
 
         downloadQueue.put(Node.TERMINATE);
@@ -190,9 +192,9 @@ public final class Fetcher implements Runnable {
  
     }//terminate  
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     @SuppressWarnings("UseSpecificCatch")
     private void consume() throws Exception {
         
@@ -233,9 +235,9 @@ public final class Fetcher implements Runnable {
         
     }//consume
     
-    /*
+    /*==================================================================================================================
     *
-    */
+    ==================================================================================================================*/
     private void searchInCssFiles() throws Exception {
         
        LinkedList<String> cssFileList = null;
@@ -288,9 +290,9 @@ public final class Fetcher implements Runnable {
         
     }//searchInCssFiles
 
-    /**
+    /*******************************************************************************************************************
      * 
-     */
+     ******************************************************************************************************************/
     @Override
     public void run() {
         

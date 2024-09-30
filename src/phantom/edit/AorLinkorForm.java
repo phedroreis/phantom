@@ -4,29 +4,31 @@ import java.util.HashMap;
 import static phantom.global.GlobalConstants.*;
 
 
-/**
+/***********************************************************************************************************************
  * Realiza o parsing e edita atributos href e src de tags a, link ou form.
  * 
- * @author Pedro Reis  
- * @since 1.0
- * @version 1.0 - 18 de setembro de 2024
- */
+ * @author Pedro Reis 
+ * 
+ * @since 1.0 - 18 de setembro de 2024
+ * 
+ * @version 1.0 
+ **********************************************************************************************************************/
 final class AorLinkorForm extends Tag {
     
-    /**
+    /*******************************************************************************************************************
      * Analisa e edita uma url coletada de atributo href ou src de uma tag a, link ou form.
      * 
      * @param url A url.
      * 
      * @throws Exception Qualquer excecao aqui leva ao abortamento do programa.
-     */
+     ******************************************************************************************************************/
     @Override
         protected void parseUrl(
         final String url, 
         final phantom.fetch.Fetcher fetcher,
         final HashMap<String, String> url2staticUrl) throws Exception {
         
-        if (url == null || !( url.matches("(\\./|/app\\.php).+") || url.startsWith(ROOT_URL) )) 
+        if (url == null || !( url.matches("(\\./|/app\\.php)[\\s\\S]+") || url.startsWith(ROOT_URL) )) 
             return;
         
         setFetcher(fetcher);
@@ -65,7 +67,7 @@ final class AorLinkorForm extends Tag {
                     
                 case "/viewforum.php"://Este script gera pags. de Header ou Section
                     
-                    matcher = VIEWFORUM_START_INDEX.matcher(url);//Localiza indice da pag. de Section, se houver
+                    matcher = START_INDEX.matcher(url);//Localiza indice da pag. de Section, se houver
                     startIndex = matcher.find() ? "&start=" + matcher.group(1) : ""; 
                     
                     matcher = VIEWFORUM_ID.matcher(url);//Localiza ID do forum na URL
@@ -75,14 +77,9 @@ final class AorLinkorForm extends Tag {
                     break;     
                     
                 case "/viewtopic.php"://Este script gera pags. de Topic
-                    
-                    /*
-                    t= nao pode ser localizada dentro de start= pois bugaria regex VIEWTOPIC_ID
-                    Troca start= por xyz= e busca por xyz= na string urlx
-                    */
-                    urlRelative = urlRelative.replace("start=", "xyz=");                    
+              
                    
-                    matcher = VIEWTOPIC_START_INDEX.matcher(urlRelative);//Localiza indice pag. de Topic, se houver
+                    matcher = START_INDEX.matcher(urlRelative);//Localiza indice pag. de Topic, se houver
                     startIndex = matcher.find() ? "&start=" + matcher.group(1) : "";                    
 
                     matcher = VIEWTOPIC_POST.matcher(urlRelative);//Localiza ref. para post, se houver
@@ -91,7 +88,7 @@ final class AorLinkorForm extends Tag {
                     matcher = VIEWTOPIC_ID.matcher(urlRelative);//Localiza ID do topico
                     
                     if (matcher.find()) 
-                        staticUrl = "./" + matcher.group() + startIndex + ".html" + postID;
+                        staticUrl = "./" + matcher.group(1) + startIndex + ".html" + postID;
                     else
                         staticUrl = "./_post.html" + postID;//Monta URL estatica
                     
@@ -104,7 +101,11 @@ final class AorLinkorForm extends Tag {
                     if (matcher.find()) {
 
                         staticUrl = 
-                            urlRelative.substring(0, urlRelative.indexOf("file.php?")) + matcher.group(1);//url.replace("file.php?", "").replace("&amp;", "-");
+                            urlRelative.substring(
+                                0, 
+                                urlRelative.indexOf("file.php?")
+                            )
+                            + matcher.group(1);//url.replace("file.php?", "").replace("&amp;", "-");
                        
                         queue(urlRelative, staticUrl);
                     }
