@@ -66,7 +66,7 @@ protected enum MaxList {
     * Customiza o parser do arquivo html para recuperar os dados necessarios para um objeto 
     * de alguma subclasse de Page.
     ==================================================================================================================*/
-    private toolbox.xml.TagParser parser;
+    private toolbox.html.TagParser parser;
     
     /*==================================================================================================================
     * Para a pagina principal, pageList retorna uma lista com objetos da subclasse Header, representando
@@ -294,7 +294,7 @@ protected enum MaxList {
      * 
      * @param tagParser O objeto com os metodos que irao analisar a abertura e fechamento de cada tag no arquivo.
      ******************************************************************************************************************/
-    protected void setPageParser(final toolbox.xml.TagParser tagParser) {
+    protected void setPageParser(final toolbox.html.TagParser tagParser) {
         
         parser = tagParser;
         
@@ -368,7 +368,7 @@ protected enum MaxList {
 
             if (parser != null) {//Page eh instancia de Main, Header ou Section
             
-                toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
+                toolbox.html.HtmlParser htmlParser = new toolbox.html.HtmlParser(pageContent, parser);
 
                 htmlParser.parse();
             }
@@ -414,7 +414,7 @@ protected enum MaxList {
 
             String pageContent = tfh.getContent();
 
-            toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(pageContent, parser);
+            toolbox.html.HtmlParser htmlParser = new toolbox.html.HtmlParser(pageContent, parser);
 
             htmlParser.parse();
             

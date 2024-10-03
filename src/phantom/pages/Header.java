@@ -6,6 +6,9 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
+import static phantom.global.GlobalConstants.*;
+import toolbox.html.Tag;
+import toolbox.html.TagParser;
 
 /***********************************************************************************************************************
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Header.
@@ -17,6 +20,14 @@ import javax.management.modelmbean.XMLParseException;
  * @version 1.0 
  **********************************************************************************************************************/
 final class Header extends Page implements Comparable {
+    
+    private String sectionName;
+    private String sectionURL;
+    private String sectionFilename;
+    private String sectionNumberOfTopics = "0";
+    private String sectionLastPostTime = THE_VERY_FIRST_SECOND;
+    
+    private Matcher matcher;    
     
     private static final Pattern NUMBER_OF_TOPICS_FINDER = 
         Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+)");
@@ -72,7 +83,7 @@ final class Header extends Page implements Comparable {
         setPageName(name);
         setPageUrl(url);
         setPageFilename(filename);
-        setPageParser(new HeaderPageParser());
+        setPageParser(new HeaderParser());
         setLastPostDateTime(lastPostTime);
         setNumberOfPages(1);
          
@@ -96,56 +107,50 @@ final class Header extends Page implements Comparable {
     Classe privada. Obtem dados de Sections em uma pagina de Header do forum a partir da tag li
     que exibe estes dados na pagina.
 ======================================================================================================================*/
-private class HeaderPageParser extends toolbox.xml.TagParser {
-    
-    private String sectionName;
-    private String sectionURL;
-    private String sectionFilename;
-    private String sectionNumberOfTopics;
-    private String sectionLastPostTime;
-    
-    private Matcher matcher;
+private final class HeaderParser extends toolbox.html.TagParser {
     
     @Override
-    public void openTagLevel0(toolbox.xml.Tag t) {
+    public TagParser openTag(Tag tag) throws Exception {
         
-        if (t.getTagName().equals("li")) {
+        if (tag.getTagId().equals("ul") && tag.contains("class", "topiclist forums"))
             
-            String attrValue = t.getAttrMap().get("class");
+            return new LiRowParser();
+        
+        return null;
+        
+    }
+    
+}//classe privada HeaderParser    
+    
+private final class LiRowParser extends toolbox.html.TagParser {
 
-            if (attrValue != null && attrValue.startsWith("row forum-")) {
-                
-                sectionFilename = 
-                    "f=" + attrValue.substring(attrValue.indexOf('-') + 1, attrValue.length());
-                
-                t.parseInnerScope();
-                
-            }//if
-            
-        }//if  
-        
-    }//openTagLevel0
-    
     @Override
-    public void closeTagLevel0 (toolbox.xml.Tag t) throws XMLParseException {
+    public TagParser openTag(Tag tag) throws Exception { 
+
+        if (tag.getTagId().equals("li")) {
+
+            String classValue = tag.getAttrMap().get("class");
+
+            if (classValue != null && classValue.startsWith("row")) {
+
+                tag.notifyClosing();
+                return new LiInnerParser();
+
+            }
+ 
+        }
+
+        return null; 
         
-        String tagLiContent = t.getContent();
-       
-        matcher = NUMBER_OF_TOPICS_FINDER.matcher(tagLiContent);
-        
-        if (matcher.find()) 
-            
-            sectionNumberOfTopics = matcher.group(1);
-        
-        else 
-            
-            throw new XMLParseException(
-                msg$1 + toolbox.string.StringTools.NEWLINE + tagLiContent
-            );
+    }//openTag
+
+    @Override
+    public void closeTag(Tag tag) {
         
         int nTopics = Integer.parseInt(sectionNumberOfTopics);
-        
+
         addPage(
+            
             new Section(
                 sectionName, 
                 sectionURL, 
@@ -155,56 +160,90 @@ private class HeaderPageParser extends toolbox.xml.TagParser {
             ),
             nTopics == 0 ? 1 : ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 
         );
-        
+
         /*
         Anula campos para que o proximo objeto Section nao receba acidentalmente dados deste.
         */
         sectionName = null;
         sectionURL = null;
         sectionFilename = null;
-        sectionNumberOfTopics = null;
-        sectionLastPostTime = null;
-        
-    }//closeTagLevel0    
+        sectionNumberOfTopics = "0";
+        sectionLastPostTime = THE_VERY_FIRST_SECOND;   
+
+    }//closeTag
     
+}//classe privada LiRowParser
+
+private final class LiInnerParser extends toolbox.html.TagParser {
+
     @Override
-    public void openTagLevel1(toolbox.xml.Tag t) {
+    public TagParser openTag(Tag tag) throws Exception {
         
-        String tagName = t.getTagName();
+        String tagId = tag.getTagId();
         
-        HashMap<String, String> map = t.getAttrMap();
-        
-        switch (tagName) {
+        HashMap<String, String> map;
+
+        switch (tagId) {
             
-            case "a"://a url de uma section localizada em uma tag a
-
-                String classValue = map.get("class");
-
-                if (classValue != null && classValue.equals("forumtitle")) {
+            case "a":
+                
+                if (tag.contains("class", "forumtitle")) {
                     
+                    map = tag.getAttrMap();
+
                     sectionURL = map.get("href");
-                    
-                    t.notifyClosing();
-  
-                }                 
+                    sectionFilename = "f=" + map.get("data-id");
+                    tag.notifyClosing();
+                } 
                 
                 break;
                 
-            case "time"://a data-hora da ultima postagem na Section
+            case "div":
                 
-                sectionLastPostTime = map.get("datetime");        
+                if (tag.contains("class", "forum-statistics")) tag.notifyClosing(); 
+                
+                break;
+                
+            case "time":
+                
+                map = tag.getAttrMap();
+                
+                sectionLastPostTime = map.get("datetime");    
+                
+                break;
             
-        }//switch 
+        }
+
+        return null;
         
-    }//openTagLevel1
+    }//openTag
     
     @Override
-    public void closeTagLevel1 (toolbox.xml.Tag t) {
-
-        sectionName = t.getContent(); 
+    public void closeTag(Tag tag) throws XMLParseException{
         
-    }//closeTagLevel1 
+        String tagId = tag.getTagId();
+        
+        switch (tagId) {
+            
+            case "a":      
+                
+                sectionName = tag.getTagContent();
+                
+                break;
+                
+            case "div":
+                
+                matcher = NUMBER_OF_TOPICS_FINDER.matcher(tag.getTagContent());
+                
+                if (matcher.find())
+                    sectionNumberOfTopics = matcher.group(1);  
+                else
+                    throw new XMLParseException(msg$1);
+        }
+        
+    }//closeTag    
     
-}//classe privada HeaderPageParser
+}//classe privada ForumTitleParser
+    
     
 }//classe Header

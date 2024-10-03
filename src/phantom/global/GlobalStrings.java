@@ -45,7 +45,9 @@ public enum GlobalStrings {
     
     ANCIENT_TIMES("0000-00-00T00:00:00+00:00"),
     
-    DISTANT_FUTURE("5000-00-00T00:00:00+00:00");    
+    DISTANT_FUTURE("5000-00-00T00:00:00+00:00"),
+    
+    THE_VERY_FIRST_SECOND("0000-00-00T00:00:01+00:00");    
     
     private String value;
     

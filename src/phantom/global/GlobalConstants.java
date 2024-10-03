@@ -52,6 +52,8 @@ public final class GlobalConstants {
     
     public static final String DISTANT_FUTURE = GlobalStrings.DISTANT_FUTURE.get();
     
+    public static final String THE_VERY_FIRST_SECOND = GlobalStrings.THE_VERY_FIRST_SECOND.get();    
+    
     public static final Border STANDART_BORDER = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
     
     public static final String FORMAT = "===== %s =====%n%n"; 

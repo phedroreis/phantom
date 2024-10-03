@@ -2,6 +2,8 @@ package phantom.pages;
 
 import java.util.HashMap;
 import static phantom.global.GlobalConstants.*;
+import toolbox.html.Tag;
+import toolbox.html.TagParser;
 
 /***********************************************************************************************************************
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina principal.
@@ -11,6 +13,11 @@ import static phantom.global.GlobalConstants.*;
  * @version 1.0 - 18 de agosto de 2024
  **********************************************************************************************************************/
 final class Main extends Page {
+    
+    private String headerName;
+    private String headerURL;
+    private String headerFilename;
+    private String headerLastPostTime = THE_VERY_FIRST_SECOND;   
        
     /*******************************************************************************************************************
      * Construtor da classe
@@ -28,7 +35,7 @@ final class Main extends Page {
         //O metodo ira converter em https://clubeceticismo.com.br/
         setPageUrl("");
         
-        setPageParser(new MainPageParser());
+        setPageParser(new MainParser());
         
         setLastPostDateTime(phantom.time.TimeTools.getLastPostDateTime());
         
@@ -37,120 +44,123 @@ final class Main extends Page {
         toolbox.log.Log.ret("phantom.pages", "Main", "Construtor de Main");
         
     }//construtor
- 
+    
 /*======================================================================================================================
          Classe privada. O parsing localiza os dados de HEADERS na pagina principal do forum.   
-======================================================================================================================*/
-private class MainPageParser extends toolbox.xml.TagParser {
-    
-    private String headerName;
-    private String headerURL;
-    private String headerFilename;
-    private String lastPostTime;
-    
-    @Override
-    public void openTagLevel0(final toolbox.xml.Tag t) {
-        
-        String classValue = t.getAttrMap().get("class");
-        
-        switch (t.getTagName()) {
-     
-            case "li":
-
-                if (classValue != null && classValue.equals("header")) 
-
-                   t.parseInnerScope();
-           
-                break;
-                
-            case "ul":
-                
-                if (classValue != null && classValue.equals("topiclist forums")) 
-
-                   t.parseInnerScope();              
-                
-        }//switch
-        
-    }//openTagLevel0
-    
-    @Override
-    public void closeTagLevel0(final toolbox.xml.Tag t) {
-        
-        if (t.getTagName().equals("ul")) {
- 
-            addPage(
-                new Header(
-                    headerName,
-                    headerURL,
-                    headerFilename,
-                    lastPostTime
-                ),
-                1
-            );
-            /*
-            Anula campos para que o proximo objeto Header nao receba acidentalmente dados deste.
-            */
-            headerName = null;
-            headerURL = null;
-            headerFilename = null;
-            lastPostTime = null;
-        }   
-        
-    }//closeTagLevel0
-    
-   @Override
-    public void openTagLevel1(final toolbox.xml.Tag t) {
-        
-        HashMap<String, String> map = t.getAttrMap(); 
-        
-        switch (t.getTagName()) {
-            
-            case "a":
-  
-                headerURL = map.get("href");
-                headerFilename = "f=" + map.get("data-id");
-                t.notifyClosing();                 
-                break;
-                
-            case "li": 
-                
-                String classValue = map.get("class");  
-                
-                if (classValue != null && classValue.startsWith("row forum-")) 
-                    
-                    t.parseInnerScope();
-                
-        }//switch
-        
-    }//openTag
-    
-    @Override
-    public void closeTagLevel1(final toolbox.xml.Tag t) {
-        
-        if (t.getTagName().equals("a")) headerName = t.getContent();
-             
-    }//closeTagLevel1
+======================================================================================================================*/    
+private final class MainParser extends toolbox.html.TagParser {
 
     @Override
-    public void openTagLevel2(final toolbox.xml.Tag t) {
-        
-        if (t.getTagName().equals("time")) {
-            
-            String datetimeValue = t.getAttrMap().get("datetime");
-            
-            if (datetimeValue != null) {
-                
-                if (lastPostTime == null) 
-                    
-                    lastPostTime = datetimeValue;
-                
-                else if (datetimeValue.compareTo(lastPostTime) > 0) lastPostTime = datetimeValue;
-            }            
-            
+    public TagParser openTag(Tag tag) throws Exception {
+
+        if (tag.getTagId().equals("div")) {
+
+            String classValue = tag.getAttrMap().get("class");
+
+            if (classValue != null && classValue.startsWith("forabg")) {
+                tag.notifyClosing();
+                return new HeaderOrSectionParser();
+            }
         }
-             
-    }//openTagLevel2
+
+        return null;
+    }
+
+    @Override
+    public void closeTag(Tag tag) throws Exception {
+
+        addPage(new Header(
+                headerName,
+                headerURL,
+                headerFilename,
+                headerLastPostTime
+            ),
+            1
+        );
+        /*
+        Anula campos para que o proximo objeto Header nao receba acidentalmente dados deste.
+        */
+        headerName = null;
+        headerURL = null;
+        headerFilename = null;
+        headerLastPostTime = THE_VERY_FIRST_SECOND;            
+    }
+
+}//classe privada MainParser
+
+private final class HeaderOrSectionParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {  
+
+        if (tag.getTagId().equals("li")) {
+
+            String classValue = tag.getAttrMap().get("class");
+
+            if (classValue != null && classValue.equals("header")) {
+
+                return new HeaderParser();
+
+            } else if (classValue != null && classValue.startsWith("row forum-")) {
+
+                return new SectionParser();
+
+            }
+
+        }
+
+        return null;
+
+    } 
     
-}//classe privada MainPageParser 
+}//classe privada HeaderOrSectionParser
+
+private final class HeaderParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+
+        if (tag.getTagId().equals("a")) {
+
+            HashMap<String, String> map = tag.getAttrMap();
+
+            headerURL = map.get("href");
+            headerFilename = "f=" + map.get("data-id");
+            tag.notifyClosing();
+
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public void closeTag(Tag tag) {
+
+        headerName = tag.getTagContent();
+
+    }
+
+}//classe privada HeaderParser
+
+private final class SectionParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+
+        if (tag.getTagId().equals("time")) {
+
+            String datetimeValue = tag.getAttrMap().get("datetime");
+            
+            if (datetimeValue == null) return null;
+
+            if (headerLastPostTime.compareTo(datetimeValue) < 0) headerLastPostTime = datetimeValue;
+
+        }
+
+        return null;
+    }
+    
+}//classe privada SectionParser
 
 }//classe Main

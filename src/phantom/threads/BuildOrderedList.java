@@ -1,7 +1,6 @@
 package phantom.threads;
 
 import java.io.File;
-import java.nio.file.NoSuchFileException;
 import java.util.TreeSet;
 import static phantom.global.GlobalConstants.*;
 
@@ -50,9 +49,7 @@ public final class BuildOrderedList implements Runnable {
         } 
         catch (Exception e) {
             
-            e.printStackTrace(System.err);
-
-            System.exit(0);
+            phantom.exception.ExceptionTools.errMessage(null, e);
         }
 
     }//run

@@ -6,6 +6,9 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
+import static phantom.global.GlobalConstants.*;
+import toolbox.html.Tag;
+import toolbox.html.TagParser;
 
 /***********************************************************************************************************************
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina de Section.
@@ -17,6 +20,14 @@ import javax.management.modelmbean.XMLParseException;
  * @version 1.0 
  **********************************************************************************************************************/
 final class Section extends Page {
+    
+    private String topicName;
+    private String topicURL;
+    private String topicFilename;
+    private String topicNumberOfPosts = "0";
+    private String topicLastPostTime = THE_VERY_FIRST_SECOND; 
+    
+    private Matcher matcher;    
     
     private static final Pattern FILENAME_FINDER = Pattern.compile("t=\\d+");
     
@@ -77,7 +88,7 @@ final class Section extends Page {
         setPageName(name);
         setPageUrl(url);
         setPageFilename(filename);
-        setPageParser(new SectionPageParser());
+        setPageParser(new SectionParser());
         
         int nTopics = Integer.parseInt(numberOfTopics);
         if (nTopics == 0)
@@ -90,39 +101,51 @@ final class Section extends Page {
         toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");
 
     }//construtor
-
     
 /*======================================================================================================================
     Classe privada. Obtem dados de Topics em uma pagina de Section do forum a partir da tag li
     que exibe estes dados na pagina.
-======================================================================================================================*/
-private class SectionPageParser extends toolbox.xml.TagParser {
-    
-    private String topicName;
-    private String topicURL;
-    private String topicFilename;
-    private String topicNumberOfPosts;
-    private String topicLastPostTime; 
-    
-    private Matcher matcher;
+======================================================================================================================*/   
+private final class SectionParser extends toolbox.html.TagParser {
     
     @Override
-    public void openTagLevel0(toolbox.xml.Tag t) {
+    public TagParser openTag(Tag tag) throws Exception {
         
-        String tagName = t.getTagName();
+        if (tag.getTagId().equals("ul") && tag.contains("class", "topiclist topics"))
+            
+            return new LiRowParser();
         
-        String attrValue = t.getAttrMap().get("class");
+        return null;
         
-        if (tagName.equals("li") && attrValue != null && attrValue.startsWith("row bg")) 
-                
-            t.parseInnerScope();
+    }
+    
+}//classe privada SectionParser   
 
-    }//openTagLevel0
+private class LiRowParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception { 
+
+        if (tag.getTagId().equals("li")) {
+
+            String classValue = tag.getAttrMap().get("class");
+
+            if (classValue != null && classValue.startsWith("row")) {
+
+                tag.notifyClosing();
+                return new LiInnerParser();
+            } 
+        }
+
+        return null; 
+        
+    }//openTag
     
     @Override
-    public void closeTagLevel0 (toolbox.xml.Tag t) {
-        
+    public void closeTag(Tag tag) {
+
         addPage(
+            
             new Topic(
                 topicName, 
                 topicURL, 
@@ -130,95 +153,111 @@ private class SectionPageParser extends toolbox.xml.TagParser {
                 topicNumberOfPosts, 
                 topicLastPostTime
             ),
-            ( Integer.parseInt(topicNumberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1
+            ( Integer.parseInt(topicNumberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1 
         );
+
         /*
-        Anula campos para que o proximo objeto Topic nao receba acidentalmente dados deste.
+        Anula campos para que o proximo objeto Section nao receba acidentalmente dados deste.
         */
         topicName = null;
         topicURL = null;
         topicFilename = null;
-        topicNumberOfPosts = null;
-        topicLastPostTime = null;
-        
-    }//closeTagLevel0    
-    
-    @Override
-    public void openTagLevel1(toolbox.xml.Tag t) throws XMLParseException {
-        
-        String tagName = t.getTagName();
-        
-        HashMap<String, String> map = t.getAttrMap();
-        
-        String classValue = map.get("class");
-        
-        switch (tagName) {
-            
-            case "a"://a url de um topic localizada em uma tag a
+        topicNumberOfPosts = "0";
+        topicLastPostTime = THE_VERY_FIRST_SECOND;   
 
-                if (classValue != null && classValue.equals("topictitle")) {
-                    
-                    topicURL = map.get("href");
+    }//closeTag    
+    
+}//classe privada LiRowParser
+
+
+private class LiInnerParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+         
+        HashMap<String, String> map;
+
+        switch (tag.getTagId()) {
+            
+            case "a":
                 
-                    matcher = FILENAME_FINDER.matcher(topicURL);
+                if (tag.contains("class", "topictitle")) {
                     
+                    map = tag.getAttrMap();
+
+                    topicURL = map.get("href");
+                    
+                    matcher = FILENAME_FINDER.matcher(topicURL);
                     if (matcher.find()) 
                         
                         topicFilename = matcher.group();
                     
                     else 
                         
-                        throw new XMLParseException(msg$1 + topicURL);
-                 
-                    t.notifyClosing();
-  
-                }//if                 
+                        throw new XMLParseException(msg$1);
+                    
+                    tag.notifyClosing();
+                } 
                 
-                break;
-                
-            case "time"://a data-hora da ultima postagem na Section
-                
-                topicLastPostTime = map.get("datetime"); 
-                break;
-                
-            case "dd": 
-                
-                if (classValue != null && classValue.equals("posts")) 
-                
-                    t.notifyClosing();               
-            
-        }//switch 
-        
-    }//openTagLevel1
-    
-    @Override
-    public void closeTagLevel1 (toolbox.xml.Tag t) throws XMLParseException {
-        
-        String content = t.getContent();
-        
-        switch (t.getTagName()) {
-            
-            case "a":
-                
-                topicName = content;
                 break;
                 
             case "dd":
-
-                matcher = NUMBER_OF_POSTS_FINDER.matcher(content);
                 
-                if (matcher.find())
+                if (tag.contains("class", "posts")) 
                     
+                    tag.notifyClosing(); 
+                
+                else if (tag.contains("class", "lastpost"))
+                    
+                    return new LastPostParser();
+                
+                break;            
+        }
+
+        return null;
+        
+    }//openTag
+    
+    @Override
+    public void closeTag(Tag tag) throws XMLParseException{
+        
+        switch (tag.getTagId()) { 
+            
+            case "a":
+        
+                topicName = tag.getTagContent();
+                
+                break;
+                
+            case "dd":
+                
+                matcher = NUMBER_OF_POSTS_FINDER.matcher(tag.getTagContent());
+                
+                if (matcher.find()) 
+                
                     topicNumberOfPosts = matcher.group();
                 
-                else
-                    
-                    throw new XMLParseException(msg$2 + content);
-                
-        }//switch
+                else 
+
+                    throw new XMLParseException(msg$2);                
+            
+        }
         
-    }//closeTagLevel1 
+    }//closeTag
     
-}//classe privada SectionPageParser  
+}//classe privada LiInnerParser  
+
+
+private final class LastPostParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+
+        if (tag.getTagId().equals("time")) topicLastPostTime = tag.getAttrMap().get("datetime");
+
+        return null;
+    }
+    
+}//classe privada LastPostParser
     
 }//classe Section
