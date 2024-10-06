@@ -1,6 +1,5 @@
 package phantom.pages;
 
-import java.util.HashMap;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -20,6 +19,12 @@ import toolbox.html.TagParser;
  * @version 1.0 
  **********************************************************************************************************************/
 final class Section extends Page {
+    
+    private final DivForumbgParser divForumbgParser = new DivForumbgParser();
+    private final UlTopiclistTopicsParser ulTopiclistTopicsParser = new UlTopiclistTopicsParser();
+    private final LiRowParser liRowParser = new LiRowParser();
+    private final TopicDataParser topicDataParser = new TopicDataParser();
+    private final LastPostParser lastPostParser = new LastPostParser();
     
     private String topicName;
     private String topicURL;
@@ -79,25 +84,19 @@ final class Section extends Page {
         final String name, 
         final String url, 
         final String filename, 
-        final String numberOfTopics,
+        final int numberOfPages,
         final String lastPostTime) {
         
         toolbox.log.Log.exec("phantom.pages", "Section", "Construtor de Section");
-        toolbox.log.Log.param(name, url, filename, numberOfTopics, lastPostTime);
+        toolbox.log.Log.param(name, url, filename, numberOfPages, lastPostTime);
         
         setPageName(name);
         setPageUrl(url);
         setPageFilename(filename);
-        setPageParser(new SectionParser());
-        
-        int nTopics = Integer.parseInt(numberOfTopics);
-        if (nTopics == 0)
-            setNumberOfPages(1);
-        else
-            setNumberOfPages( ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 );
-        
-        setLastPostDateTime(lastPostTime);
-
+        setNumberOfPages(numberOfPages);
+        setLastPostDateTime(lastPostTime);        
+        setPageParser(divForumbgParser);
+ 
         toolbox.log.Log.ret("phantom.pages", "Section", "Construtor de Section");
 
     }//construtor
@@ -106,35 +105,41 @@ final class Section extends Page {
     Classe privada. Obtem dados de Topics em uma pagina de Section do forum a partir da tag li
     que exibe estes dados na pagina.
 ======================================================================================================================*/   
-private final class SectionParser extends toolbox.html.TagParser {
+private final class DivForumbgParser extends toolbox.html.TagParser {
     
     @Override
     public TagParser openTag(Tag tag) throws Exception {
         
-        if (tag.getTagId().equals("ul") && tag.contains("class", "topiclist topics"))
-            
-            return new LiRowParser();
+        if (tag.isClass("forumbg")) return ulTopiclistTopicsParser;
         
-        return null;
-        
+        return null;        
     }
     
-}//classe privada SectionParser   
+}//classe privada DivForumbgParser
 
-private class LiRowParser extends toolbox.html.TagParser {
+private final class UlTopiclistTopicsParser extends toolbox.html.TagParser {
+    
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+        
+        if (tag.isClass("topics")) return liRowParser;
+        
+        return null;        
+    }
+    
+    
+}//classe privada DivForumbgParser
+
+private final class LiRowParser extends toolbox.html.TagParser {
 
     @Override
     public TagParser openTag(Tag tag) throws Exception { 
 
-        if (tag.getTagId().equals("li")) {
-
-            String classValue = tag.getAttrMap().get("class");
-
-            if (classValue != null && classValue.startsWith("row")) {
+        if (tag.isClass("row")) {
 
                 tag.notifyClosing();
-                return new LiInnerParser();
-            } 
+                return topicDataParser;
+        
         }
 
         return null; 
@@ -143,6 +148,9 @@ private class LiRowParser extends toolbox.html.TagParser {
     
     @Override
     public void closeTag(Tag tag) {
+        
+        int numberOfPages = 
+            ( Integer.parseInt(topicNumberOfPosts) / Page.MaxList.MAX_POSTS_PER_PAGE.get() ) + 1;
 
         addPage(
             
@@ -150,10 +158,10 @@ private class LiRowParser extends toolbox.html.TagParser {
                 topicName, 
                 topicURL, 
                 topicFilename, 
-                topicNumberOfPosts, 
+                numberOfPages,
                 topicLastPostTime
             ),
-            ( Integer.parseInt(topicNumberOfPosts) / MaxList.MAX_POSTS_PER_PAGE.get() ) + 1 
+            numberOfPages
         );
 
         /*
@@ -169,49 +177,33 @@ private class LiRowParser extends toolbox.html.TagParser {
     
 }//classe privada LiRowParser
 
-
-private class LiInnerParser extends toolbox.html.TagParser {
+private final class TopicDataParser extends toolbox.html.TagParser {
 
     @Override
     public TagParser openTag(Tag tag) throws Exception {
-         
-        HashMap<String, String> map;
-
-        switch (tag.getTagId()) {
+        
+        if (tag.isClass("topictitle")) {
             
-            case "a":
-                
-                if (tag.contains("class", "topictitle")) {
-                    
-                    map = tag.getAttrMap();
+            topicURL = tag.getAttrMap().get("href");
 
-                    topicURL = map.get("href");
-                    
-                    matcher = FILENAME_FINDER.matcher(topicURL);
-                    if (matcher.find()) 
-                        
-                        topicFilename = matcher.group();
-                    
-                    else 
-                        
-                        throw new XMLParseException(msg$1);
-                    
-                    tag.notifyClosing();
-                } 
-                
-                break;
-                
-            case "dd":
-                
-                if (tag.contains("class", "posts")) 
-                    
-                    tag.notifyClosing(); 
-                
-                else if (tag.contains("class", "lastpost"))
-                    
-                    return new LastPostParser();
-                
-                break;            
+            matcher = FILENAME_FINDER.matcher(topicURL);
+            if (matcher.find()) 
+
+                topicFilename = matcher.group();
+
+            else 
+
+                throw new XMLParseException(msg$1);
+
+            tag.notifyClosing();
+  
+        }else if (tag.isClass("posts")) {
+            
+            tag.notifyClosing();
+            
+        }else if (tag.isClass("lastpost")) {
+            
+            return lastPostParser;
         }
 
         return null;
@@ -221,37 +213,33 @@ private class LiInnerParser extends toolbox.html.TagParser {
     @Override
     public void closeTag(Tag tag) throws XMLParseException{
         
-        switch (tag.getTagId()) { 
-            
-            case "a":
-        
-                topicName = tag.getTagContent();
+        if (tag.getTagId().equals("a")) { 
+  
+            topicName = tag.getTagContent();
                 
-                break;
+        }else {
                 
-            case "dd":
-                
-                matcher = NUMBER_OF_POSTS_FINDER.matcher(tag.getTagContent());
-                
-                if (matcher.find()) 
-                
-                    topicNumberOfPosts = matcher.group();
-                
-                else 
+            matcher = NUMBER_OF_POSTS_FINDER.matcher(tag.getTagContent());
 
-                    throw new XMLParseException(msg$2);                
+            if (matcher.find()) 
+
+                topicNumberOfPosts = matcher.group();
+
+            else 
+
+                throw new XMLParseException(msg$2);                
             
         }
         
     }//closeTag
     
-}//classe privada LiInnerParser  
+}//classe privada TopicDataParser  
 
 
 private final class LastPostParser extends toolbox.html.TagParser {
 
     @Override
-    public TagParser openTag(Tag tag) throws Exception {
+    public TagParser openTag(Tag tag) {
 
         if (tag.getTagId().equals("time")) topicLastPostTime = tag.getAttrMap().get("datetime");
 
@@ -261,3 +249,4 @@ private final class LastPostParser extends toolbox.html.TagParser {
 }//classe privada LastPostParser
     
 }//classe Section
+

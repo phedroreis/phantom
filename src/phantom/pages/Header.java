@@ -1,6 +1,5 @@
 package phantom.pages;
 
-import java.util.HashMap;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -21,16 +20,23 @@ import toolbox.html.TagParser;
  **********************************************************************************************************************/
 final class Header extends Page implements Comparable {
     
+    private final DivForabgParser divForabgParser = new DivForabgParser();
+    private final LiRowParser liRowParser = new LiRowParser();
+    private final UlTopiclistForumsParser ulTopiclistForumsParser = new UlTopiclistForumsParser();
+    private final SectionDataParser sectionDataParser = new SectionDataParser();
+    
     private String sectionName;
     private String sectionURL;
     private String sectionFilename;
     private String sectionNumberOfTopics = "0";
     private String sectionLastPostTime = THE_VERY_FIRST_SECOND;
-    
-    private Matcher matcher;    
-    
+
+    private static final Pattern FILENAME_FINDER = Pattern.compile("f=\\d+");
+ 
     private static final Pattern NUMBER_OF_TOPICS_FINDER = 
-        Pattern.compile("<span class=\"dfn\">T.picos</span>: <span class=\"value\">(\\d+)");
+        Pattern.compile("T.picos</span>: <span class=\"value\">(\\d+)<");
+    
+    private Matcher matcher;   
     
     private static String msg$1;
     
@@ -47,7 +53,7 @@ final class Header extends Page implements Comparable {
                     toolbox.locale.Localization.getLocale()
                 );
             
-            msg$1 = rb.getString("msg$1");//Unable to save backup's date-time 
+            msg$1 = rb.getString("msg$1");//
             
         } 
         catch (NullPointerException | MissingResourceException | ClassCastException e) {
@@ -83,7 +89,7 @@ final class Header extends Page implements Comparable {
         setPageName(name);
         setPageUrl(url);
         setPageFilename(filename);
-        setPageParser(new HeaderParser());
+        setPageParser(divForabgParser);
         setLastPostDateTime(lastPostTime);
         setNumberOfPages(1);
          
@@ -107,37 +113,42 @@ final class Header extends Page implements Comparable {
     Classe privada. Obtem dados de Sections em uma pagina de Header do forum a partir da tag li
     que exibe estes dados na pagina.
 ======================================================================================================================*/
-private final class HeaderParser extends toolbox.html.TagParser {
-    
+private final class DivForabgParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+
+        if (tag.isClass("forabg")) return ulTopiclistForumsParser;
+
+        return null;
+    }
+
+}//classe privada DivForabgParser  
+
+private final class UlTopiclistForumsParser extends toolbox.html.TagParser {
+
     @Override
     public TagParser openTag(Tag tag) throws Exception {
         
-        if (tag.getTagId().equals("ul") && tag.contains("class", "topiclist forums"))
+        if (tag.getTagId().equals("ul") && tag.contains("class", "topiclist forums")) {
             
-            return new LiRowParser();
-        
+            return liRowParser;
+        }
+
         return null;
-        
     }
     
-}//classe privada HeaderParser    
-    
+}//classe privada UlTopiclisForumsParser
+   
 private final class LiRowParser extends toolbox.html.TagParser {
 
     @Override
     public TagParser openTag(Tag tag) throws Exception { 
 
-        if (tag.getTagId().equals("li")) {
-
-            String classValue = tag.getAttrMap().get("class");
-
-            if (classValue != null && classValue.startsWith("row")) {
-
-                tag.notifyClosing();
-                return new LiInnerParser();
-
-            }
- 
+        if (tag.isClass("row")) {
+            
+            tag.notifyClosing();
+            return  sectionDataParser;           
         }
 
         return null; 
@@ -145,105 +156,85 @@ private final class LiRowParser extends toolbox.html.TagParser {
     }//openTag
 
     @Override
-    public void closeTag(Tag tag) {
+    public void closeTag(Tag tag) throws Exception {
         
-        int nTopics = Integer.parseInt(sectionNumberOfTopics);
+        int nTopics = Integer.parseInt(sectionNumberOfTopics);  
+        int numberOfPages = (nTopics == 0) ? 1 : ( (nTopics - 1)/ Page.MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1;        
 
         addPage(
-            
             new Section(
-                sectionName, 
-                sectionURL, 
-                sectionFilename, 
-                sectionNumberOfTopics, 
+                sectionName,
+                sectionURL,
+                sectionFilename,
+                numberOfPages,
                 sectionLastPostTime
             ),
-            nTopics == 0 ? 1 : ( (nTopics - 1)/ MaxList.MAX_TOPICS_TITLES_PER_PAGE.get() ) + 1 
+            numberOfPages            
         );
-
         /*
-        Anula campos para que o proximo objeto Section nao receba acidentalmente dados deste.
+        Anula campos para que o proximo objeto Header nao receba acidentalmente dados deste.
         */
         sectionName = null;
         sectionURL = null;
         sectionFilename = null;
-        sectionNumberOfTopics = "0";
-        sectionLastPostTime = THE_VERY_FIRST_SECOND;   
-
-    }//closeTag
+        sectionNumberOfTopics = "0";            
+        sectionLastPostTime = THE_VERY_FIRST_SECOND;            
+    }  
     
 }//classe privada LiRowParser
 
-private final class LiInnerParser extends toolbox.html.TagParser {
-
+private final class SectionDataParser extends toolbox.html.TagParser {
+    
     @Override
-    public TagParser openTag(Tag tag) throws Exception {
-        
-        String tagId = tag.getTagId();
-        
-        HashMap<String, String> map;
-
-        switch (tagId) {
+    public TagParser openTag(Tag tag) throws Exception { 
+    
+        if (tag.isClass("forumtitle")) {
             
-            case "a":
-                
-                if (tag.contains("class", "forumtitle")) {
-                    
-                    map = tag.getAttrMap();
-
-                    sectionURL = map.get("href");
-                    sectionFilename = "f=" + map.get("data-id");
-                    tag.notifyClosing();
-                } 
-                
-                break;
-                
-            case "div":
-                
-                if (tag.contains("class", "forum-statistics")) tag.notifyClosing(); 
-                
-                break;
-                
-            case "time":
-                
-                map = tag.getAttrMap();
-                
-                sectionLastPostTime = map.get("datetime");    
-                
-                break;
+            sectionURL = tag.getAttrMap().get("href");
             
+            matcher = FILENAME_FINDER.matcher(sectionURL);
+            
+            if (matcher.find()) sectionFilename = matcher.group();
+            
+            tag.notifyClosing();
+
+        } else if (tag.isClass("forum-statistics")) {
+            
+            tag.notifyClosing();
+
+        } else if (tag.getTagId().equals("time")) {
+            
+            sectionLastPostTime = tag.getAttrMap().get("datetime");
+
         }
-
+        
         return null;
-        
-    }//openTag
+    }
     
     @Override
-    public void closeTag(Tag tag) throws XMLParseException{
+    public void closeTag(Tag tag) throws XMLParseException {
         
-        String tagId = tag.getTagId();
-        
-        switch (tagId) {
+        if (tag.getTagId().equals("a"))
             
-            case "a":      
-                
-                sectionName = tag.getTagContent();
-                
-                break;
-                
-            case "div":
-                
-                matcher = NUMBER_OF_TOPICS_FINDER.matcher(tag.getTagContent());
-                
-                if (matcher.find())
-                    sectionNumberOfTopics = matcher.group(1);  
-                else
-                    throw new XMLParseException(msg$1);
-        }
+            sectionName = tag.getTagContent();
         
-    }//closeTag    
+        else {
+            
+            matcher = NUMBER_OF_TOPICS_FINDER.matcher(tag.getTagContent());
+            
+            if (matcher.find())
+                
+                sectionNumberOfTopics = matcher.group(1);
+            
+            else
+                
+                throw new XMLParseException(msg$1);
+        }
+            
+    }
     
-}//classe privada ForumTitleParser
-    
+}//classe privada SectionDataParser
+
     
 }//classe Header
+

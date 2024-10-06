@@ -14,6 +14,12 @@ import toolbox.html.TagParser;
  **********************************************************************************************************************/
 final class Main extends Page {
     
+    private final MainParser mainParser = new MainParser();
+    private final HeaderOrSectionParser headerOrSectionParser = new HeaderOrSectionParser();
+    private final HeaderParser headerParser = new HeaderParser();
+    private final SectionParser sectionParser = new SectionParser();
+    
+    
     private String headerName;
     private String headerURL;
     private String headerFilename;
@@ -35,7 +41,7 @@ final class Main extends Page {
         //O metodo ira converter em https://clubeceticismo.com.br/
         setPageUrl("");
         
-        setPageParser(new MainParser());
+        setPageParser(mainParser);
         
         setLastPostDateTime(phantom.time.TimeTools.getLastPostDateTime());
         
@@ -59,7 +65,7 @@ private final class MainParser extends toolbox.html.TagParser {
 
             if (classValue != null && classValue.startsWith("forabg")) {
                 tag.notifyClosing();
-                return new HeaderOrSectionParser();
+                return headerOrSectionParser;
             }
         }
 
@@ -99,11 +105,11 @@ private final class HeaderOrSectionParser extends toolbox.html.TagParser {
 
             if (classValue != null && classValue.equals("header")) {
 
-                return new HeaderParser();
+                return headerParser;
 
             } else if (classValue != null && classValue.startsWith("row forum-")) {
 
-                return new SectionParser();
+                return sectionParser;
 
             }
 
