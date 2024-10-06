@@ -9,21 +9,24 @@ import toolbox.html.TagParser;
  * Classe que analisa, coleta, armazena e fornece dados de uma pagina principal.
  * 
  * @author Pedro Reis
- * @since 1.0
- * @version 1.0 - 18 de agosto de 2024
+ * @since 1.0 - 18 de agosto de 2024
+ * @version 1.0 
  **********************************************************************************************************************/
 final class Main extends Page {
     
-    private final MainParser mainParser = new MainParser();
-    private final HeaderOrSectionParser headerOrSectionParser = new HeaderOrSectionParser();
-    private final HeaderParser headerParser = new HeaderParser();
-    private final SectionParser sectionParser = new SectionParser();
-    
-    
+    private final DivForabgParser divForabgParser = new DivForabgParser();
+    private final UlTopiclistForumsParser ulTopiclistForumsParser = new UlTopiclistForumsParser();
+    private final LiHeaderParser liHeaderParser = new LiHeaderParser();
+    private final LiRowParser liRowParser = new LiRowParser();
+    private final DlRowItemParser dlRowItemParser = new DlRowItemParser();
+    private final AParser aParser = new AParser();
+    private final DdLastPostParser ddLastPostParser = new DdLastPostParser();
+    private final TimeParser timeParser = new TimeParser();
+
     private String headerName;
     private String headerURL;
     private String headerFilename;
-    private String headerLastPostTime = THE_VERY_FIRST_SECOND;   
+    private String headerLastPostTime = THE_VERY_FIRST_SECOND;  
        
     /*******************************************************************************************************************
      * Construtor da classe
@@ -41,7 +44,7 @@ final class Main extends Page {
         //O metodo ira converter em https://clubeceticismo.com.br/
         setPageUrl("");
         
-        setPageParser(mainParser);
+        setPageParser(divForabgParser);
         
         setLastPostDateTime(phantom.time.TimeTools.getLastPostDateTime());
         
@@ -54,19 +57,15 @@ final class Main extends Page {
 /*======================================================================================================================
          Classe privada. O parsing localiza os dados de HEADERS na pagina principal do forum.   
 ======================================================================================================================*/    
-private final class MainParser extends toolbox.html.TagParser {
+private final class DivForabgParser extends toolbox.html.TagParser {
 
     @Override
     public TagParser openTag(Tag tag) throws Exception {
 
-        if (tag.getTagId().equals("div")) {
+        if (tag.isClass("forabg")) {
 
-            String classValue = tag.getAttrMap().get("class");
-
-            if (classValue != null && classValue.startsWith("forabg")) {
-                tag.notifyClosing();
-                return headerOrSectionParser;
-            }
+            tag.notifyClosing();
+            return ulTopiclistForumsParser;
         }
 
         return null;
@@ -92,81 +91,132 @@ private final class MainParser extends toolbox.html.TagParser {
         headerLastPostTime = THE_VERY_FIRST_SECOND;            
     }
 
-}//classe privada MainParser
+}//classe privada DivForabgParser
 
-private final class HeaderOrSectionParser extends toolbox.html.TagParser {
-
-    @Override
-    public TagParser openTag(Tag tag) throws Exception {  
-
-        if (tag.getTagId().equals("li")) {
-
-            String classValue = tag.getAttrMap().get("class");
-
-            if (classValue != null && classValue.equals("header")) {
-
-                return headerParser;
-
-            } else if (classValue != null && classValue.startsWith("row forum-")) {
-
-                return sectionParser;
-
-            }
-
-        }
-
-        return null;
-
-    } 
+private final class UlTopiclistForumsParser extends toolbox.html.TagParser {
     
-}//classe privada HeaderOrSectionParser
-
-private final class HeaderParser extends toolbox.html.TagParser {
-
     @Override
     public TagParser openTag(Tag tag) throws Exception {
+        
+        if (tag.isClass("topiclist")) {
+            
+            if (tag.isClass("forums"))
+                
+                return liRowParser;
+            
+            else 
+                
+                return liHeaderParser;
+        }
+        
+        return null;
+    }
+    
+}//classe privada UlTopiclistForumsParser
 
+
+
+
+private final class LiHeaderParser extends toolbox.html.TagParser {
+    
+   @Override
+    public TagParser openTag(Tag tag) throws Exception {  
+
+        if (tag.isClass("header")) return dlRowItemParser;
+
+        return null;
+    }     
+    
+}//classe privada LiHeaderParser
+
+private final class DlRowItemParser extends toolbox.html.TagParser {
+    
+    @Override
+    public TagParser openTag(Tag tag) {
+        
+        if (tag.isClass("row-item")) return aParser;
+        
+        return null;
+        
+    }
+    
+}//classe privada DlRowItemParser
+
+private final class AParser extends toolbox.html.TagParser {
+    
+    @Override
+    public TagParser openTag(Tag tag) {
+        
         if (tag.getTagId().equals("a")) {
 
             HashMap<String, String> map = tag.getAttrMap();
 
             headerURL = map.get("href");
-            headerFilename = "f=" + map.get("data-id");
-            tag.notifyClosing();
-
-        }
-
-        return null;
-
-    }
-
-    @Override
-    public void closeTag(Tag tag) {
-
-        headerName = tag.getTagContent();
-
-    }
-
-}//classe privada HeaderParser
-
-private final class SectionParser extends toolbox.html.TagParser {
-
-    @Override
-    public TagParser openTag(Tag tag) throws Exception {
-
-        if (tag.getTagId().equals("time")) {
-
-            String datetimeValue = tag.getAttrMap().get("datetime");
+            matcher = HEADERSECTION_FILENAME_FINDER.matcher(headerURL);
+            if (matcher.find()) headerFilename = matcher.group(); 
             
-            if (datetimeValue == null) return null;
-
-            if (headerLastPostTime.compareTo(datetimeValue) < 0) headerLastPostTime = datetimeValue;
-
+            tag.notifyClosing();
+        
         }
 
         return null;
     }
     
-}//classe privada SectionParser
+    @Override
+    public void closeTag(Tag tag) {
+
+        headerName = tag.getTagContent();
+
+    }    
+    
+    
+}//classe privada DlRowItemParser
+
+
+
+private final class LiRowParser extends toolbox.html.TagParser {
+    
+    @Override
+    public TagParser openTag(Tag tag) {
+        
+        if (tag.isClass("row")) return ddLastPostParser;
+            
+        return null;    
+    }
+    
+}//classe privada LiRowParser
+
+private final class DdLastPostParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) throws Exception {
+        
+        if (tag.isClass("lastPost")) return timeParser;
+
+        return null;
+    }
+    
+}//classe privada DdLastPostParser
+
+private final class TimeParser extends toolbox.html.TagParser {
+
+    @Override
+    public TagParser openTag(Tag tag) {  
+        
+        if (tag.getTagId().equals("time")) {
+            
+            String datetimeValue = tag.getAttrMap().get("datetime");
+            
+            if (datetimeValue == null) return null;
+
+            if (headerLastPostTime.compareTo(datetimeValue) < 0) 
+                headerLastPostTime = datetimeValue;          
+            
+        }
+        
+        return null;
+    }
+    
+}//classe privada TimeParser
 
 }//classe Main

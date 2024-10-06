@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 import javax.swing.JRadioButton;
 import static phantom.global.GlobalConstants.*;
@@ -17,7 +19,18 @@ import static phantom.global.GlobalConstants.*;
 * @since 1.0 - 11 de agosto de 2024
 * @author Pedro Reis
 ***********************************************************************************************************************/
-public abstract class Page {    
+public abstract class Page {   
+
+    protected static final Pattern HEADERSECTION_FILENAME_FINDER = Pattern.compile("f=\\d+");
+
+    protected static final Pattern TOPIC_FILENAME_FINDER = Pattern.compile("[^r](t=\\d+)");
+
+    protected static final Pattern NUMBER_OF_TOPICS_FINDER = 
+        Pattern.compile("T.picos</span>: <span class=\"value\">(\\d+)<");    
+    
+    protected static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("\\d+");
+    
+    protected Matcher matcher;      
 
 /***********************************************************************************************************************
  * Enumera constantes

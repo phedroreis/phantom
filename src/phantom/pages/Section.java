@@ -2,8 +2,6 @@ package phantom.pages;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalConstants.*;
 import toolbox.html.Tag;
@@ -31,12 +29,6 @@ final class Section extends Page {
     private String topicFilename;
     private String topicNumberOfPosts = "0";
     private String topicLastPostTime = THE_VERY_FIRST_SECOND; 
-    
-    private Matcher matcher;    
-    
-    private static final Pattern FILENAME_FINDER = Pattern.compile("t=\\d+");
-    
-    private static final Pattern NUMBER_OF_POSTS_FINDER = Pattern.compile("\\d+");
     
     private static String msg$1;
     private static String msg$2;
@@ -186,10 +178,10 @@ private final class TopicDataParser extends toolbox.html.TagParser {
             
             topicURL = tag.getAttrMap().get("href");
 
-            matcher = FILENAME_FINDER.matcher(topicURL);
+            matcher = TOPIC_FILENAME_FINDER.matcher(topicURL);
             if (matcher.find()) 
 
-                topicFilename = matcher.group();
+                topicFilename = matcher.group(1);
 
             else 
 

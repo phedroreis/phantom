@@ -2,8 +2,6 @@ package phantom.pages;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.management.modelmbean.XMLParseException;
 import static phantom.global.GlobalConstants.*;
 import toolbox.html.Tag;
@@ -30,13 +28,6 @@ final class Header extends Page implements Comparable {
     private String sectionFilename;
     private String sectionNumberOfTopics = "0";
     private String sectionLastPostTime = THE_VERY_FIRST_SECOND;
-
-    private static final Pattern FILENAME_FINDER = Pattern.compile("f=\\d+");
- 
-    private static final Pattern NUMBER_OF_TOPICS_FINDER = 
-        Pattern.compile("T.picos</span>: <span class=\"value\">(\\d+)<");
-    
-    private Matcher matcher;   
     
     private static String msg$1;
     
@@ -192,7 +183,7 @@ private final class SectionDataParser extends toolbox.html.TagParser {
             
             sectionURL = tag.getAttrMap().get("href");
             
-            matcher = FILENAME_FINDER.matcher(sectionURL);
+            matcher = HEADERSECTION_FILENAME_FINDER.matcher(sectionURL);
             
             if (matcher.find()) sectionFilename = matcher.group();
             
