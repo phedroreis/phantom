@@ -12,9 +12,11 @@ import static phantom.global.GlobalConstants.*;
 
 /***********************************************************************************************************************
  *
- * @author 
- * @since
- * @version
+ * @author Pedro Reis
+ * 
+ * @since 1.0
+ * 
+ * @version 1.0
  **********************************************************************************************************************/
 public final class Reader {
     
@@ -93,20 +95,13 @@ public final class Reader {
 ======================================================================================================================*/
 private static final class LexicalComparator implements Comparator<Page> {
 
-    private String normalize(final String s) {
-
-        return 
-            toolbox.string.StringTools.normalizeToCompare(s.replaceAll("&([a-z]+|#\\d+);", ""));
-    }
-
     @Override
     public int compare(Page topic, Page otherTopic) {
-
-        String topicName = normalize(topic.getPageName());
-
-        String otherTopicName = normalize(otherTopic.getPageName());
-
-        return topicName.compareTo(otherTopicName);
+        
+        return toolbox.string.StringTools.compare(
+            topic.getPageName().replaceAll("&([a-z]+|#\\d+);", ""), 
+            otherTopic.getPageName().replaceAll("&([a-z]+|#\\d+);", "")
+        );
     }
 
 }//classe privada LexicalComparator

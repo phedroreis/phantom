@@ -71,7 +71,7 @@ public final class Fix extends JFrame {
     /*==================================================================================================================
     *
     ==================================================================================================================*/
-    private void fix() throws IOException, XMLParseException {
+    private void fix() throws IOException, XMLParseException, Exception {
         
         toolbox.file.SearchFolders searchFolders = 
             new toolbox.file.SearchFolders(new TopicsFilter());
@@ -92,8 +92,8 @@ public final class Fix extends JFrame {
             
             String contentFile = textFileHandler.getContent();
             
-            toolbox.xml.HtmlParser topicParser = 
-                new toolbox.xml.HtmlParser(
+            toolbox.html.HtmlParser topicParser = 
+                new toolbox.html.HtmlParser(
                     contentFile, 
                     new Parser((new File(pathname)).getName())
                 );
@@ -175,10 +175,9 @@ public final class Fix extends JFrame {
     /*******************************************************************************************************************
      * 
      * @param args
-     * @throws IOException
-     * @throws XMLParseException 
+     * @throws Exception
      ******************************************************************************************************************/
-    public static void main(String[] args) throws IOException, XMLParseException {
+    public static void main(String[] args) throws Exception {
         
         Fix fix = new Fix();
         
@@ -191,7 +190,7 @@ public final class Fix extends JFrame {
 /*======================================================================================================================
            Classe privada para o parsing dos arquivos HTML das topicos do forum. 
 ======================================================================================================================*/
-private final class Parser extends toolbox.xml.TagParser {
+private final class Parser extends toolbox.html.TagParser {
     
     private final String filename;
     
@@ -209,9 +208,9 @@ private final class Parser extends toolbox.xml.TagParser {
     ==================================================================================================================*/    
     @Override
     @SuppressWarnings("UseSpecificCatch")
-    public void openTag(toolbox.xml.Tag t) {
+    public toolbox.html.TagParser openTag(toolbox.html.Tag t) {
         
-        String tagName = t.getTagName();        
+        String tagName = t.getTagId();        
 
         HashMap<String, String> map = t.getAttrMap();
        
@@ -240,6 +239,8 @@ private final class Parser extends toolbox.xml.TagParser {
             phantom.exception.ExceptionTools.crashMessage(null, e);
             
         }//try-catch
+        
+        return null;
         
     }//openTag
 

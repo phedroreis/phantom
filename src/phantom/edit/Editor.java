@@ -124,7 +124,7 @@ public final class Editor {
             
             String content = textFileHandler.getContent();
             
-            toolbox.xml.HtmlParser htmlParser = new toolbox.xml.HtmlParser(content, new Editor.Parser());
+            toolbox.html.HtmlParser htmlParser = new toolbox.html.HtmlParser(content, new Parser());
             
             url2staticUrl = new HashMap<>();
     
@@ -173,7 +173,7 @@ public final class Editor {
 /*======================================================================================================================
            Classe privada para o parsing dos arquivos HTML das paginas do forum. 
 ======================================================================================================================*/
-private static final class Parser extends toolbox.xml.TagParser {
+private final class Parser extends toolbox.html.TagParser {
     
     private final Tag aorLink = new AorLinkorForm();
     private final Tag img = new Img();
@@ -185,9 +185,9 @@ private static final class Parser extends toolbox.xml.TagParser {
     * servidor do forum. 
     ==================================================================================================================*/    
     @Override
-    public void openTag(toolbox.xml.Tag t) {
+    public toolbox.html.TagParser openTag(toolbox.html.Tag t) {
         
-        String tagName = t.getTagName();        
+        String tagName = t.getTagId();        
 
         HashMap<String, String> map = t.getAttrMap();
        
@@ -219,6 +219,8 @@ private static final class Parser extends toolbox.xml.TagParser {
             phantom.exception.ExceptionTools.crashMessage(null, e);
             
         }//try-catch
+        
+        return null;
         
     }//openTag
 
